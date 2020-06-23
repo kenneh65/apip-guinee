@@ -14,7 +14,6 @@ use PHPExcel_Writer_Excel2007;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class ImportationController extends Controller {
-
     /**
      * @Route("/{_locale}/parametrage/importer-dossier",name="importer_dossier")
      */
@@ -37,17 +36,14 @@ class ImportationController extends Controller {
 		$message = null;	
 				  
 		//$form = $this->createForm(new VillagesFilterType());
-		
-		
-        
-		
+
 		if($request->getMethod() == 'POST')
 		{
 
 			$file = $this->get('kernel')->getRootDir().'/../web/import/listedossiers';
 	    
 			if (!file_exists($file)) {
-				$message = "Erreur: fichier excel non trouvé !";
+				$message = "Erreur: fichier excel non trouvï¿½ !";
 				
 				$translated = $this->get('translator')->trans("fichier_excel_non_trouve");
 				$this->get('session')->getFlashBag()->add('info', $translated);
@@ -126,10 +122,6 @@ class ImportationController extends Controller {
 		}
        
     }
-
-	
-	
-	
 	/**
      * @Route("/{_locale}/parametrage/upload",name="upload_fichier")
      */
@@ -188,7 +180,5 @@ class ImportationController extends Controller {
    
         return $this->render('DefaultBundle:Default:importation.html.twig');
     }
-	
-	
-	
+
 }

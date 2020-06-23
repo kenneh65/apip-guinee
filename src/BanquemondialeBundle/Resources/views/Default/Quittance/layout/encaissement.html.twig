@@ -44,6 +44,11 @@
 					{%else%}
 						{% do form.entreprise.setRendered %}
 					{%endif%}
+                    <div class="form-group col-sm-4 col-xs-12">
+                        <label>{%trans%}mode_paiement{%endtrans%}</label>
+                        {{ form_errors(form.modePaiement,{'attr':{'class':'alert alert-danger'}}) }}
+                        {{ form_widget(form.modePaiement, {'attr': {'class': 'form-control'}}) }}
+                    </div>
                     <div style="margin:25px 0 0 15px">
                         <button type="submit"  class="btn btn-info">{%trans%}valider{%endtrans %} </button>
                     </div>                   

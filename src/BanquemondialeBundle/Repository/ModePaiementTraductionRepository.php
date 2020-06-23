@@ -32,4 +32,6 @@ class ModePaiementTraductionRepository extends EntityRepository
 		return $qb->getQuery()->getOneOrNullResult();
 		
 	}
+
+
 }

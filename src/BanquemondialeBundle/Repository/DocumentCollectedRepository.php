@@ -2799,4 +2799,124 @@ class DocumentCollectedRepository extends EntityRepository {
         return $tabResult;
     }
 
+
+    public function getDossierPartielPoleRetrait($user, $data, $idLangue, $idPole, $limit = 25, $statut = null, $idS = null) {
+
+        $sqlQuery = "SELECT  dd.statusRetrait statusRetrait,dc.id as idDocumentCollected,dd.id, dc.dateDelivrance as dateReception, (select concat(r.prenom,' ',r.nom) from representant r where r.idDossierDemande = dd.id order by id ASC limit 1) as gerant ,
+		(select count(*) from formulaireDelivre fd where fd.idDossierDemande = dc.idDossierDemande and fd.estRetire = 1) as formulairesRetires, 
+        (select count(dc2.idPole) from documentCollected dc2 where dc2.idDossierDemande = dc.idDossierDemande and dc2.idPole not in (select fd2.idPole from formulaireDelivre fd2 where fd2.idDossierDemande = dc2.idDossierDemande and fd2.estRetire = 1)  and dc2.idPole != 4) as nbrFormulaireRestant 
+		FROM documentCollected dc
+		join dossierDemande dd on dd.id = dc.idDossierDemande
+		join pole p on dc.idPole = p.id
+		WHERE dc.idStatutTraitement = 2 and p.id = 1 
+        and (select count(*) from formulaireDelivre fd 
+		where fd.idDossierDemande = dc.idDossierDemande and fd.idPole = dc.idPole and fd.estRetire = 1) > 0  
+         and 
+         (select count(dc2.idPole) from documentCollected dc2 where dc2.idDossierDemande = dc.idDossierDemande and dc2.idPole not in (select fd2.idPole from formulaireDelivre fd2 where fd2.idDossierDemande = dc2.idDossierDemande and fd2.estRetire = 1) 
+          and dc2.idPole != 4)  > 0
+          
+          
+         ";
+        $parameters = null;
+        if (isset($data['jours']) and $data['jours'] != '') {
+            $sqlQuery = $sqlQuery . " and (dc.dateDelivrance BETWEEN CURDATE() - INTERVAL :jours DAY AND CURDATE())";
+            $parameters['jours'] = $data['jours'];
+        }
+
+        if (isset($data['statusRetrait']) and $data['statusRetrait'] != '') {
+            $sqlQuery = $sqlQuery . " and dd.statusRetrait = :statusRetrait";
+            $parameters['statusRetrait'] = $data['statusRetrait'];
+        }
+        if (isset($data['numeroDossier']) and $data['numeroDossier'] != '') {
+            $sqlQuery = $sqlQuery . " and dd.numeroDossier = :numeroDossier";
+            $parameters['numeroDossier'] = $data['numeroDossier'];
+        }
+        if (isset($data['denominationSociale']) and $data['denominationSociale'] != '') {
+            $sqlQuery = $sqlQuery . " and LOWER(dd.denominationSociale) like :denominationSociale";
+            $parameters['denominationSociale'] = "%" . strtolower($data['denominationSociale']) . "%";
+        }
+        if (isset($data['gerant']) and $data['gerant'] != '') {
+            $sqlQuery = $sqlQuery . " and LOWER((select concat(r.prenom,' ',r.nom) from representant r where r.idDossierDemande = dd.id order by id ASC limit 1)) like :gerant";
+            $parameters['gerant'] = "%" . strtolower($data['gerant']) . "%";
+        }
+        if (isset($data['formeJuridique']) and $data['formeJuridique'] != '') {
+            $sqlQuery = $sqlQuery . " and LOWER(dd.idFormeJuridique) = :formeJuridique";
+            $parameters['formeJuridique'] = strtolower($data['formeJuridique']);
+        }
+        if ($statut) {
+            $sqlQuery = $sqlQuery . " and dc.idStatutTraitement =:statut";
+            $parameters['statut'] = $statut;
+        }
+        if (isset($data['dateCreationDebut']) and $data['dateCreationDebut'] != '') {
+            $dateCreationDebut = new DateTime($data['dateCreationDebut']);
+            $sqlQuery = $sqlQuery . " and DATEDIFF(dc.dateDelivrance,:dateCreationDebut)>=0";
+            $parameters['dateCreationDebut'] = $dateCreationDebut->format('Y-m-d');
+        }
+        if (isset($data['dateCreationFin']) and $data['dateCreationFin'] != '') {
+            $dateCreationFin = new DateTime($data['dateCreationFin']);
+            $sqlQuery = $sqlQuery . " and DATEDIFF(dc.dateDelivrance,:dateCreationFin)<=0";
+            $parameters['dateCreationFin'] = $dateCreationFin->format('Y-m-d');
+        }
+        if (isset($data['typeDossier']) and $data['typeDossier'] != '') {
+            $sqlQuery = $sqlQuery . " and dd.idTypeDossier = :typeDossier";
+            $parameters['typeDossier'] = $data['typeDossier'];
+        }
+        $sqlQuery = $sqlQuery . " ORDER BY dd.id DESC ";
+        if ($limit != null) {
+            $sqlQuery = $sqlQuery . " LIMIT " . $limit;
+        }
+        $stmt = $this->getEntityManager()->getConnection()->prepare($sqlQuery);
+        $stmt->execute($parameters);
+        $results = $stmt->fetchAll();
+        $tabResult = array();
+        $i = 0;
+        foreach ($results as $result) {
+            //die(dump($result));
+            $idDocumentCollected = $result['idDocumentCollected'];
+            $documentCollected = $this->getEntityManager()->getRepository('BanquemondialeBundle:DocumentCollected')->find($idDocumentCollected);
+
+            $tabResult[$i]['numeroDossier'] = $documentCollected->getDossierDemande()->getNumeroDossier();
+            $tabResult[$i]['denominationSociale'] = $documentCollected->getDossierDemande()->getDenominationSociale();
+            $tabResult[$i]['nomCommercial'] = $documentCollected->getDossierDemande()->getNomCommercial();
+            $tabResult[$i]['enseigne'] = $documentCollected->getDossierDemande()->getEnseigne();
+            $tabResult[$i]['telephone'] = $documentCollected->getDossierDemande()->getTelephone();
+            $tabResult[$i]['email'] = $documentCollected->getDossierDemande()->getEmail();
+            //$tabResult[$i]['fax'] = $documentCollected->getDossierDemande()->getFax();
+            $tabResult[$i]['region'] = $documentCollected->getDossierDemande()->getRegion();
+            $tabResult[$i]['dateCreation'] = $documentCollected->getDossierDemande()->getDateCreation();
+            $tabResult[$i]['orange'] = $documentCollected->isOrangePole();
+            $tabResult[$i]['red'] = $documentCollected->isRedPole();
+            $tabResult[$i]['dateSoumission'] = $documentCollected->getDateSoumission();
+            $tabResult[$i]['dateDelivrance'] = $documentCollected->getDateDelivrance();
+            $tabResult[$i]['duree'] = $documentCollected->getDuree();
+            $tabResult[$i]['id'] = $documentCollected->getDossierDemande()->getId();
+            $tabResult[$i]['statusRetrait'] = $documentCollected->getDossierDemande()->getStatusRetrait();
+            //var_dump($documentCollected->getDossierDemande()->getStatusRetrait());die();
+            $formJ = $documentCollected->getDossierDemande()->getFormeJuridique();
+            $idf = $formJ->getId();
+            $tabResult[$i]['idFormeJ'] = $idf;
+            $formJTrad = $this->getEntityManager()->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getLibelleFormeJuridiqueByLanque($idLangue, $idf);
+            ($formJTrad) ? $tabResult[$i]['libelleFormeJ'] = $formJTrad->getLibelle() : $tabResult[$i]['libelleFormeJ'] = "";
+            $idTyp = $documentCollected->getDossierDemande()->getTypeOperation()->getId();
+            $tabResult[$i]['idTypeOp'] = $idTyp;
+            $typDossier = $documentCollected->getDossierDemande()->getTypeDossier()->getLibelle();
+            $tabResult[$i]['typDossier'] = $typDossier;
+            $typeOpTrad = $this->getEntityManager()->getRepository('BanquemondialeBundle:TypeOperationTraduction')->getLibelleOperationByLanque($idLangue, $idTyp);
+            ($typeOpTrad) ? $tabResult[$i]['libelleTypeOp'] = $typeOpTrad->getLibelle() : $tabResult[$i]['libelleTypeOp'] = "";
+
+            $statutTraitement = $documentCollected->getStatutTraitement();
+            $tabResult[$i]['idStatutTraitement'] = $statutTraitement->getId();
+            $statutTraitementTraduction = $this->getEntityManager()->getRepository('BanquemondialeBundle:StatutTraitementTraduction')->getLibelleStatutTraitementByLangue($idLangue, $statutTraitement);
+            ($statutTraitementTraduction) ? $tabResult[$i]['libelleStatutTraitement'] = $statutTraitementTraduction->getLibelle() : $tabResult[$i]['libelleStatutTraitement'] = "";
+
+            $formJGerant = $this->getEntityManager()->getRepository('BanquemondialeBundle:Representant')->findOneByDossierDemande($documentCollected->getDossierDemande());
+            $tabResult[$i]['gerant'] = $formJGerant->getPrenom() . ' ' . $formJGerant->getNom();
+            $tabResult[$i]['telGerant'] = $formJGerant->getTelephone();
+
+            $i++;
+        }
+        //die(dump($tabResult));
+        return $tabResult;
+    }
+
 }

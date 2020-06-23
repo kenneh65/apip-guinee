@@ -1,0 +1,19 @@
+{% xlsdocument %}
+    {% xlssheet 'test excel' %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '18' } } } %}{% endxlscell %}
+        {% endxlsrow %}
+        {% xlsrow %}
+            {% xlscell %}Name{% endxlscell %}
+            {% xlscell %}Genre{% endxlscell %}
+            {% xlscell %}Age{% endxlscell %}
+            {% xlscell %}Adress{% endxlscell %}
+        {% endxlsrow %}
+            {% xlsrow %}
+                {% xlscell %} {{ persone['name'] }} {% endxlscell %}
+                {% xlscell %}{{ persone['Genre'] }}{% endxlscell %}
+                {% xlscell %}{{ persone['Age'] }}{% endxlscell %}
+                {% xlscell %}{{ persone['Adresse'] }}{% endxlscell %}
+            {% endxlsrow %}
+    {% endxlssheet %}
+{% endxlsdocument %}

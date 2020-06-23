@@ -2,6 +2,9 @@
 
 namespace BanquemondialeBundle\Form;
 
+use BanquemondialeBundle\Entity\ModePaiementTraduction;
+use BanquemondialeBundle\Repository\ModePaiementRepository;
+use BanquemondialeBundle\Repository\ModePaiementTraductionRepository;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\AbstractType;
 use BanquemondialeBundle\Repository\FormeJuridiqueTraductionRepository;
@@ -43,7 +46,7 @@ class RepartitionQuittanceSearchType extends AbstractType
 				
 		->add('debutPeriode', 'date', array('widget' =>'single_text', 'format' => 'dd-MM-yyyy','attr'=>array('placeholder' => 'message.placeholder.date'), 'required' => false,'mapped'=>false))
 		->add('finPeriode', 'date', array('widget' =>'single_text', 'format' => 'dd-MM-yyyy','attr'=>array('placeholder' => 'message.placeholder.date'), 'required' => false,'mapped'=>false))
-		->add('pole', 'entity', array('class' => 'ParametrageBundle:Pole','property' => 'nom','multiple' => false, 'placeholder' => '', 'required' =>false))
+		->add('pole', 'entity', array('class' => 'ParametrageBundle:Pole','property' => 'nom','multiple' => false, 'placeholder' => 'sélectionner un pole', 'required' =>false))
 		
 		->add('formeJuridique', 'entity', array('class' => 'BanquemondialeBundle:FormeJuridiqueTraduction','required' => false, 'query_builder' => function (		FormeJuridiqueTraductionRepository $formJ)use(&$opts) {
 				$langue = $opts['langue'];
@@ -55,6 +58,14 @@ class RepartitionQuittanceSearchType extends AbstractType
                     'query_builder' => function (EntrepriseRepository $entreprise) {
                         return $entreprise->getListCaisse();
                     },'property' => 'denomination','placeholder' => 'message.selectionner', 'required' => false))
+         ->add('modePaiement', 'entity', array(
+             'class' => 'BanquemondialeBundle:ModePaiementTraduction', 'property' => 'libelle','mapped'=>false,
+             'multiple' => false, 'placeholder' => 'sélectionner un mode de paiement', 'required' => false
+         ))
+//         ->add('modePaiement', 'entity', array('class' => 'BanquemondialeBundle:ModePaiementTraduction',
+//             'query_builder' => function (ModePaiementTraductionRepository $repository) {
+//                 return $repository->getModePaiement();
+//             },'property' => 'libelle','placeholder' => 'Selectionner un mode de paiement', 'required' => false))
 		;
 		
 		$builder->get('formeJuridique')->addModelTransformer(new CallbackTransformer(

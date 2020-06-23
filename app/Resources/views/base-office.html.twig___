@@ -2,13 +2,13 @@
 <html style="overflow-y: auto;" data-useragent="Mozilla/5.0 (Windows NT 6.1; rv:46.0) Gecko/20100101 Firefox/46.0" class="ua-windows_nt ua-windows_nt-6 ua-windows_nt-6-1 ua-gecko ua-gecko-46 ua-gecko-46-0 ua-firefox ua-firefox-46 ua-firefox-46-0 ua-desktop ua-desktop-windows js js flexbox canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" lang="fr-FR"><head>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108493575-1"></script>
-<script>
+<!-- <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'UA-108493575-1');
-</script>
+</script> -->
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title%} {%trans%}nom_application{%endtrans%}{% endblock %}</title>
@@ -18,6 +18,7 @@
         <link rel="apple-touch-icon-precomposed" sizes="144x144" href="">
 
         <meta property="og:description" content="GUIDE DES PROCÉDURES ADMINISTRATIVES">
+		<meta name="google-site-verification" content="5qxZBXk5lPbH2wAd2tbDGu1ogSdpJJUhWeqOGlmSErY" />
 
 
         {%block stylesheets%}
@@ -142,10 +143,10 @@
                                     </a>
                                     <div class="fusion-header-content-3-wrapper">
                                         <div class="fusion-secondary-menu-search col-md-6">
-                                            <form role="search" class="searchform" method="post" action="{{path('recherche_nom_commercial_Upadate')}}">
+                                            <form role="search" class="searchform" method="post" action="{{path('recherche_nom_commercial')}}">
                                                 <div class="search-table">
                                                     <div class="search-field">
-                                                        <input minlength="3" min="3" name="nomCommercial" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" class="input-sm" placeholder="{{'rechercher'|trans}}" type="text" required = "true">
+                                                        <input name="nomCommercial" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" class="input-sm" placeholder="{{'rechercher'|trans}}" type="text" required = "true">
                                                     </div>
                                                     <div class="search-button">
                                                         <button type="submit" class="btn btn-default searchsubmit fa fa-search" style="height:40px" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" type="submit"/></button>
@@ -168,14 +169,13 @@
 									<img src="{{asset('uploads/logo/logobm.png')}}" id="imageLogoPetit1" alt="" class="fusion-logo-1x fusion-standard-logo" style="height:50px;float:left;padding-top: 10px;"/>
 									<img src="{{asset('img/apli-logo.png')}}" id="imageLogoPetit2" alt="" class="fusion-logo-1x fusion-standard-logo" style="height:50px;float:left;margin-left:20px;padding-top: 10px;"/>
 									<a  data-toggle="collapse" data-target="#menuDeroulant" aria-expanded="true" class="elementMobile" style="margin:15px 0 0 20px;cursor: pointer;"><i class="fa fa-bars"></i></a>
-									<form role="search" class="searchform" method="post" action="{{path('recherche_nom_commercial_Upadate')}}">
+									<form role="search" class="searchform" method="post" action="{{path('recherche_nom_commercial')}}">
 										<div class="search-table elementMobile" style="width:150px;margin-top:10px">
 											<div class="search-field">
-												<input minlength="3" min="3" name="nomCommercial" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" class="input-sm" placeholder="{{'rechercher'|trans}}" type="text">
+												<input name="nomCommercial" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" class="input-sm" placeholder="{{'rechercher'|trans}}" type="text">
 											</div>
-{#                                            <input type="submit" value="test">#}
 											<div class="search-button">
-												<button type="submit" class="btn btn-default searchsubmitsss fa fa-search" style="height:40px" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" type="submit"/></button>
+												<button type="submit" class="btn btn-default searchsubmit fa fa-search" style="height:40px" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" type="submit"/></button>
 											</div>
 										</div>
                                     </form>

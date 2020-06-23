@@ -1,8 +1,8 @@
 ## YAML Template.
----
 langue.not_null_code: 'The code must not be null'
 langue.not_null_label : 'The label must not be null' 
 langue.min_message : 'The code must be at least 2 characters Long'
 langue.max_message : 'The code cannot be longer than 3 characters'
 language.unique : 'This code is already in use'
-region.not_null_label : The label must not be null.
+region.not_null_label : 'The label must not be null.'
+denomination_exist : 'Cette denomination existe déjà'

@@ -22,14 +22,17 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use \DateTime;
 
 //use Symfony\Component\HttpFoundation\JsonResponse;
+
 /**
  * Description of QuittanceController
  *
  * @author isow
  */
-class QuittanceController extends Controller {
+class QuittanceController extends Controller
+{
 
-    public function indexAction() {
+    public function indexAction()
+    {
 
         $message = '';
         $em = $this->getDoctrine()->getManager();
@@ -45,13 +48,15 @@ class QuittanceController extends Controller {
 //            if($user->getEntreprise()->getIsSiege()==true){
 //                $listQuittance = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceEnAttenteByParametres(null, $langue->getId(), $user->getId(), 25, null);
 //            }else{ }
-                $listQuittance = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceEnAttenteByParametres(null, $langue->getId(), $user->getId(), 25, $user->getEntreprise()->getSousPrefecture()->getId());
-           
-            
+            $listQuittance = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceEnAttenteByParametres(null, $langue->getId(), $user->getId(), 25, $user->getEntreprise()->getSousPrefecture()->getId());
+
+
         }
 
         if ($request->getMethod() == 'POST') {
+
             $data = $request->request->all()['quittances'];
+          ///  die(dump($data));
             $listQuittance = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceEnAttenteByParametres($data, $langue->getId(), $user->getId(), null);
             if ($user->getEntreprise() /* && $user->getEntreprise()->getIsSiege() == false */) {
                 if ($user->getEntreprise()->getSousPrefecture()) {
@@ -67,7 +72,8 @@ class QuittanceController extends Controller {
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/index.html.twig', array('form' => $form->createView(), 'message' => $message, 'listQuittance' => $listQuittance));
     }
 
-    public function reportingAction() {
+    public function reportingAction()
+    {
 
         $message = '';
         $em = $this->getDoctrine()->getManager();
@@ -99,7 +105,10 @@ class QuittanceController extends Controller {
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/reporting.html.twig', array('form' => $form->createView(), 'message' => $message, 'listQuittance' => $listQuittance));
     }
 
-    public function chargerAction($idq) {
+    public function chargerAction($idq)
+    {
+      //  die(dump($idq));
+       $this->get('monservices')->verifyQuittancePayementStstus($idq);
         $message = '';
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -109,13 +118,9 @@ class QuittanceController extends Controller {
         $idl = $langue->getId();
         $actualDate = new \DateTime();
         $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
-
-
-        //die(dump($quittance->getDatePaiement()));
         if ($quittance->getDatePaiement() == null) {
             $quittance->setDatePaiement($actualDate);
         }
-
         $quittance->setMontantVerse($quittance->getMontantTotalFacture());
         $dossierDemande = $quittance->getDossierDemande();
         $typeDossier = $dossierDemande->getTypeDossier();
@@ -124,7 +129,6 @@ class QuittanceController extends Controller {
         $nomCommercial = $quittance->getDenominationSociale();
         $poleCaisse = $user->getPole(); // $em->getRepository('ParametrageBundle:Pole')->getPoleCaisse();
         $documentCaisse = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('dossierDemande' => $dossierDemande->getId(), 'pole' => $poleCaisse->getId()));
-
         $definedFormeJuridiqueTraduction = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->findOneBy(array('formeJuridique' => $quittance->getFormeJuridique(), 'langue' => $langue));
         $definedModeTraduit = null;
         if ($quittance->getModePaiement()) {
@@ -140,7 +144,7 @@ class QuittanceController extends Controller {
                 $quittance->setMotif($motif);
                 $em->persist($quittance);
                 //Mise a documentacoolecter
-                if($documentCaisse){
+                if ($documentCaisse) {
                     $statutTraitementModifier = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(3);
                     $documentCaisse->setDateDerniereModification(new \DateTime());
                     $documentCaisse->setStatutTraitement($statutTraitementModifier);
@@ -154,7 +158,6 @@ class QuittanceController extends Controller {
                 }
                 $dossierDemande->setMotif($motif);
                 $em->persist($dossierDemande);
-
                 $em->flush();
                 $message = $this->get('translator')->trans('message_demande_modification_envoye');
                 $this->get('session')->getFlashBag()->add('info', $message);
@@ -163,6 +166,30 @@ class QuittanceController extends Controller {
                 $form->bind($request);
                 if ($form->isValid()) {
                     $data = $request->request->all()['quittance'];
+                    // var_dump($quittance->getModePaiement()->getId());die();
+                    // Recuperation du  Mode de payement Choisi par l'utilisateur
+                    $payMode = $quittance->getModePaiement()->getId();
+                    ///  Recuperation Mode de paiement 3 = Orange-Money dans la BAse de Donee
+                    $isOrangewebPay = $this->get('monservices')->getModePayement(3);
+                    ///> On test si le Mode de paiement Choisi est bien egale 3 (Orange-Money) dans la DB /////
+                    if ($payMode == $isOrangewebPay->getId()) {
+
+                        $session = $request->getSession();
+                        /// Supression  variables de session
+                        $session->remove('sessionData');
+                        $session->remove('sessionIdq');
+                        $session->remove('codLang');
+                        /// Creation  variables de session
+                        if (!$session->has('sessionData')) {
+                            $session->set('sessionData', $data);
+                            $session->set('sessionIdq', $idq);
+                            $session->set('codLang', $request->getLocale());
+                        }
+                        // On envoi un SMS===
+                        $this->get('monservices')->payementSmsOrange($data['telephone'],$dossierDemande);
+                        // ========= On redirige user sur la confirmation=======////////
+                        return $this->redirectToRoute('confirmation-payement-orange-money');
+                    }
                     $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
                     $quittance->setSerie($data['serie']);
                     $quittance->setNumeroVolume($data['numeroVolume']);
@@ -172,32 +199,27 @@ class QuittanceController extends Controller {
                     $natureRecette = $em->getRepository('BanquemondialeBundle:NatureRecette')->find($data['natureRecette']);
                     $quittance->setNatureRecette($natureRecette);
                     $montantVerse = $data['montantVerse'];
-
                     $modePaiement = $em->getRepository('BanquemondialeBundle:ModePaiementTraduction')->find($data['modePaiement'])->getModePaiement();
-
                     if ($montantVerse > $quittance->getMontantRestant()) {
                         $translated = $this->get('translator')->trans("message_paiement_superieur_facture");
                         $this->get('session')->getFlashBag()->add('info', $translated);
 
                         $quittance->setMontantVerse($montantVerse);
                         $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
-                    } else if ($montantVerse < $quittance->getMontantRestant()) {
+                    }
+                    else if ($montantVerse < $quittance->getMontantRestant()) {
                         $translated = $this->get('translator')->trans("message_paiement_inferieur_facture");
                         $this->get('session')->getFlashBag()->add('info', $translated);
-
                         $quittance->setMontantVerse($montantVerse);
                         $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
-                    } else {
+                    }
+                    else {
                         $quittance->setUtilisateur($user);
                         $quittance->setMontantVerse($montantVerse);
-
                         $quittance->setMontantRestant(0);
                         $quittance->setModePaiement($modePaiement);
-
                         $quittance->setIsPaid(true);
-
                         $em->persist($quittance);
-
                         //Mise à jour dossier demande pour le pole APIP -Cicuit depot -caisse -agent saisi
                         $poleAPIP = $em->getRepository('ParametrageBundle:Pole')->getPoleBySige("APIP");
                         $userDepot = $dossierDemande->getUtilisateurDepot();
@@ -221,17 +243,13 @@ class QuittanceController extends Controller {
                                 }
                             }
                         }
-
                         //mise a jour repartition facturation pour brouillard de caisse et autres
                         $listRepartitionQuittance = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findByDossierDemande($quittance->getDossierDemande());
-
                         if ($quittance->getDatePaiement() == null) {
                             $dateReceptionPaiement = new \DateTime();
                         } else {
                             $dateReceptionPaiement = $quittance->getDatePaiement();
                         }
-
-
                         //retrait de l'ancienne repartition du dossier						
                         foreach ($listRepartitionQuittance as $repartitionQuittance) {
                             $em->remove($repartitionQuittance);
@@ -250,6 +268,7 @@ class QuittanceController extends Controller {
                             $repartitionQuittance->setDossierDemande($dossierDemande);
                             $repartitionQuittance->setDatePaiement($dateReceptionPaiement);
                             $repartitionQuittance->setEntreprise($user->getEntreprise());
+                            $repartitionQuittance->setModePaiement($form->get('modePaiement')->getData());
                             $em->persist($repartitionQuittance);
                         }
                         foreach ($listFraisDossier as $frais) {
@@ -260,16 +279,15 @@ class QuittanceController extends Controller {
                             $repartitionQuittance->setDossierDemande($dossierDemande);
                             $repartitionQuittance->setDatePaiement($dateReceptionPaiement);
                             $repartitionQuittance->setEntreprise($user->getEntreprise());
+                            $repartitionQuittance->setModePaiement($form->get('modePaiement')->getData());
                             $em->persist($repartitionQuittance);
                         }
                         $em->flush();
-
                         //fin mise a jour repartition facturation
                         //Mise à Jour Document Collected
                         $statutEnDelivre = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(2);
                         $date = new \DateTime();
                         $documentSuivant = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPoleSuivant($documentCaisse->getOrdre(), $dossierDemande->getId());
-
                         if ($documentCaisse) {
                             //echo "<script>console.log( 'document caisse' );</script>";
                             $documentCaisse->setStatutTraitement($statutEnDelivre);
@@ -329,32 +347,21 @@ class QuittanceController extends Controller {
                                 }
                             }
                         }
-
                         //Fin mise a jour
-
                         $em->flush();
-
-
                         $translated = $this->get('translator')->trans("message_facture_payee");
                         $this->get('session')->getFlashBag()->add('info', $translated);
-
                         return $this->redirectToRoute('reporting_quittance');
                     }
                 }
-                /* }
-                  else{
-                  $message = $this->get('translator')->trans('numero_quittance_existe');
-                  } */
             }
-            //$form->setData($quittance);
         }
-
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/new.html.twig', array('form' => $form->createView(), 'nomCommercial' => $nomCommercial
-                    , 'message' => $message, 'quittance' => $quittance, 'definedFormeJuridiqueTraduction' => $definedFormeJuridiqueTraduction
-                    , 'montant' => $montant, 'dd' => $dossierDemande));
+        , 'message' => $message, 'quittance' => $quittance, 'definedFormeJuridiqueTraduction' => $definedFormeJuridiqueTraduction
+        , 'montant' => $montant, 'dd' => $dossierDemande));
     }
-
-    public function enregistrerAction() {
+    public function enregistrerAction()
+    {
 
         $message = '';
         $em = $this->getDoctrine()->getManager();
@@ -390,12 +397,11 @@ class QuittanceController extends Controller {
         }
 
         $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => null)), $quittance);
-
-
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/new.html.twig', array('form' => $form->createView(), 'message' => $message, 'quittance' => $quittance, 'definedFormeJuridiqueTraduction' => null));
     }
 
-    public function reportQuittanceAction($idq) {
+    public function reportQuittanceAction($idq)
+    {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $request = $this->get('request');
@@ -437,7 +443,8 @@ class QuittanceController extends Controller {
         }
     }
 
-    public function sauvergarderQuittanceDelivre($idq) {
+    public function sauvergarderQuittanceDelivre($idq)
+    {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
@@ -461,7 +468,6 @@ class QuittanceController extends Controller {
             //$lettre=new ChiffreEnLettre(); 
             $montantLettre = $this->Conversion($montant);
             $date = new \DateTime();
-
             $html = $this->renderView('BanquemondialeBundle:Default:Quittance/layout/visualiser.html.twig', array(
                 'quittance' => $quittance, 'definedFormeJuridiqueTraduction' => $definedFormeJuridiqueTraduction,
                 'definedModePaiementTraduction' => $definedModePaiementTraduction, 'montantLettre' => $montantLettre,
@@ -491,18 +497,17 @@ class QuittanceController extends Controller {
             if (!is_dir($temp)) {
                 mkdir($temp);
             }
-
             $em->flush();
             $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
             $html2pdf->pdf->SetDisplayMode('real');
             $html2pdf->writeHTML($html);
-
-
             $html2pdf->Output($cheminDownload . $dossierDemande->getId() . '\\' . $nomFichier, 'F');
         }
     }
 
-    public function reportAttestationPayementAction($idq) {
+    public function reportAttestationPayementAction($idq)
+    {
+
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $request = $this->get('request');
@@ -538,52 +543,47 @@ class QuittanceController extends Controller {
         }
     }
 
-    public function brouillardCaisseAction() {
+    public function brouillardCaisseAction()
+    {
 
+        $poleChoisi=0;
+        $formeJuridique=0;
+        $modePaiement=0;
         $message = '';
         $montantTotal = 0;
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $entreprise = $user->getEntreprise()->getId();
         $request = $this->get('request');
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $idLangue = $langue->getId();
-        //$formeJTraduit = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->findOneBy(array('langue' => $langue));
-        //$poles = $em->getRepository('ParametrageBundle:Pole')->findBy(array('actif' => true));
         $poles = $em->getRepository('ParametrageBundle:Pole')->getPolesQuittance();
-        $poleChoisi = null;
-        $formeJuridique = null;
         $form = $this->createForm(new RepartitionQuittanceSearchType(array('langue' => $langue)));
         $form->bind($request);
-
-        $entreprise = $user->getEntreprise()->getId();
-        $datedebut = $date = new \DateTime();
-        $datefin = $date = new \DateTime();
+        $datedebut = $date = date_format(new \DateTime(),'Y-m-d');
+        $datefin = $date = date_format(new \DateTime(),'Y-m-d');
         $nomCaisse = null;
 
         if ($request->getMethod() == 'POST') {
             $data = $request->request->all()['repartitionType'];
-
-            $datedebut = $data['debutPeriode'];
-            $datefin = $data['finPeriode'];
-            $poleChoisi = $data['pole'];
-            $formeJuridique = $data['formeJuridique'];
+            if (!empty( $data['debutPeriode'])) $datedebut = $data['debutPeriode'];
+           if (!empty($data['finPeriode'])) $datefin = $data['finPeriode'];
+            if (!empty( $data['pole'])) $poleChoisi = $data['pole'];
+            if (!empty($data['formeJuridique']))$formeJuridique = $data['formeJuridique'];
+            if (!empty($data['modePaiement'])) {
+                $modePaiement = $data['modePaiement'];
+            }
             if (array_key_exists("entreprise", $data)) {
-                $entreprise = $data['entreprise'];
+                if (!empty($data['entreprise'])) $entreprise = $data['entreprise'];
                 $caisse = $em->getRepository('BanquemondialeBundle:Entreprise')->find($entreprise);
-                if ($caisse) {
+                if (!empty($caisse)) {
                     $nomCaisse = $caisse->getDenomination();
                 }
             }
-
-
-            $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique);
-            //die(dump($totaux));
-            $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, null, $formeJuridique, $idLangue);
-            //die(dump($repartitions));
-
-
-            if ($poleChoisi) {
+            $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique,$modePaiement);
+            $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, null, $formeJuridique, $idLangue,$modePaiement);
+            if (!empty($poleChoisi)) {
                 $poles = $em->getRepository('ParametrageBundle:Pole')->find($poleChoisi);
 
                 $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardPoleByParameters($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue);
@@ -592,36 +592,69 @@ class QuittanceController extends Controller {
                     $montant = $repartition['montant'];
                     $montantTotal = $montantTotal + $montant;
                 }
-            } else {
+            }
+            else {
                 foreach ($totaux as $total) {
                     $montant = $total['montant'];
                     $montantTotal = $montantTotal + $montant;
                 }
             }
-            //die(dump($repartitions));
+         //   die(dump("DateDebu=$datedebut  ; DateFin=$datefin ; entreprise= $entreprise ; poleChoisi= $poleChoisi ; formeJuridique=  $formeJuridique ; modePaiement= $modePaiement ;idLangue= $idLangue"));
 
-            return $this->render('BanquemondialeBundle:Default:Quittance/layout/brouillard.html.twig', array('message' => $message, 'repartitions' => $repartitions, 'montantTotal' => $montantTotal, 'poles' => $poles, 'totaux' => $totaux, 'poleChoisi' => $poleChoisi, 'dateDebut' => $datedebut, 'dateFin' => $datefin, 'nomCaisse' => $nomCaisse, 'form' => $form->createView()));
+            return $this->render('BanquemondialeBundle:Default:Quittance/layout/brouillard.html.twig', array(
+                'message' => $message,
+                'repartitions' => $repartitions,
+                'montantTotal' => $montantTotal,
+                'poles' => $poles,
+                'totaux' => $totaux,
+                'poleChoisi' => $poleChoisi,
+                'dateDebut' => $datedebut,
+                'dateFin' => $datefin,
+                'nomCaisse' => $nomCaisse,
+                'form' => $form->createView(),
+
+                'formeJuridique'=>$formeJuridique,
+                'modePaiement'=>$modePaiement,
+                'entreprise'=>$entreprise,
+                'idLangue'=>$idLangue,
+            ));
         }
 
-        $data = null;
         $actualDate = new \DateTime();
         $actualDate = $actualDate->format('Y-m-d H:i:s');
-        //die(dump($actualDate));
-        $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($actualDate, $actualDate, $entreprise, null, null, $idLangue);
-        //die(dump($repartitions));
-        $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($actualDate, $actualDate, $entreprise, null, null);
-
-        //die(dump($totaux));
-
+        $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($actualDate, $actualDate, $entreprise, $poleChoisi, $formeJuridique, $idLangue);
+        $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($actualDate, $actualDate, $entreprise, $poleChoisi, $formeJuridique);
         foreach ($totaux as $total) {
             $montant = $total['montant'];
             $montantTotal = $montantTotal + $montant;
         }
 
-        return $this->render('BanquemondialeBundle:Default:Quittance/layout/brouillard.html.twig', array('message' => $message, 'repartitions' => $repartitions, 'montantTotal' => $montantTotal, 'poles' => $poles, 'poleChoisi' => $poleChoisi, 'totaux' => $totaux, 'dateDebut' => $datedebut, 'dateFin' => $datefin, 'nomCaisse' => $nomCaisse, 'form' => $form->createView()));
+       // die(dump("DateDebu=".date_format($datedebut,'Y-m-d')."  ; DateFin=". date_format($datefin,'Y-m-d')." ; entreprise= $entreprise ; poleChoisi= $poleChoisi ; formeJuridique=  $formeJuridique ; modePaiement= $modePaiement ;idLangue= $idLangue"));
+        return $this->render('BanquemondialeBundle:Default:Quittance/layout/brouillard.html.twig', array(
+            'message' => $message,
+            'repartitions' => $repartitions,
+            'montantTotal' => $montantTotal,
+            'poles' => $poles,
+            'poleChoisi' => $poleChoisi,
+            'totaux' => $totaux,
+            'dateDebut' => $datedebut,
+            'dateFin' => $datefin,
+            'nomCaisse' => $nomCaisse,
+            'form' => $form->createView(),
+
+            'formeJuridique'=>$formeJuridique,
+            'modePaiement'=>$modePaiement,
+            'entreprise'=>$entreprise,
+            'idLangue'=>$idLangue,
+
+
+        ));
     }
 
-    public function repartitionEncaissementAction() {
+
+
+    public function repartitionEncaissementAction()
+    {
 
         $message = '';
         $montantTotal = 0;
@@ -638,25 +671,31 @@ class QuittanceController extends Controller {
         $entreprise = $user->getEntreprise()->getId();
 
 
-
         if ($request->getMethod() == 'POST') {
             $data = $request->request->all()['repartitionType'];
 
             $datedebut = $data['debutPeriode'];
             $datefin = $data['finPeriode'];
+            $modePaiement = $data['modePaiement'];
 
             if (array_key_exists("entreprise", $data)) {
                 $entreprise = $data['entreprise'];
             }
 
-            $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise);
+            $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise,$modePaiement);
 
             foreach ($repartitions as $repartition) {
                 $montant = $repartition['montant'];
                 $montantTotal = $montantTotal + $montant;
             }
 
-            return $this->render('BanquemondialeBundle:Default:Quittance/layout/encaissement.html.twig', array('message' => $message, 'repartitions' => $repartitions, 'montantTotal' => $montantTotal, 'form' => $form->createView()));
+            return $this->render('BanquemondialeBundle:Default:Quittance/layout/encaissement.html.twig', array(
+                    'message' => $message,
+                    'repartitions' => $repartitions,
+                    'montantTotal' => $montantTotal,
+                    'form' => $form->createView()
+                )
+            );
         }
 
         $data = null;
@@ -669,8 +708,8 @@ class QuittanceController extends Controller {
 
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/encaissement.html.twig', array('message' => $message, 'repartitions' => $repartitions, 'montantTotal' => $montantTotal, 'form' => $form->createView()));
     }
-
-    public function caissePoleAction() {
+    public function caissePoleAction()
+    {
 
         $message = '';
         $montantTotal = 0;
@@ -705,7 +744,6 @@ class QuittanceController extends Controller {
 
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/brouillardPole.html.twig', array('repartitions' => $repartitions, 'montantTotal' => $montantTotal, 'form' => $form->createView()));
     }
-
     //NE GERE PAS TOUT (les pluriels...)
     #Variables
     public $leChiffreSaisi;
@@ -714,7 +752,8 @@ class QuittanceController extends Controller {
 
     #Fonction de conversion appelÃ©e dans la feuille principale
 
-    function Conversion($sasie) {
+    function Conversion($sasie)
+    {
         $this->enLettre = '';
         $sasie = trim($sasie);
 
@@ -722,7 +761,7 @@ class QuittanceController extends Controller {
         $nombre = '';
         $laSsasie = explode(' ', $sasie);
         foreach ($laSsasie as $partie)
-            $nombre.=$partie;
+            $nombre .= $partie;
 
         #suppression des zÃ©ros qui prÃ©cÃ©deraient la saisie
         $nb = strlen($nombre);
@@ -811,7 +850,8 @@ class QuittanceController extends Controller {
 
     #Gestion des millions
 
-    function Million($nombre, $unite, $dizaine, $centaine, $mille, $million) {
+    function Million($nombre, $unite, $dizaine, $centaine, $mille, $million)
+    {
         #si les mille comportent un seul chiffre
         #$cent represente les 3 premiers chiffres du chiffre ex: 321 dans 12502321
         #$mille represente les 3 chiffres qui suivent les cents ex: 502 dans 12502321
@@ -822,23 +862,23 @@ class QuittanceController extends Controller {
 
         if (strlen($million) == 1) {
             $mille = substr($nombre, 1, 3);
-            $this->enLettre.=$this->chiffre[$million];
+            $this->enLettre .= $this->chiffre[$million];
             if ($million == 1) {
-                $this->enLettre.=' million ';
+                $this->enLettre .= ' million ';
             } else {
-                $this->enLettre.=' millions ';
+                $this->enLettre .= ' millions ';
             }
         } elseif (strlen($million) == 2) {
             $mille = substr($nombre, 2, 3);
             $nombre = substr($nombre, 0, 2);
             //echo $nombre;
             $this->Dizaine(0, $nombre, $unite, $dizaine);
-            $this->enLettre.='millions ';
+            $this->enLettre .= 'millions ';
         } elseif (strlen($million) == 3) {
             $mille = substr($nombre, 3, 3);
             $nombre = substr($nombre, 0, 3);
             $this->Centaine(0, $nombre, $unite, $dizaine, $centaine);
-            $this->enLettre.='millions ';
+            $this->enLettre .= 'millions ';
         }
 
         #recuperation des cens dans nombre
@@ -878,17 +918,17 @@ class QuittanceController extends Controller {
             #AffichageResultat($enLettre);
             elseif ($nb == 1) {
                 if ($mille == 1)
-                    $this->enLettre.='mille ';
+                    $this->enLettre .= 'mille ';
                 else {
                     $this->Unite($mille);
-                    $this->enLettre.='mille ';
+                    $this->enLettre .= 'mille ';
                 }
             } elseif ($nb == 2) {
                 $this->Dizaine(1, $mille, $unite, $dizaine);
-                $this->enLettre.='mille ';
+                $this->enLettre .= 'mille ';
             } elseif ($nb == 3) {
                 $this->Centaine(1, $mille, $unite, $dizaine, $centaine);
-                $this->enLettre.='mille ';
+                $this->enLettre .= 'mille ';
             }
             #Gestion des cents
             #suppression des zÃ©ros qui prÃ©cÃ©deraient les cents dans $cent
@@ -919,19 +959,19 @@ class QuittanceController extends Controller {
 
     #Gestion des milles
 
-    function Mille($nombre, $unite, $dizaine, $centaine, $mille) {
+    function Mille($nombre, $unite, $dizaine, $centaine, $mille)
+    {
         #si les mille comportent un seul chiffre
         #$cent represente les 3 premiers chiffres du chiffre ex: 321 dans 12321
         if (strlen($mille) == 1) {
             $cent = substr($nombre, 1);
             #si ce chiffre=1
             if ($mille == 1)
-                $this->enLettre.='';
+                $this->enLettre .= '';
             #si ce chiffre<>1
             elseif ($mille <> 1)
-                $this->enLettre.=$this->chiffre[$mille];
-        }
-        elseif (strlen($mille) > 1) {
+                $this->enLettre .= $this->chiffre[$mille];
+        } elseif (strlen($mille) > 1) {
             if (strlen($mille) == 2) {
                 $cent = substr($nombre, 2);
                 $nombre = substr($nombre, 0, 2);
@@ -946,7 +986,7 @@ class QuittanceController extends Controller {
             }
         }
 
-        $this->enLettre.='mille ';
+        $this->enLettre .= 'mille ';
         #recuperation des cens dans nombre
         #suppression des zÃ©ros qui prÃ©cÃ©deraient la saisie
         $nb = strlen($cent);
@@ -974,7 +1014,8 @@ class QuittanceController extends Controller {
 
     #Gestion des centaines
 
-    function Centaine($inmillier, $nombre, $unite, $dizaine, $centaine) {
+    function Centaine($inmillier, $nombre, $unite, $dizaine, $centaine)
+    {
 
         $unite = substr($nombre, 2);
         $dizaine = substr($nombre, 1, 1);
@@ -982,43 +1023,40 @@ class QuittanceController extends Controller {
         #comme 700
         if ($unite == 0 and $dizaine == 0) {
             if ($centaine == 1)
-                $this->enLettre.='cent';
+                $this->enLettre .= 'cent';
             elseif ($centaine <> 1) {
                 if ($inmillier == 0)
-                    $this->enLettre.=($this->chiffre[$centaine] . ' cents') . ' ';
+                    $this->enLettre .= ($this->chiffre[$centaine] . ' cents') . ' ';
                 if ($inmillier == 1)
-                    $this->enLettre.=($this->chiffre[$centaine] . ' cent') . ' ';
+                    $this->enLettre .= ($this->chiffre[$centaine] . ' cent') . ' ';
             }
-        }
-        #comme 705
+        } #comme 705
         elseif ($unite <> 0 and $dizaine == 0) {
             if ($centaine == 1)
-                $this->enLettre.=('cent ' . $this->chiffre[$unite]) . ' ';
+                $this->enLettre .= ('cent ' . $this->chiffre[$unite]) . ' ';
             elseif ($centaine <> 1)
-                $this->enLettre.=($this->chiffre[$centaine] . ' cent ' . $this->chiffre[$unite]) . ' ';
-        }
-        //comme 750
+                $this->enLettre .= ($this->chiffre[$centaine] . ' cent ' . $this->chiffre[$unite]) . ' ';
+        } //comme 750
         elseif ($unite == 0 and $dizaine <> 0) {
             #recupÃ©ration des dizaines
             $nombre = substr($nombre, 1);
             //echo '<br />nombre='.$nombre.'<br />';
             if ($centaine == 1) {
-                $this->enLettre.='cent ';
+                $this->enLettre .= 'cent ';
                 $this->Dizaine(0, $nombre, $unite, $dizaine) . ' ';
             } elseif ($centaine <> 1) {
-                $this->enLettre.=$this->chiffre[$centaine] . ' cent ';
+                $this->enLettre .= $this->chiffre[$centaine] . ' cent ';
                 $this->Dizaine(0, $nombre, $unite, $dizaine) . ' ';
             }
-        }
-        #comme 695
+        } #comme 695
         elseif ($unite <> 0 and $dizaine <> 0) {
             $nombre = substr($nombre, 1);
 
             if ($centaine == 1) {
-                $this->enLettre.='cent ';
+                $this->enLettre .= 'cent ';
                 $this->Dizaine(0, $nombre, $unite, $dizaine) . ' ';
             } elseif ($centaine <> 1) {
-                $this->enLettre.=($this->chiffre[$centaine] . ' cent ');
+                $this->enLettre .= ($this->chiffre[$centaine] . ' cent ');
                 $this->Dizaine(0, $nombre, $unite, $dizaine) . ' ';
             }
         }
@@ -1026,51 +1064,51 @@ class QuittanceController extends Controller {
 
     #Gestion des dizaines
 
-    function Dizaine($inmillier, $nombre, $unite, $dizaine) {
+    function Dizaine($inmillier, $nombre, $unite, $dizaine)
+    {
         $unite = substr($nombre, 1);
         $dizaine = substr($nombre, 0, 1);
 
         #comme 70
         if ($unite == 0) {
             $val = $dizaine . '0';
-            $this->enLettre.=$this->chiffre[$val];
+            $this->enLettre .= $this->chiffre[$val];
             if ($inmillier == 0 && $val == 80) {
-                $this->enLettre.='s ';
+                $this->enLettre .= 's ';
             }
-            $this->enLettre.=' ';
-        }
-        #comme 71
+            $this->enLettre .= ' ';
+        } #comme 71
         elseif ($unite <> 0)
-        #dizaine different de 9
+            #dizaine different de 9
             if ($dizaine <> 9 and $dizaine <> 7) {
                 if ($dizaine == 1) {
                     $val = $dizaine . $unite;
-                    $this->enLettre.=$this->chiffre[$val] . ' ';
+                    $this->enLettre .= $this->chiffre[$val] . ' ';
                 } else {
                     $val = $dizaine . '0';
                     if ($unite == 1 && $dizaine <> 8) {
-                        $this->enLettre.=($this->chiffre[$val] . ' et ' . $this->chiffre[$unite]) . ' ';
+                        $this->enLettre .= ($this->chiffre[$val] . ' et ' . $this->chiffre[$unite]) . ' ';
                     } else {
-                        $this->enLettre.=($this->chiffre[$val] . '-' . $this->chiffre[$unite]) . ' ';
+                        $this->enLettre .= ($this->chiffre[$val] . '-' . $this->chiffre[$unite]) . ' ';
                     }
                 }
-            }
-            #dizaine =9
+            } #dizaine =9
             elseif ($dizaine == 9)
-                $this->enLettre.=($this->chiffre[80] . '-' . $this->chiffre['1' . $unite]) . ' ';
+                $this->enLettre .= ($this->chiffre[80] . '-' . $this->chiffre['1' . $unite]) . ' ';
             elseif ($dizaine == 7) {
                 if ($unite == 1) {
-                    $this->enLettre.=($this->chiffre[60] . ' et ' . $this->chiffre['1' . $unite]) . ' ';
+                    $this->enLettre .= ($this->chiffre[60] . ' et ' . $this->chiffre['1' . $unite]) . ' ';
                 } else {
-                    $this->enLettre.=($this->chiffre[60] . '-' . $this->chiffre['1' . $unite]) . ' ';
+                    $this->enLettre .= ($this->chiffre[60] . '-' . $this->chiffre['1' . $unite]) . ' ';
                 }
             }
     }
 
     #Gestion des unitÃ©s
 
-    function Unite($unite) {
-        $this->enLettre.=($this->chiffre[$unite]) . ' ';
+    function Unite($unite)
+    {
+        $this->enLettre .= ($this->chiffre[$unite]) . ' ';
     }
 
     //}

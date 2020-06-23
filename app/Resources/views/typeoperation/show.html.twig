@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>typeOperation</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ typeOperation.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ typeOperation.name }}</td>
+            </tr>
+            <tr>
+                <th>Encour</th>
+                <td>{% if typeOperation.encour %}Yes{% else %}No{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('typeoperationEncours_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('typeoperationEncours_edit', { 'id': typeOperation.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}

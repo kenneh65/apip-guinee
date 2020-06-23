@@ -1,0 +1,104 @@
+{%if poleChoisi%}
+    <table id="repartition" class=" table-striped table table-bordered table-responsive" >
+        <thead>
+        <tr>
+            <th>{%trans%}forme_juridique{%endtrans%}</th>
+            <th>{{ poles.nom|trans }}</th>
+        </tr>
+        </thead>
+        {% for repartition in repartitions %}
+            <tr>
+                <td>{{ repartition.formeJuridique }}</td>
+                <td class="text-right">{{ repartition.montant|number_format(0, '.', '  ') }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td><strong>{% trans %}total{% endtrans %}<strong></td>
+            <td class="text-right"><strong>{{ montantTotal|number_format(0, '.', '  ') }}</strong></td>
+        </tr>
+
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%else%}
+    <table id="repartition" class=" table-striped table table-bordered" >
+        <thead>
+        <tr>
+            <th>{%trans%}forme_juridique{%endtrans%}</th>
+            {% for pole in poles %}
+                <th>{{ pole.nom|trans }}</th>
+            {% endfor %}
+            <th>{%trans%}montant{%endtrans%}</th>
+        </tr>
+        </thead>
+        {% for repartition in repartitions %}
+            <tr>
+                <td>{{ repartition.formeJuridique }}</td>
+                {% set sousTotal = 0%}
+                {% for pole in poles %}
+                    {% set frein = 0 %}
+                    {% for montant in repartition.listeMontant %}
+                        {% if montant.idPole == pole.id %}
+                            <td class="text-right">{{ montant.sommeMontant |number_format(0, '.', ',') }}</td>
+                            {% set frein = 1 %}
+                            {%  set sousTotal = sousTotal+montant.sommeMontant %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if frein == 0 %}
+                        <td class="text-right">0</td>
+                    {% endif %}
+                {% endfor %}
+                <td class="text-right"><strong>{{ sousTotal |number_format(0, '.', ',') }}</strong></td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td><strong>{% trans %}total{% endtrans %}<strong></td>
+            {% for pole in poles %}
+                {% set frein2 = 0 %}
+                {% for total in totaux %}
+                    {% if total.pole == pole.nom %}
+                        <td class="text-right"><strong>{{ total.montant |number_format(0, '.', ',') }}</strong></td>
+                        {% set frein2 = 1 %}
+                    {% endif %}
+                {% endfor %}
+                {% if frein2 == 0 %}
+                    <td class="text-right"><strong>0</strong></td>
+                {% endif %}
+            {% endfor %}
+            <td class="text-right"><strong>{{ montantTotal |number_format(0, '.', ',') }}</strong></td>
+        </tr>
+    </table>
+{%endif%}

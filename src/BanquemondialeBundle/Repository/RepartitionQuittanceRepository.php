@@ -13,17 +13,21 @@ use \DateTime;
  */
 class RepartitionQuittanceRepository extends EntityRepository {
 
-    public function findRepartitionQuittanceByParametres($dateDebut, $dateFin, $entreprise, $idPole = null, $formeJuridique = null) {
+    public function findRepartitionQuittanceByParametres($dateDebut, $dateFin, $entreprise, $idPole = null, $formeJuridique = null,$modePaiement=null) {
         $query = $this->createQueryBuilder('a')
                 ->select('IDENTITY(a.pole)', 'SUM(a.montantVerse)')
                 ->leftJoin('a.dossierDemande', 'd')
                 ->groupBy('a.pole');
 
-		if ($entreprise != '') {
+		if ( !empty($entreprise)) {
 			$query->andWhere('a.entreprise =:entreprise ')
 			->setParameter('entreprise', $entreprise);
         }
-		
+		if (!empty($modePaiement)) {
+			$query->andWhere('IDENTITY(a.modePaiement)=:modePaiement')
+			->setParameter('modePaiement', $modePaiement);
+        }
+
         if ($dateDebut != '') {
             $query->andWhere('DATE_DIFF(a.datePaiement,:dateDebut)>=0')
                     ->setParameter('dateDebut', new DateTime($dateDebut));
@@ -42,20 +46,18 @@ class RepartitionQuittanceRepository extends EntityRepository {
                     ->setParameter('dateDebut', new DateTime($today));
         }
 
-        if ($idPole != null) {
+        if (!empty($idPole)) {
             $query->andWhere('a.pole = :pole')->setParameter('pole', $idPole);
         }
 
-        if ($formeJuridique != null) {
+        if ( !empty($formeJuridique)) {
             $query->andWhere('d.formeJuridique = :formeJuridique')->setParameter('formeJuridique', $formeJuridique);
         }
-
 
         $query->orderBy('a.id', 'desc');
 
         $results = $query->getQuery()->getResult();
 		//die(dump($entreprise));
-
 
         //die(dump($query->getQuery()));
         $tabResult = array();
@@ -76,15 +78,19 @@ class RepartitionQuittanceRepository extends EntityRepository {
         return $tabResult;
     }
 
-    public function findBrouillardByParametres($dateDebut, $dateFin, $entreprise, $idPole = null, $formeJuridique = null, $idLangue = null) {
+    public function findBrouillardByParametres($dateDebut, $dateFin, $entreprise, $idPole = null, $formeJuridique = null, $idLangue = null,$modePaiement=null) {
 
-        $query = "SELECT distinct(d.idFormeJuridique), d.denominationSociale FROM repartitionquittance r join dossierDemande d on r.idDossierDemande = d.id where 1=1 ";
+        $query = "SELECT distinct(d.idFormeJuridique), d.denominationSociale FROM repartitionquittance r join dossierDemande d on r.idDossierDemande = d.id inner join ModePaiement md  on md.id= r.idModePaiement ";
 
-		if ($entreprise != '') {
+		if ( !empty($entreprise)) {
 			//die(dump($entreprise));
             $query = $query . " and r.idEntreprise =  " . $entreprise;
         }
-		
+		if (!empty($modePaiement)) {
+
+            $query = $query . " and  r.idModePaiement =  " . $modePaiement;
+        }
+
         if ($dateDebut != '') {
             $dateDebutInverse = new DateTime($dateDebut);
 
@@ -103,7 +109,7 @@ class RepartitionQuittanceRepository extends EntityRepository {
             $query = $query . " and DATEDIFF(r.datePaiement, '" . $dateDebutInverse->format('Y-m-d H:i:s') . "') >= 0 and DATEDIFF(r.datePaiement, '" . $dateFinInverse->format('Y-m-d H:i:s') . "') <= 0 ";
         }
 
-        if ($formeJuridique != null) {
+        if ( !empty($formeJuridique)) {
             $query = $query . " and d.idFormeJuridique =  " . $formeJuridique;
         }
 
@@ -124,7 +130,10 @@ class RepartitionQuittanceRepository extends EntityRepository {
 			if ($entreprise != '') {
 				$slqRequete = $slqRequete . " and r.idEntreprise =  " . $entreprise;
 			}
-			
+			if (!empty($modePaiement)) {
+				$slqRequete = $slqRequete . " and r.idModePaiement  =  " . $modePaiement;
+			}
+
             if ($dateDebut != '') {
                 $slqRequete = $slqRequete . " and DATEDIFF(r.datePaiement,'" . $dateDebutInverse->format('Y-m-d H:i:s') . "') >= 0";
             }
@@ -140,7 +149,7 @@ class RepartitionQuittanceRepository extends EntityRepository {
                 $slqRequete = $slqRequete . " and DATEDIFF(r.datePaiement, '" . $dateDebutInverse->format('Y-m-d H:i:s') . "') >= 0 and DATEDIFF(r.datePaiement, '" . $dateFinInverse->format('Y-m-d H:i:s') . "') <= 0";
             }
 
-            if ($idPole != null) {
+            if ( !empty($idPole)) {
                 $slqRequete = $slqRequete . "and r.idPole = " . $idPole;
             }
 
@@ -175,15 +184,21 @@ class RepartitionQuittanceRepository extends EntityRepository {
         return $tabResult;
     }
 
-    public function findBrouillardPoleByParameters($dateDebut, $dateFin, $entreprise, $idPole, $formeJuridique = null, $idLangue = null) {
+    public function findBrouillardPoleByParameters($dateDebut, $dateFin, $entreprise, $idPole, $formeJuridique = null, $idLangue = null,$modePaiement=null) {
         $query = $this->createQueryBuilder('a')->join('a.dossierDemande', 'd')
                 ->join('d.formeJuridique', 'f')
+                ->innerJoin('a.modePaiement','md')
                 ->select('IDENTITY(a.pole)', 'SUM(a.montantVerse) as montant', 'a.datePaiement', 'd.numeroDossier', 'd.denominationSociale', 'f.id')
                 ->where('a.pole = :pole')->setParameter('pole', $idPole)
                 ->andWhere('a.datePaiement is not null');
 
-		
-		if ($entreprise != '') {
+
+        if (!empty($modePaiement)) {
+            $query->andWhere('IDENTITY(a.modePaiement)=:modePaiement')
+                ->setParameter('modePaiement', $modePaiement);
+        }
+
+		if ( !empty($entreprise)) {
 			$query->andWhere('a.entreprise =:entreprise ')
 			->setParameter('entreprise', $entreprise);
         }
@@ -209,7 +224,7 @@ class RepartitionQuittanceRepository extends EntityRepository {
                     ->setParameter('dateDebut', new DateTime($today));
         }
 
-        if ($formeJuridique != null) {
+        if ( !empty($formeJuridique)) {
             $query->andWhere('d.formeJuridique = :formeJuridique')->setParameter('formeJuridique', $formeJuridique);
         }
 

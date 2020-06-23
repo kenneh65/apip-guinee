@@ -37,6 +37,7 @@ class QuittanceType extends AbstractType {
                 ->add('montantTotalFacture', 'number', array('required' => false))
                 ->add('montantVerse', 'number', array('required' => false))
                 ->add('numeroQuittance', 'text', array('required' => true))
+                ->add('telephone', null, array('mapped'=>false,'attr' => array('required' => false, 'placeholder' => '(+224) 999-99-99-99')))
                 //->add('formeJuridiqueTraduction','text',array('required' => false,'mapped'=>false))
                 ->add('formeJuridique', 'entity', array(
                     'class' => 'BanquemondialeBundle:FormeJuridiqueTraduction',

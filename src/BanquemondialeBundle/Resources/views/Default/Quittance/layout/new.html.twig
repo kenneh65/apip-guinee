@@ -10,6 +10,28 @@
 
     <div class="panel-body">
 
+        <div class="row">
+            <div class="col-md-12">
+                {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                    <div style="color: white;background:green"
+                         class="alert alert-message-warning text-center " role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <strong>{{flashMessage|raw }} </strong>
+                    </div>
+                {% endfor %}
+                {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                    <div style="color: white;background:#ff5a2f"
+                         class="alert alert-message-warning text-center " role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <strong>{{flashMessage|raw }} </strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
         <div class="panel-body">
             <h1 class="page-header">{%trans%}message_nouvelle_quittance_titre{%endtrans%}</h1>
             {% for message in app.session.flashbag.get('info') %}            
@@ -17,20 +39,25 @@
                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                     <strong>{{ message }}</strong>
                 </div>
-            {% endfor %} 
-
-
-            <form id="form" action="{{path('traiter_quittance',{'idq':quittance.id})}}" data-toggle="validator"  method="POST" {{ form_enctype(form)}} >     
-
+            {% endfor %}
+            <form id="form" action="{{path('traiter_quittance',{'idq':quittance.id})}}" data-toggle="validator"  method="POST" {{ form_enctype(form)}} >
                 <div class="row">
                     <div class="form-group col-sm-4">                               
                         <label>{%trans%}numero_dossier{%endtrans%}</label>
                         {{ form_errors(form.numeroDossier,{'attr':{'class':'alert alert-danger'}}) }}								
                         {{ form_widget(form.numeroDossier, {'attr': {'class': 'form-control','readOnly':true}}) }}
-                    </div>   
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <label>{% trans %}Téléphone{% endtrans %} (*)</label>
+                        {{ form_errors(form.telephone,{'attr':{'class':'alert alert-danger'}}) }}
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control','placeholder':'(+224) 999-99-99-99'}}) }}
+
+{#                        <input type="text" id="telephone" name="telephone" class="form-control" value=""#}
+{#                               placeholder="(+224) 999-99-99-99">#}
+                    </div>
                 </div>
                 <div class="row">
-
                     <div class="form-group col-sm-4">                               
                         <label>{%trans%}message_serie{%endtrans%} </label>
                         {{ form_errors(form.serie,{'attr':{'class':'alert alert-danger'}}) }}								
@@ -135,6 +162,7 @@
 {%endblock %}
 {%block javascripts %}
     {{parent()}}
+
     <script type="text/javascript">
         $(function () {
 
@@ -223,10 +251,76 @@
 			window.location.href = url;
 		});
 
-		
 		$('#quittance_typeDossier').find(':not(:selected)').attr('disabled','disabled');
 		$('#quittance_formeJuridique').find(':not(:selected)').attr('disabled','disabled');
-		$('#quittance_modePaiement').val('1'); 
-
+		$('#quittance_modePaiement').val('1');
     </script>
+    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>
+    <script type="application/javascript">
+        $("#quittance_modePaiement").on('change', function () {
+        var id=  $(this).val();
+          if (id==3){
+              $("#quittance_telephone").attr('required',true);
+          }else {
+              $("#quittance_telephone").attr('required',false);
+          }
+        });
+
+        const isNumericInput = (event) => {
+            const key = event.keyCode;
+            return ((key >= 48 && key <= 57) || // Allow number line
+                (key >= 96 && key <= 105) // Allow number pad
+            );
+        };
+
+        const isModifierKey = (event) => {
+            const key = event.keyCode;
+            return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+                (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+                (key > 36 && key < 41) || // Allow left, up, right, down
+                (
+                    // Allow Ctrl/Command + A,C,V,X,Z
+                    (event.ctrlKey === true || event.metaKey === true) &&
+                    (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+                )
+        };
+
+        const enforceFormat = (event) => {
+            // Input must be of a valid number format or a modifier key, and not longer than ten digits
+            if (!isNumericInput(event) && !isModifierKey(event)) {
+                event.preventDefault();
+            }
+        };
+
+        const formatToPhone = (event) => {
+            if (isModifierKey(event)) {
+                return;
+            }
+
+            // I am lazy and don't like to type things more than once
+            const target = event.target;
+            const input = event.target.value.replace(/\D/g, '').substring(0, 12); // First ten digits of input only
+            const zip = '224';
+            const middle = input.substring(3, 6);
+            const middle1 = input.substring(6, 8);
+            const middle2 = input.substring(8, 10);
+            const middle3 = input.substring(10, 12);
+
+
+            if (input.length > 10) {
+                target.value = `(+${zip}) ${middle}-${middle1}-${middle2}-${middle3}`;
+            } else if (input.length > 7) {
+                target.value = `(+${zip}) ${middle}-${middle1}-${middle2}`;
+            } else if (input.length > 5) {
+                target.value = `(+${zip}) ${middle}-${middle1}`;
+            } else if (input.length > 0) {
+                target.value = `(+${zip}) ${middle}`;
+            }
+        };
+
+        const inputElement = document.getElementById('quittance_telephone');
+        inputElement.addEventListener('keydown', enforceFormat);
+        inputElement.addEventListener('keyup', formatToPhone);
+    </script>
+
 {%endblock %}

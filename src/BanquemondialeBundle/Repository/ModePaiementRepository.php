@@ -12,4 +12,11 @@ use Doctrine\ORM\EntityRepository;
  */
 class ModePaiementRepository extends EntityRepository
 {
+    public function getModePaiement(){
+        $query=$this->createQueryBuilder
+        ('e')
+            ->join('BanquemondialeBundle:ModePaiementTraduction','p')
+            ->where("e.id=p.modePaiement");
+        return $query;
+    }
 }

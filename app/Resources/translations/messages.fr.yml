@@ -10,6 +10,7 @@ dashboard : Tableaux de bord
 enregistrer: Enregister
 edition_page_region : 'Edition des villes'
 administration_page_region : 'Administration des regions'
+denomination_exist : 'Cette denomination existe déjà'
 gerer_news : 'Gestion des news'
 gerer_contact : 'Gestion des contacts'
 gerer_faq : 'Gérer FAQ'

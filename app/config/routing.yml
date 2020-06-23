@@ -1,3 +1,7 @@
+default_type_operation:
+    resource: "@DefaultBundle/Controller/typeOperationController.php"
+    type:     annotation
+
 parametrage_archive_nom_commerciaux:
     resource: "@ParametrageBundle/Controller/ArchiveNomCommerciauxController.php"
     type:     annotation

@@ -25,7 +25,8 @@ class AppKernel extends Kernel
             new Lexik\Bundle\TranslationBundle\LexikTranslationBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
 			new Tui\SessionBundle\TuiSessionBundle(),
-			new Endroid\QrCode\Bundle\QrCodeBundle\EndroidQrCodeBundle(),
+            new MewesK\TwigExcelBundle\MewesKTwigExcelBundle()
+			//new Endroid\QrCode\Bundle\QrCodeBundle\EndroidQrCodeBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'), true)) {

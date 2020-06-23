@@ -27,7 +27,9 @@
 		"doctrine/doctrine-fixtures-bundle": "dev-master",
 		"doctrine/data-fixtures": "dev-master",
         "liuggio/excelbundle": "^2.1",
-        "tui/session-bundle": "~1.1"
+        "tui/session-bundle": "~1.1",
+         "mewesk/twig-excel-bundle": "^2.1",
+        "twig/extensions": "^1.5"
     },
     "require-dev": {
         "sensio/generator-bundle": "~3.0",

@@ -1,0 +1,65 @@
+{% xlsdocument %}
+    {% xlssheet 'Worksheet' %}
+        {% if poleChoisi=='0' %}
+            {% xlsrow %}
+                {% xlscell %}{{ 'Forme juridique' }}{% endxlscell %}
+                {% xlscell %}{{ poles.nom|trans }}{% endxlscell %}
+            {% endxlsrow %}
+            {% for repartition in repartitions %}
+                {% xlsrow %}
+                    {% xlscell %}{{ repartition.formeJuridique }}{% endxlscell %}
+                    {% xlscell %}{{ repartition.montant|number_format(0, '.', '  ') }}{% endxlscell %}
+                {% endxlsrow %}
+            {% endfor %}
+            {% xlsrow %}
+                {% xlscell %}{{ 'total' }}{% endxlscell %}
+                {% xlscell %}{{ montantTotal|number_format(0, '.', '  ') }}{% endxlscell %}
+            {% endxlsrow %}
+        {% else %}
+            {% xlsrow %}
+                {% xlscell %}{{ 'Forme juridique' }}{% endxlscell %}
+                {% for pole in poles %}
+                    {% xlscell %}{{ pole.nom|trans }}{% endxlscell %}
+                {% endfor %}
+                {% xlscell %}{{ 'montant' }}{% endxlscell %}
+            {% endxlsrow %}
+            {% for repartition in repartitions %}
+                {% xlsrow %}
+                    {% xlscell %}{{ repartition.formeJuridique }}{% endxlscell %}
+                    {% set sousTotal = 0 %}
+                    {% for pole in poles %}
+                        {% set frein = 0 %}
+                        {% for montant in repartition.listeMontant %}
+                            {% if montant.idPole == pole.id %}
+                                {% xlscell %}{{ montant.sommeMontant |number_format(0, '.', ',') }}{% endxlscell %}
+                                {% set frein = 1 %}
+                                {% set sousTotal = sousTotal+montant.sommeMontant %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if frein == 0 %}
+                            {% xlscell %}{{ '0' }}{% endxlscell %}
+                        {% endif %}
+                    {% endfor %}
+                    {% xlscell %}{{ montantTotal|number_format(0, '.', '  ') }}{% endxlscell %}
+                {% endxlsrow %}
+            {% endfor %}
+            {% xlsrow %}
+                {% xlscell %}{{ 'total' }}{% endxlscell %}
+
+                {% for pole in poles %}
+                    {% set frein2 = 0 %}
+                    {% for total in totaux %}
+                        {% if total.pole == pole.nom %}
+                            {% xlscell %}{{ total.montant |number_format(0, '.', ',') }}{% endxlscell %}
+                            {% set frein2 = 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if frein2 == 0 %}
+                        {% xlscell %}{{ '0' }}{% endxlscell %}
+                    {% endif %}
+                {% endfor %}
+                {% xlscell %}{{ montantTotal |number_format(0, '.', ',') }}{% endxlscell %}
+            {% endxlsrow %}
+        {% endif %}
+    {% endxlssheet %}
+{% endxlsdocument %}

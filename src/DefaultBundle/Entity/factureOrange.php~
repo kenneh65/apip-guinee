@@ -1,0 +1,93 @@
+<?php
+
+namespace DefaultBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * factureOrange
+ *
+ * @ORM\Table(name="facture_orange")
+ * @ORM\Entity(repositoryClass="DefaultBundle\Repository\factureOrangeRepository")
+ */
+class factureOrange
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="DefaultBundle\Entity\PaiementOrange",inversedBy="factureOrange")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $paiementOrange;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="ref", type="string", length=255, nullable=true, unique=true)
+     */
+    private $ref;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set ref
+     *
+     * @param string $ref
+     * @return factureOrange
+     */
+    public function setRef($ref)
+    {
+        $this->ref = $ref;
+
+        return $this;
+    }
+
+    /**
+     * Get ref
+     *
+     * @return string 
+     */
+    public function getRef()
+    {
+        return $this->ref;
+    }
+
+    /**
+     * Set paiementOrange
+     *
+     * @param \DefaultBundle\Entity\PaiementOrange $paiementOrange
+     * @return factureOrange
+     */
+    public function setPaiementOrange(\DefaultBundle\Entity\PaiementOrange $paiementOrange)
+    {
+        $this->paiementOrange = $paiementOrange;
+
+        return $this;
+    }
+
+    /**
+     * Get paiementOrange
+     *
+     * @return \DefaultBundle\Entity\PaiementOrange 
+     */
+    public function getPaiementOrange()
+    {
+        return $this->paiementOrange;
+    }
+}

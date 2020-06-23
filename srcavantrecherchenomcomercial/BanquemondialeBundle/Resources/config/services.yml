@@ -1,4 +1,0 @@
-services:
-#    banquemondiale.example:
-#        class: BanquemondialeBundle\Example
-#        arguments: ["@service_id", "plain_value", %parameter%]

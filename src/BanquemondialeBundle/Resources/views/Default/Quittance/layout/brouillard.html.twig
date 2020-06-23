@@ -70,6 +70,11 @@
 				{%else%}
 					{% do form.entreprise.setRendered %}
 				{%endif%}
+				<div class="form-group col-sm-4 col-xs-12">
+					<label>{%trans%}mode_paiement{%endtrans%} </label>
+					{{ form_errors(form.modePaiement,{'attr':{'class':'alert alert-danger'}}) }}
+					{{ form_widget(form.modePaiement, {'attr': {'class': 'form-control'}}) }}
+				</div>
                 <div >
                     <button type="submit"  class="btn btn-info" style="margin:25px 0 0 15px">{%trans%}valider{% endtrans %} </button>
                 </div> 
@@ -78,7 +83,12 @@
             {{ form_rest(form) }} 
         </form>
 
-		<div class="table-responsive">
+		<div class="table-responsive"><br><br>
+			<a target="_blank" href="{{ path('statistiques-de-caisse-excel',{'datedebut':dateDebut|date('d-m-Y'),'datefin':dateFin|date('d-m-Y'),'entreprise':entreprise,'poleChoisi':poleChoisi,'formeJuridique':formeJuridique,'modePaiement':modePaiement,'idLangue':idLangue}) }}">
+				<button type="button" class="btn btn-success btn-sm">
+					<i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+				</button>
+			</a>
         {%if poleChoisi%}
             <table id="repartition" class=" table-striped table table-bordered table-responsive" >	
                 <thead>
@@ -113,8 +123,7 @@
 					</thead>
 					{% for repartition in repartitions %}
 						<tr>
-							<td>{{ repartition.formeJuridique }}</td>						
-							{#<td>{{ repartition.denominationSociale }}</td> #}
+							<td>{{ repartition.formeJuridique }}</td>
 							{% set sousTotal = 0%}
 							{% for pole in poles %}
 
@@ -153,14 +162,11 @@
 							{% endfor %}
 							<td class="text-right"><strong>{{ montantTotal |number_format(0, '.', ',') }}</strong></td>
 						</tr>				
-					</table> 
+				</table>
 				{%endif%}
 			</div>
-
 		</div>
-
 {%endblock %}
-
 {%block javascripts %}
 	{{parent()}}
 	
@@ -178,9 +184,8 @@
 			$('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
 
 			$('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
-			
-			
-			
+
+
 			$('#repartition2').DataTable({"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],"language": {
 				"sProcessing": "{{'traitement_en_cours'|trans}}",
 				"sSearch": "{{'rechercher'|trans}} :",
@@ -232,15 +237,15 @@
 			"bPaginate": false,
 			"bInfo" : false,
 
-			dom: 'Bfrtip',
-			buttons: [{
-						extend: 'excel',
-						text: '{{"generer_excel"|trans}}',
-						filename: "{{'statistiques_de_caisse'|trans|e('js')}}",
-						title: '{{"statistiques_de_caisse"|trans|e("js")}} {%if nomCaisse %}pour {{nomCaisse}}{%else%}pour_ensemble_caisse{%endif%}',
-						messageTop: '{{"du"|trans}} {{dateDebut|localizeddate("none", "none", "fr", null, "dd MMMM y")}} {{"au"|trans}} {{dateFin|localizeddate("none", "none", "fr", null, "dd MMMM y")}}'
-					}
-				]
+			{#dom: 'Bfrtip',#}
+			{#buttons: [{#}
+			{#			extend: 'excel',#}
+			{#			text: '{{"generer_excel"|trans}}',#}
+			{#			filename: "{{'statistiques_de_caisse'|trans|e('js')}}",#}
+			{#			title: '{{"statistiques_de_caisse"|trans|e("js")}} {%if nomCaisse %}pour {{nomCaisse}}{%else%}pour_ensemble_caisse{%endif%}',#}
+			{#			messageTop: '{{"du"|trans}} {{dateDebut|localizeddate("none", "none", "fr", null, "dd MMMM y")}} {{"au"|trans}} {{dateFin|localizeddate("none", "none", "fr", null, "dd MMMM y")}}'#}
+			{#		}#}
+			{#	]#}
 		});
 			
 			
