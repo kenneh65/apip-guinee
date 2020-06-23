@@ -1,0 +1,8 @@
+## YAML Template.
+---
+langue.not_null_code : Le code ne peut pas être nul
+langue.not_null_label : 'Le libellé ne doit pas être nul'
+langue.min_message : 'Le code ne doit être composé au mois de 2 caractères'
+langue.max_message : 'Le code doit contenir au plus 3 caractères'
+language.unique : 'Ce code est déjà utilisé'
+region.not_null_label : 'Le libellé ne peut pas être nul.'

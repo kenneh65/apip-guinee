@@ -1,0 +1,137 @@
+{% extends "::base.html.twig" %}
+{% block title %}Création d'Entreprise{% endblock %}
+
+
+
+{% block body %}
+
+   <div class="col-lg-12">
+                <div class="hpanel">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-lg-12" style="text-align: center;">
+                                <h1 class="page-header">
+                                    {{ creationdossier.denominationSociale }}
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+
+
+<div class="panel-body">
+                        <div class="panel-body">
+   
+
+  
+    <div class="row">
+        <div class="form-group col-sm-6">
+            <label>Siège sociale</label>
+		<br/>
+		{{ creationdossier.adresseSiege }}
+        </div>
+        <div class="form-group col-sm-6">
+            <label>Date de création</label>
+		<br/>
+		{% if creationdossier.dateCreation %}{{ creationdossier.dateCreation|date('d-m-Y') }}{% endif %} 
+        </div>
+    </div>
+    <div class="row">        
+        <div class="form-group col-sm-6">
+             <label>Secteur Activité</label>
+		<br/>
+             {{ creationdossier.secteurActivite }}
+        </div>
+        <div class="form-group col-sm-6">
+            <label>Forme juridique</label>
+		<br/>
+		{{ definedFormeJuridiqueTraduction.libelle }}
+        </div>
+        <div class="form-group col-sm-6">
+            <label>Objet sociale</label>
+		<br/>
+		{{ creationdossier.secteurActivite }}
+        </div>
+    </div>     
+    <div class="row">
+        <div class="form-group col-sm-6">
+             <label>Gérance</label>
+		<br/>
+		
+        </div>
+        <div class="form-group col-sm-6">
+             <label>Exercice social</label>
+		<br/>
+		
+        </div> 
+        <div class="form-group col-sm-6">
+             <label>Notaire</label>
+		<br/>
+		
+        </div>                
+    </div>
+    
+    <div class="row">
+        <div class="form-group col-sm-6">
+             <label>Region</label>
+		<br/>
+		{{ creationdossier.region }}
+        </div> 
+        <div class="form-group col-sm-6">
+             <label>Durée</label>
+		<br/>
+		{{ creationdossier.enseigne }}
+        </div>
+        <div class="form-group col-sm-6">
+              <label>Capital</label>
+		<br/>
+		{{ creationdossier.capitalSocial }}
+        </div>
+         
+    </div>
+    <div class="row">
+        
+        <div class="form-group col-sm-6">
+             <label>Montant des apports en numéraires</label>
+		<br/>
+		{{ creationdossier.apportNumeraire }}
+        </div>
+        <div class="form-group col-sm-6">
+             <label></label>
+		<br/>
+		
+        </div>
+         <div class="form-group col-sm-6">
+              <label></label>
+		<br/>
+		
+        </div>
+    </div> 
+    <div class="row">        
+        <div class="form-group col-sm-12">
+           Description sommaire et l'évaluation des apports en nature: <br />
+           Nom, prénoms usuels et domicile des associés tenus indéfiniment des dettes sociales: <br />
+           Nom, prénoms et domicile des premiers dirigeants et des premiers commissaires aux comptes: <br />
+           Références de l'immatriculation au registre du commerce et du crédit mobilier: <br />
+        </div>   
+    </div>
+    <div class="row">        
+        <div class="form-group col-sm-12">
+           Nombre et la valeur nominale des actions souscrites en numéraire:<br /> 
+           Nombre et la valeur nominale des actions attribuées en rémunération de chaque apport en nature:<br /> 
+           Montant de la partie libérée:<br /> 
+           Dispositions statutaires relatives à la constitution des réserves et à la répartition des bénéfices et du boni de liquidation:<br /> 
+           Avantages particuliers stipulés:<br /> 
+           Conditions d'admission aux assemblées d'actionnaires et d'exercice du droit de vote:<br /> 
+           Existence de clauses relatives à l'agrément des cessionnaires d'actions:<br /> 
+           Type Annonces: {{ definedTypeOperation.libelle }} <br />
+        </div>   
+    </div>
+   
+</div>
+                </div>
+            </div>
+   </div>
+   <a href = "{{ path('ReportAnnonceLegale', { 'idd':creationdossier.id }) }}" target="_blank"   class = "btn btn-default pull-right"> Print <span class="glyphicon glyphicon-print"></span></a>     
+
+                       
+{% endblock %}        

@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+{% block title %} 
+    {%trans%}edit_entreprise_titre{%endtrans%}
+{% endblock %}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':5})) }}
+{% endblock %}
+{% block body %}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}create_entreprise_titre{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <a href="{{path('entreprise_index')}}">{%trans%}entreprises{%endtrans%}</a>
+                            </li>
+                            <li>{{'Ajout'|trans}}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">  
+
+                {{form_start(form)}}
+                <div class="row">                   
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}pole{%endtrans%} (*)</label> 
+                        {{ form_errors(form.pole,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.pole, {'attr': {'class': 'form-control'}}) }}			
+                    </div>
+                    <div>{{ form_errors(form.telephone,{'attr':{'class':'alert alert-danger'}}) }} </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">                        
+                        <label>{%trans%}entreprise.denomination{%endtrans%} (*)</label>                         
+                        {{ form_errors(form.denomination,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.denomination, {'attr': {'class': 'form-control'}}) }}			
+                    </div>
+                    <div class="col-sm-4">
+                        {{ form_label(form.telephone) }}                         											
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}			
+                    </div>
+                    <div class="col-sm-4">
+                        {{ form_label(form.email) }} 
+                        {{ form_errors(form.email,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{%trans%}region{%endtrans%} (*)</label>  
+                        {{ form_errors(form.region,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.region, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{%trans%}prefecture{%endtrans%} (*)</label>  
+                        {{ form_errors(form.prefecture,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.prefecture, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-sm-4">
+                        <label>{%trans%}sousPrefecture{%endtrans%} (*)</label>  
+                        {{ form_errors(form.sousPrefecture,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.sousPrefecture, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        {{ form_label(form.adresse) }} 
+                        {{ form_errors(form.adresse,{'attr':{'class':'alert alert-danger'}}) }} 											
+                        {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}			
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <input class="btn btn-success" type="submit"  value="{{ 'enregistrer'|trans }}" />
+                    <a class="btn btn-default" href="{{ path('entreprise_index') }}"><i class="fa fa-arrow-left"></i>&nbsp;{%trans%}retour{%endtrans%}</a>
+                </div>
+                {{ form_end(form) }}				
+            </div>	
+
+        </div>
+    {%endblock%}
+    {% block javascripts %}
+        {{parent()}}
+        <script>
+            $(document).ready(function () {
+
+                var idRegionSelected = $("#entreprise_region").val();
+                var idPrefectureSelected = $("#entreprise_prefecture").val();
+                var idSousPrefectureSelected = $("#entreprise_sousPrefecture").val();
+
+
+                var chargementPrefecture = function () {
+                    var r = $.Deferred();
+                    $('.loading').show();
+                    $("#entreprise_prefecture").children().remove();
+                    if (idRegionSelected !== "") {
+                        $.ajax({
+                            url: "{{path('charger_prefecture')}}",
+                            type: "POST",
+                            dataType: 'json',
+                            data: {idR: idRegionSelected},
+                            success: function (data) {
+                                $('#entreprise_prefecture').prepend("<option value=''>{{'select'|trans}}</option>");
+                                for (var i in data.retour) {
+                                    $('#entreprise_prefecture').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                                }
+                                if (idPrefectureSelected != "")
+                                {
+                                    $("#entreprise_prefecture").val(idPrefectureSelected);
+                                }
+
+
+                                $('.loading').hide();
+
+                                chargementSousPrefecture(idPrefectureSelected, idSousPrefectureSelected);
+                            },
+                            error: function () {
+                                console.log('erreur');
+                            }
+                        });
+                    } else {
+                        $('.loading').hide();
+                        return r;
+                    }
+                    return r;
+                };
+
+                function chargementSousPrefecture(idPrefectureSelected, idSousPrefectureSelected) {
+                    console.log(idPrefectureSelected + " et " + idSousPrefectureSelected);
+                    $("#entreprise_sousPrefecture").children().remove();
+                    if (idPrefectureSelected !== "") {
+                        $.ajax({
+                            url: "{{path('charger_sousPrefecture')}}",
+                            type: "POST",
+                            dataType: 'json',
+                            data: {idP: idPrefectureSelected},
+                            success: function (data) {
+                                $('#entreprise_sousPrefecture').prepend("<option value=''>{{'select'|trans}}</option>");
+                                for (var i in data.retour) {
+                                    $('#entreprise_sousPrefecture').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                                }
+                                if (idSousPrefectureSelected != "")
+                                {
+                                    $("#entreprise_sousPrefecture").val(idSousPrefectureSelected);
+                                }
+                                $('.loading').hide();
+                            },
+                            error: function () {
+                                console.log('erreur');
+                            }
+                        });
+                    } else {
+                        $('.loading').hide();
+                        return;
+                    }
+                }
+
+                chargementPrefecture();
+            });
+
+
+
+
+            $("#entreprise_region").change(function () {
+                $('.loading').show();
+                var idR = $(this).val();
+                $("#entreprise_prefecture").children().remove();
+                //$("#frmPrefecture_departement").children().remove();
+                if (idR !== "") {
+                    $.ajax({
+                        url: "{{path('charger_prefecture')}}",
+                        type: "POST",
+                        dataType: 'json',
+                        data: {idR: $(this).val()},
+                        success: function (data) {
+                            $('#entreprise_prefecture').prepend("<option value=''>{{'select'|trans}}</option>");
+                            for (var i in data.retour) {
+                                $('#entreprise_prefecture').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                            }
+                            $('.loading').hide();
+                        },
+                        error: function () {
+                            alert('erreur');
+                        }
+                    });
+                } else {
+                    $('.loading').hide();
+                    return;
+                }
+            });
+
+
+            $("#entreprise_prefecture").change(function () {
+                $('.loading').show();
+                var idP = $(this).val();
+                $("#entreprise_sousPrefecture").children().remove();
+                if (idP !== "") {
+                    $.ajax({
+                        url: "{{path('charger_sousPrefecture')}}",
+                        type: "POST",
+                        dataType: 'json',
+                        data: {idP: $(this).val()},
+                        success: function (data) {
+                            $('#entreprise_sousPrefecture').prepend("<option value=''>{{'select'|trans}}</option>");
+                            for (var i in data.retour) {
+                                $('#entreprise_sousPrefecture').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                            }
+                            $('.loading').hide();
+                        },
+                        error: function () {
+                            alert('erreur');
+                        }
+                    });
+                } else {
+                    $('.loading').hide();
+                    return;
+                }
+            });
+        </script>
+    {% endblock %}

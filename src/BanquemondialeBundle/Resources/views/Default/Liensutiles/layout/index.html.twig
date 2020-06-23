@@ -1,0 +1,110 @@
+
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}page_edition_liens{%endtrans%}{% endblock %}
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':3})) }}
+{% endblock %}
+{% block body -%}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}titre_liste_liens_utils{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                              <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+								&nbsp;&nbsp;{%trans%}titre_liste_liens_utils{%endtrans%}
+                                </li>                                
+                        </ol>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-left:15px">
+                    <a href="{{ path('adminLiensutiles_new') }}" class="btn btn-default">
+                        <i class="fa fa-plus"></i> {%trans%}ajouter_lien{%endtrans%}
+                    </a>
+                    <hr/>
+                </div>
+                <div class="panel-body">
+                    {%if entities | length !=0%}
+                        <table class="table table-bordered table-hover" id="links">
+                            <thead>
+                                <tr>
+
+                                    <th>{%trans%}titre{%endtrans%}</th>
+                                    <th>{%trans%}lien_utile{%endtrans%}</th>
+
+                                    <th>{%trans%}actions{%endtrans%}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entity in entities %}
+                                    <tr>
+                                        <td>{{ entity.titre }}</td>
+                                        <td>{{ entity.url |slice(0,100) }}</td>
+
+
+
+                                        <td>
+                                            <a {%if app.request.locale=='fr' %}href="{{ path('adminLiensutiles_edit', { 'id': entity.id }) }}"{%elseif app.request.locale=='en'%}
+                                                                               href="{{ path('adminLiensutiles_edit', { 'id': entity.lien.id }) }}"{%else%}href="{{ path('adminLiensutiles_edit', { 'id': entity.id }) }}"{%endif%}title="{{'modifier'|trans}}"><i class="fa  fa-pencil"></i> </a>&nbsp;&nbsp;
+                                            <a  {%if app.request.locale=='fr' %}href="{{ path('adminLiensutiles_edit', { 'id': entity.id }) }}" {%elseif app.request.locale=='en'%}href="{{ path('adminLiensutiles_edit', { 'id': entity.lien.id }) }}"{%endif%} title="{{'supprimer'|trans}}"><i class="fa  fa-remove"></i> </a>
+
+
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {%else%}
+                        <div class="alert alert-info">
+                            {%trans%}aucun_liens{%endtrans%}</div>
+
+                    {%endif%}
+
+
+                </div></div></div>
+                {% endblock %}
+                    {%block javascripts%}
+                        {{parent()}}
+                <script type="text/javascript">
+
+                    $(function () {
+                        $('#links').DataTable({"language": {
+                                "sProcessing": "{{'traitement_cours'|trans}}",
+                                "sSearch": "{{'rechercher'|trans}} :",
+                                "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                                "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                                "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                                "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                                "sInfoPostFix": "",
+                                "sLoadingRecords": "Chargement en cours...",
+                                "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                                "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                                "oPaginate": {
+                                    "sFirst": "{{'premier'|trans}}",
+                                    "sPrevious": "{{'precedent'|trans}}",
+                                    "sNext": "{{'suivant'|trans}}",
+                                    "sLast": "{{'dernier'|trans}}"
+                                },
+                                "oAria": {
+                                    "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                                    "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                                }
+                            }});
+                        initialize();
+                    })
+                </script>
+            {%endblock%}

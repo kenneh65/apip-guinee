@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html style="overflow-y: auto;" data-useragent="Mozilla/5.0 (Windows NT 6.1; rv:46.0) Gecko/20100101 Firefox/46.0" class="ua-windows_nt ua-windows_nt-6 ua-windows_nt-6-1 ua-gecko ua-gecko-46 ua-gecko-46-0 ua-firefox ua-firefox-46 ua-firefox-46-0 ua-desktop ua-desktop-windows js js flexbox canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" lang="fr-FR"><head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-108493575-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-108493575-1');
+</script>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title%} {%trans%}nom_application{%endtrans%}{% endblock %}</title>
+        
+        <meta name="robots" content="noindex,follow">
+        <!-- For iPad Retina display -->
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="">
+
+        <meta property="og:description" content="GUIDE DES PROCÉDURES ADMINISTRATIVES">
+
+
+        {%block stylesheets%}
+            <link rel="stylesheet" id="contact-form-7-css" href="{{asset('front-office/css/styles.css')}}" type="text/css" media="all">
+            <link rel="stylesheet" id="rs-plugin-settings-css" href="{{asset('front-office/css/settings.css')}}" type="text/css" media="all">
+            <link rel="stylesheet" id="avada-stylesheet-css" href="{{asset('front-office/css/style.css')}}" type="text/css" media="all">
+            <link rel="stylesheet" id="fontawesome-css" href="{{asset('front-office/css/font-awesome.css')}}" type="text/css" media="all">
+            <link rel="stylesheet" id="avada-iLightbox-css" href="{{asset('front-office/css/ilightbox.css')}}" type="text/css" media="all">
+            <link rel="stylesheet" id="avada-animations-css" href="{{asset('front-office/css/animations.css')}}" type="text/css" media="all">
+            <link rel="stylesheet" id="avada-dynamic-css-css" href="{{asset('front-office/css/avada-8.css')}}" type="text/css" media="all">
+            <link href="{{asset('css/bootstrap.min.css')}}" rel="stylesheet">
+        <link rel="stylesheet" id="avada-iLightbox-css" href="{{asset('front-office/css/layerslider.css')}}" type="text/css" media="all">
+            <!-- Custom CSS -->
+
+            <!-- Morris Charts CSS -->
+            <link href="{{asset('css/plugins/morris.css')}}" rel="stylesheet">
+
+            <!-- Custom Fonts -->
+            <link href="{{asset('font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
+            <link rel="stylesheet" href="{{ asset('js/sweetalert/lib/sweet-alert.css') }}" />
+            <link rel="stylesheet" href="{{asset('/datepicker/css/bootstrap-datetimepicker.min.css')}}" />
+            <link rel="stylesheet" href="{{asset('js/toastr/build/toastr.min.css') }}" />
+            <link rel="stylesheet" href="{{asset('css/dataTables.bootstrap.min.css') }}" />
+        {% endblock %}
+        <script type="text/javascript" src="{{asset('front-office/js/jquery_003.js')}}"></script>
+        <script type="text/javascript" src="{{asset('front-office/js/jquery-migrate.js')}}"></script>
+        <script type="text/javascript" src="{{asset('front-office/js/jquery_002.js')}}"></script>
+        <script type="text/javascript" src="{{asset('front-office/js/jquery_004.js')}}"></script>
+
+
+
+
+
+    <body id="ls-global"class="home page-template page-template-100-width page-template-100-width-php page page-id-8 fusion-body no-tablet-sticky-header no-mobile-sticky-header no-mobile-slidingbar mobile-logo-pos-left layout-wide-mode menu-text-align-right mobile-menu-design-modern fusion-image-hovers fusion-show-pagination-text do-animate" >
+        <div style="" id="wrapper" class="">
+            <div id="home" style="position:relative;top:1px;"></div>
+
+            <div class="fusion-header-wrapper">
+                <div class="fusion-header-v4 fusion-logo-left fusion-sticky-menu- fusion-sticky-logo- fusion-mobile-logo- fusion-mobile-menu-design-modern fusion-sticky-menu-only fusion-header-menu-align-left">
+
+                    <div class="fusion-secondary-header">
+                        <div class="fusion-row">
+                            <div class="fusion-alignleft">
+                                <div class="fusion-contact-info">
+                                    {%trans%}titre_entete{%endtrans%}<span class="fusion-header-separator">|</span>
+                                    <span>{%trans%}mail_de_contact{%endtrans%}</span>
+                                </div>
+                            </div>
+                            <div class="fusion-alignright">
+                                <div class="fusion-secondary-menu">
+                                    <ul id="menu-top-navigation" class="menu">
+                                        <li class="dropdown language">
+                                            <a href="#language" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                                {{ app.request.locale}}
+                                                <span class="caret"></span>
+                                            </a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                {%for langue in langues%}
+                                                    {%if app.request.locale!=langue%}
+                                                    <li {%if loop.index==loop.first %}class="first"{%elseif loop.index==loop.last%}class="last"{%endif%}>
+                                                    <a href="{{path('changer_langue',{'langue':langue})}}">{{langue}}</a>
+                                                </li>
+                                                {%endif%}
+                                                {%endfor%}
+                                            </ul>
+                                        </li>    
+                                        {%if app.user%}
+                                            <li>
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{app.user.username}} <b class="caret"></b></a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a href="{{path('utilisateurs_profil')}}"><i class="fa fa-fw fa-user"></i> {%trans%}profil{%endtrans%}</a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a href="{{path('administration')}}"><i class="fa fa-fw fa-gear"></i>{%trans%}administration{%endtrans%}</a>
+
+                                                    </li>
+                                                    <li class="divider"></li>
+                                                    <li>
+                                                        <a href="{{path('fos_user_security_logout')}}"><i class="fa fa-fw fa-sign-out"></i> {%trans%}deconnexion{%endtrans%}</a>
+                                                    </li>
+
+
+
+
+                                                </ul>
+                                            </li>
+                                        {%else%}
+                                            <li id="menu-item-1061" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1061">
+                                                <a href="{{path('fos_user_registration_register')}}"><span class="menu-text">
+                                                        <span class="fusion-megamenu-icon"><i class="fa  fa-user"></i></span>{%trans%}creer_un_compte{%endtrans%}</span>
+                                                </a>
+                                            </li>
+
+                                            <li id="menu-item-1062" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1062">
+                                                <a href="{{path('fos_user_security_login')}}">
+                                                    <span class="menu-text"><span class="fusion-megamenu-icon">
+                                                            <i class="fa glyphicon fa-sign-in"></i>
+                                                        </span>{%trans%}se_connecter{%endtrans%}</span></a>
+                                            </li>
+                                        {%endif%}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="fusion-sticky-header-wrapper" style="height: 127px;"> 
+                        <!-- start fusion sticky header wrapper -->
+                        <div class="fusion-header ">
+                            <div class="fusion-row">
+                                <div class="fusion-logo" data-margin-top="-30px" data-margin-bottom="0px" data-margin-left="0px" data-margin-right="0px">
+                                    <a class="fusion-logo-link" href="{{path('accueil')}}">
+                                       
+                                        <img src="{{asset('uploads/logo/logobm.png')}}" id="imageLogo1" alt="" class="fusion-logo-1x fusion-standard-logo largeDisplay" height="84" width="112px"/>
+
+     
+                                        <!-- mobile logo -->
+
+                                        <!-- sticky header logo -->
+                                    </a>
+                                    <div class="fusion-header-content-3-wrapper">
+                                        <div class="fusion-secondary-menu-search col-md-6">
+                                            <form role="search" class="searchform" method="post" action="{{path('recherche_nom_commercial')}}">
+                                                <div class="search-table">
+                                                    <div class="search-field">
+                                                        <input name="nomCommercial" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" class="input-sm" placeholder="{{'rechercher'|trans}}" type="text" required = "true">
+                                                    </div>
+                                                    <div class="search-button">
+                                                        <button type="submit" class="btn btn-default searchsubmit fa fa-search" style="height:40px" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" type="submit"/></button>
+                                                    </div>
+                                                </div>
+                                             </form>
+                                        </div>
+                                        <h3 data-lineheight="26" data-fontsize="16" class="fusion-header-tagline largeDisplay" style="color:black">{%trans%}titre_barre_recherche{%endtrans%}</h3>
+                                    </div>
+                                    <div class="fusion-header-content-3-wrapper">
+
+                                        <img src="{{asset('img/apli-logo.png')}}" id="imageLogo2" alt="" class="fusion-logo-1x fusion-standard-logo largeDisplay" height="84" width="112px"/>
+                                    </div>
+                                </div>
+								
+								
+                                <div class="fusion-mobile-menu-icons" style="position:relative;margin-top:-20px">
+                                    
+									
+									<img src="{{asset('uploads/logo/logobm.png')}}" id="imageLogoPetit1" alt="" class="fusion-logo-1x fusion-standard-logo" style="height:50px;float:left;padding-top: 10px;"/>
+									<img src="{{asset('img/apli-logo.png')}}" id="imageLogoPetit2" alt="" class="fusion-logo-1x fusion-standard-logo" style="height:50px;float:left;margin-left:20px;padding-top: 10px;"/>
+									<a  data-toggle="collapse" data-target="#menuDeroulant" aria-expanded="true" class="elementMobile" style="margin:15px 0 0 20px;cursor: pointer;"><i class="fa fa-bars"></i></a>
+									<form role="search" class="searchform" method="post" action="{{path('recherche_nom_commercial')}}">
+										<div class="search-table elementMobile" style="width:150px;margin-top:10px">
+											<div class="search-field">
+												<input name="nomCommercial" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" class="input-sm" placeholder="{{'rechercher'|trans}}" type="text">
+											</div>
+											<div class="search-button">
+												<button type="submit" class="btn btn-default searchsubmit fa fa-search" style="height:40px" title="{%trans%} message_infobulle_recherche_nom_commercial {%endtrans%}" type="submit"/></button>
+											</div>
+										</div>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>	
+							
+						<div id="menuDeroulant" style="top: 0px;" class="fusion-secondary-main-menu collapse in">
+							<div class="fusion-row">
+								{%block menu %}
+									{{ render(controller("DefaultBundle:Default:menu",{'active':1})) }}
+								{%endblock%}
+							</div>
+						</div>
+                    </div> <!-- end fusion sticky header wrapper -->
+                </div>
+                <div class="fusion-clearfix"></div>
+            </div>
+
+            {%block body%}
+
+
+                {%block slider%}
+                    <div id="sliders-container">
+                                    
+                        
+                        <div id="carousel-bpm" class="carousel slide" data-ride="carousel">
+                             <ol class="carousel-indicators">
+                                {%if sliders is defined and sliders|length>1%}
+                                    {%for slide in sliders%}
+                                    <li data-target="#carousel-bpm" data-slide-to="0" {%if loop.index==1%}class="active" {%endif%}></li>
+                                    {%endfor%}
+                                {%endif%}
+                              </ol>
+                           <div class="carousel-inner" role="listbox">
+						   {%if sliders is defined %}
+                                {%for slide in sliders%}
+                                    <div {%if loop.index==1%}class="item active"{%else%}class="item"{%endif%}>
+                                        <img src="{{asset('uploads/Sliders/'~slide.fichier.path)}}" class="ls-bg" alt="slider1" style="padding: 0px; border-width: 0px; width: 100%; height: 465px; margin-left: 0; margin-top: -5.83848px;">
+                                         <div class="carousel-caption">
+                                                <div class="ls-l description" >
+                                                    {%if loop.index==1%}
+                                                        <marquee><b>{{slide.description|trans|upper}}</b></marquee>
+                                                    {%else%}
+                                                        <b>{{slide.description|trans|upper}}</b>
+                                                    {%endif%}
+                                            </div>
+                                            {#if loop.index==1 or loop.index==2#}
+                                            <div style="text-align:center">  
+                                                <a class="btn btn-success" href="{{path('fos_user_registration_register')}}"  style="font-weight:bold">{{'creer_entreprise'|trans|upper}}</a>
+                                            </div>
+                                            {#endif#}
+                                        </div>
+                                        </div>
+                                {%endfor%}
+							{% endif %}	
+                                    {%if sliders is defined and sliders|length >1%}
+                                                           
+                                        <a class="left carousel-control" href="#carousel-bpm" role="button" data-slide="prev">
+                                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                        <span class="sr-only">{%trans%}precedent{%endtrans%}</span>
+                                      </a>
+                                      <a class="right carousel-control" href="#carousel-bpm" role="button" data-slide="next">
+                                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                        <span class="sr-only">{%trans%}suivant{%endtrans%}</span>
+                                      </a>
+                                      {%endif%}
+                                 </div>
+                                
+                  
+                             </div></div>
+                {%endblock%}
+
+                <div id="main" class="clearfix width-100" style="padding-left: 30px;padding-right: 30px">
+                    <div class="fusion-row" style="max-width:100%;">
+                        <div id="content" class="full-width">
+                            <div id="post-8" class="post-8 page type-page status-publish hentry">
+
+
+
+                                <div class="post-content" >
+                                    <div class="fusion-fullwidth fullwidth-box fusion-fullwidth-1  fusion-parallax-none nonhundred-percent-fullwidth fusion-equal-height-columns" 
+                                         style="border-color:#eae9e9;border-bottom-width: 0px;border-top-width: 0px;border-bottom-style: solid;border-top-style: solid;padding-bottom:20px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:rgba(255,255,255,0);">
+                                        <div class="fusion-row" >
+                                            <div class="fusion-sep-clear"> </div>
+                                                 <div class="fusion-separator fusion-full-width-sep sep-single" style="border-color:#005cb9;border-top-width:5px;width : 99%;"></div>
+                                            <div class="fusion-one-fourth fusion-layout-column fusion-spacing-no">
+                                                <div class="fusion-column-wrapper  bloque" style="background-color: rgb(255, 255, 255);  padding: 20px; min-height: 512px; height: auto;">
+                                                    <div class="imageframe-align-center">
+                                                        <span style="-moz-box-shadow: 0 0 3px rgba(0,0,0,.3);-webkit-box-shadow: 0 0 3px rgba(0,0,0,.3);box-shadow: 0 0 3px rgba(0,0,0,.3);" class="fusion-imageframe imageframe-glow imageframe-1 hover-type-zoomin">
+                                                            <a href="http://localhost/apip/wp-content/uploads/2015/02/APIP-1-300x300.jpg" class="fusion-lightbox" data-rel="iLightbox[37bb7ee763eee8b6440]" data-title="APIP" data-caption=""> <img alt="" src="{{asset('img/guide.jpg')}}" class="img-responsive" width="300" height="300"></a>
+                                                        </span>
+                                                    </div>
+                                                    <h3 data-lineheight="30" data-fontsize="18" style="text-align: center;">{{'guide_procedures_administratives'|trans|upper}}</h3>
+                                                    <div class="fusion-sep-clear">
+
+                                                    </div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none separateur1" >
+
+                                                    </div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none" style="border-color:#e0dede;margin-left: auto;margin-right: auto;margin-top:10px;margin-bottom:10px"></div>
+                                                    {%block guide%}
+
+
+                                                        <p style="text-align: center;height:80px;min-height:80px !important;">
+                                                            {%trans%}presentation_guide_demarche{%endtrans%}
+                                                        </p> 
+                                                    {%endblock%}
+                                                    <div class="fusion-sep-clear"></div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none separateur1" ></div>
+                                                    <div class="fusion-button-wrapper fusion-aligncenter savoir-plus">
+                                                        <a class="fusion-button button-flat button-round button-large button-custom button-1" target="_self" href="{{path('guides')}}">
+                                                            <span class="fusion-button-text">
+                                                                {%trans%}en_savoir_plus{%endtrans%}</span></a>
+                                                    </div>
+                                                    <div class="fusion-clearfix"></div>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="fusion-one-fourth fusion-layout-column fusion-spacing-no" style="margin-top:0px;margin-bottom:20px;">
+                                                <div class="fusion-column-wrapper" style="background-color: rgb(255, 255, 255); border: 1px solid rgb(226, 226, 226); padding: 20px; min-height: 512px; height: auto;">
+                                                    <div class="imageframe-align-center">
+                                                        <span style="-moz-box-shadow: 0 0 3px rgba(0,0,0,.3);-webkit-box-shadow: 0 0 3px rgba(0,0,0,.3);box-shadow: 0 0 3px rgba(0,0,0,.3);" class="fusion-imageframe imageframe-glow imageframe-1 hover-type-zoomin">
+                                                            <a href="#" class="fusion-lightbox" data-rel="iLightbox[37bb7ee763eee8b6440]" data-title="APIP" data-caption=""> <img alt="" src="{{asset('img/annonce.jpg')}}" class="img-responsive" width="300" height="300">
+                                                            </a>
+                                                        </span>
+                                                    </div>
+                                                    <h3 data-lineheight="30" data-fontsize="18" style="text-align: center;height:60px">{{'publication_annonces_legales'|trans|upper}}</h3>
+                                                    <div class="fusion-sep-clear"></div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none" style="border-color:#e0dede;margin-left: auto;margin-right: auto;margin-top:10px;margin-bottom:10px"></div>
+                                                    <p style="text-align: center; height:70px;min-height:70px !important;">{%trans%}presentation_annonces_legales{%endtrans%}</p>
+                                                    <div class="fusion-sep-clear"></div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none separateur1" ></div>
+                                                    <div class="fusion-button-wrapper fusion-aligncenter">
+                                                        
+                                                        <a class="fusion-button button-flat button-round button-large button-custom button-1" target="_self" href="{{path('annonces_legales')}}">
+                                                            <span class="fusion-button-text">{%trans%}en_savoir_plus{%endtrans%}</span></a></div><div class="fusion-clearfix"></div></div>
+
+                                            </div>
+                                            <div class="fusion-one-fourth fusion-layout-column fusion-spacing-no" style="margin-top:0px;margin-bottom:20px;min-width: 10px !important;">
+                                                <div class="fusion-column-wrapper" style="background-color: rgb(255, 255, 255); border: 1px solid rgb(226, 226, 226); padding: 20px; min-height: 512px; height: auto;">
+                                                    <div class="imageframe-align-center"><span style="-moz-box-shadow: 0 0 3px rgba(0,0,0,.3);-webkit-box-shadow: 0 0 3px rgba(0,0,0,.3);box-shadow: 0 0 3px rgba(0,0,0,.3);" class="fusion-imageframe imageframe-glow imageframe-1 hover-type-zoomin"><a href="http://localhost/apip/wp-content/uploads/2015/02/APIP-1-300x300.jpg" class="fusion-lightbox" data-rel="iLightbox[37bb7ee763eee8b6440]" data-title="APIP" data-caption=""> <img alt="" src="{{asset('img/forme.jpg')}}" class="img-responsive" width="300" height="300"></a></span></div>
+                                                    <h3 data-lineheight="30" data-fontsize="18" style="text-align: center;height:60px">{{'formes_entreprises'|trans|upper}}</h3>
+                                                    <div class="fusion-sep-clear"></div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none" style="border-color:#e0dede;margin-left: auto;margin-right: auto;margin-top:10px;margin-bottom:10px"></div>
+                                                    <p style="text-align: center;height:70px;min-height:70px !important;">{%trans%}presentation_formes_entreprises{%endtrans%}
+                                                        &nbsp;&nbsp;</p>
+                                                    <div class="fusion-sep-clear"></div>
+                                                    <div class="fusion-separator fusion-full-width-sep sep-none" style="border-color:#e0dede;margin-left: auto;margin-right: auto;"></div>
+                                                    <div class="fusion-button-wrapper fusion-aligncenter">
+                                                                                                              
+                                                        <a class="fusion-button button-flat button-round button-large button-custom button-1" target="_self" href="{{path('forme-juridique')}}">
+                                                            <span class="fusion-button-text">{%trans%}en_savoir_plus{%endtrans%}</span></a>
+
+                                                    </div>
+                                                    <div class="fusion-clearfix"></div>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="fusion-clearfix"></div>
+                                       </div>
+                                    </div>
+                                   
+                                    <!--div class="fusion-fullwidth fullwidth-box fusion-fullwidth-2  fusion-parallax-none nonhundred-percent-fullwidth" style="border-color:#eae9e9;border-bottom-width: 0px;border-top-width: 0px;border-bottom-style: solid;border-top-style: solid;padding-bottom:20px;padding-top:10px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:rgba(255,255,255,0);">
+                                       <div class="fusion-row">
+                                            <div class="fusion-one-full fusion-layout-column fusion-column-last fusion-spacing-yes" style="margin-top:0px;margin-bottom:20px;">
+                                            <div class="fusion-column-wrapper" style="background-color:#ffffff;">
+                                                <div class="fusion-tabs fusion-tabs-1 clean horizontal-tabs">
+                                                <style type="text/css">#wrapper
+                                                 .fusion-tabs.fusion-tabs-1.clean .nav-tabs li 
+                                                a{border-color:#ebeaea;}.fusion-tabs.fusion-tabs-1 .nav-tabs li 
+                                                a{background-color:#ebeaea;}.fusion-tabs.fusion-tabs-1 .nav-tabs 
+                                                li.active a,.fusion-tabs.fusion-tabs-1 .nav-tabs li.active 
+                                                a:hover,.fusion-tabs.fusion-tabs-1 .nav-tabs li.active 
+                                                a:focus{background-color:#005cb9;}.fusion-tabs.fusion-tabs-1 .nav-tabs 
+                                                li 
+                                                a:hover{background-color:#005cb9;border-top-color:#005cb9;}.fusion-tabs.fusion-tabs-1
+                                                 .tab-pane{background-color:#005cb9;}.fusion-tabs.fusion-tabs-1 
+                                                .nav,.fusion-tabs.fusion-tabs-1 .nav-tabs,.fusion-tabs.fusion-tabs-1 
+                                                .tab-content .tab-pane{border-color:#ebeaea;}
+                                            </style>
+                                            <div class="nav">
+                                                <ul class="nav-tabs nav-justified">
+                                                    <li class="active">
+                                                        <a class="tab-link" id="fusion-tab-communiqués" href="#tab-ec55eb3d022c948c7a6" data-toggle="tab">
+                                                            <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">{%trans%}apropos_apip{%endtrans%}</h4>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="tab-link" id="fusion-tab-espacemembre" href="#tab-af04f115d4becd3df78" data-toggle="tab">
+                                                            <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">{%trans%}simulateur{%endtrans%}</h4>
+                                                        </a>
+                                                    </li>
+                                                    <li >
+                                                        <a class="tab-link" id="fusion-tab-statistiques" href="#tab-7c26e06b913f5bce2eb" data-toggle="tab">
+                                                            <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">{%trans%}statistique{%endtrans%}</h4>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="tab-link" id="fusion-tab-annonceslégales" href="#tab-b9dcda94a500a4c11ba" data-toggle="tab">
+                                                            <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">{%trans%}annonces_legales{%endtrans%}</h4>
+                                                        </a>
+                                                    </li>
+                                                    
+                                                </ul>
+                                            </div>
+                                            <div class="tab-content">
+                                                <div class="nav fusion-mobile-tab-nav">
+                                                    <ul class="nav-tabs nav-justified">
+                                                        <li class="active">
+                                                            <a class="tab-link" id="fusion-tab-statistiques" href="#tab-7c26e06b913f5bce2eb" data-toggle="tab">
+                                                                <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">Statistiques</h4></a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="tab-7c26e06b913f5bce2eb">
+                                                        <img class="alignleft wp-image-1073 size-full" src="{{asset('img/statistique.jpg')}}" alt=""  sizes="(max-width: 500px) 100vw, 500px" width="500" height="300">
+                                                        <span class="st">{%trans%}description_statistique{%endtrans%}</span>
+                                                    </div>
+                                                    <div class="nav fusion-mobile-tab-nav">
+                                                        <ul class="nav-tabs nav-justified">
+                                                            <li>
+                                                                <a class="tab-link" id="fusion-tab-annonceslégales" href="#tab-b9dcda94a500a4c11ba" data-toggle="tab">
+                                                                    <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">Annonces légales</h4>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="tab-b9dcda94a500a4c11ba">{%trans%}description_annonce{%endtrans%}</div>
+                                                    <div class="nav fusion-mobile-tab-nav">
+                                                        <ul class="nav-tabs nav-justified">
+                                                            <li>
+                                                                <a class="tab-link" id="fusion-tab-communiqués" href="#tab-ec55eb3d022c948c7a6" data-toggle="tab">
+                                                                    <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">Communiqués</h4>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="tab-pane fade in active" id="tab-ec55eb3d022c948c7a6">{%trans%}presentation_apip{%endtrans%}</div>
+                                                    <div class="nav fusion-mobile-tab-nav">
+                                                        <ul class="nav-tabs nav-justified">
+                                                            <li>
+                                                                <a class="tab-link" id="fusion-tab-espacemembre" href="#tab-af04f115d4becd3df78" data-toggle="tab">
+                                                                    <h4 class="fusion-tab-heading" data-fontsize="14" data-lineheight="20">Espace membre</h4>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="tab-af04f115d4becd3df78">{%trans%}espace_description{%endtrans%}</div>
+                                                </div>
+                                            </div>
+                                            <div class="fusion-clearfix"></div>
+                                        </div>
+                                        </div>
+                                        <div class="fusion-clearfix"></div>
+                                         </div>
+                                    </div--> 
+                                    {%block news%}
+                                    {%if news is defined and news|length>0%}
+                                    <div class="fusion-fullwidth fullwidth-box fusion-fullwidth-3  fusion-parallax-none nonhundred-percent-fullwidth" style="border-color:#e2e2e2;border-bottom-width: 1px;border-top-width: 1px;border-bottom-style: solid;border-top-style: solid;padding-bottom:0px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:#ffffff;">
+                                        <style type="text/css" scoped="scoped">.fusion-fullwidth-3 {
+                                                    padding-left: 30px !important;
+                                                    padding-right: 30px !important;
+                                                }
+                                        </style>
+                                        <div class="fusion-row">
+                                            <div class="fusion-content-boxes content-boxes columns fusion-columns-3 fusion-columns-total-3 fusion-content-boxes-1 content-boxes-timeline-horizontal row content-left content-boxes-icon-on-top fusion-delayed-animation" data-animation-delay="350" data-animationoffset="100%" style="margin-top:0px;margin-bottom:60px;">
+                                            <div class="fusion-column content-box-column content-box-column-1 col-lg-4 col-md-4 col-sm-4 fusion-content-box-hover content-box-column-first-in-row fusion-appear">
+                                                <div class="col content-wrapper-background link-area-box link-type-text icon-hover-animation-slide fusion-animated fadeIn" style="background-color: rgb(238, 238, 34); visibility: visible; animation-duration: 0.25s;" data-link="#" data-link-target="_self" data-animationtype="fadeIn" data-animationduration="0.25" data-animationoffset="100%">
+                                                    <div class="heading heading-with-icon icon-left">
+                                                 <a class="heading-link" {% if app.request.locale=='fr'%} href="{{path('readmore',{'id':news[0].id})}}"
+                                        {%else%}
+
+                                            href="{{path('readmore',{'id':news[0].news.id})}}"
+                                        {%endif%} target="_self">
+                                                        <div class="icon" style="-webkit-animation-duration: 350ms;animation-duration: 350ms;">
+                                                            <i style="background-color:transparent;border-color:transparent;height:auto;width:21pxpx;line-height:normal;color:#549f97;font-size:21px;" class="fa fontawesome-icon fa-check circle-no"></i>
+                                                        </div>
+                                                        <h2 class="content-box-heading" style="font-size: 16px;line-height:23px;" data-inline-fontsize="true" data-inline-lineheight="true" data-fontsize="18" data-lineheight="23">{{news[0].titre | slice(0,100)}}</h2>
+                                                    </a>
+                                                </div>
+                                                <div class="fusion-clearfix"></div>
+                                                <div class="content-container" style="color:#747474;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="fusion-column content-box-column content-box-column-2 col-lg-4 col-md-4 col-sm-4 fusion-content-box-hover fusion-appear">
+                                            <div class="col content-wrapper-background link-area-box link-type-text icon-hover-animation-slide fusion-animated fadeIn" style="background-color: rgb(129, 215, 66); visibility: visible; animation-duration: 0.25s;" data-link="#" data-link-target="_self" data-animationtype="fadeIn" data-animationduration="0.25" data-animationoffset="100%">
+                                                <div class="heading heading-with-icon icon-left">
+                                                    <a class="heading-link" {% if app.request.locale=='fr'%} href="{{path('readmore',{'id':news[1].id})}}"
+                                        {%else%}
+                                            href="{{path('readmore',{'id':news[1].news.id})}}"
+                                        {%endif%} target="_self">
+                                                    <div class="icon" style="-webkit-animation-duration: 350ms;animation-duration: 350ms;">
+                                                        <i style="background-color:transparent;border-color:transparent;height:auto;width:21pxpx;line-height:normal;color:#549f97;font-size:21px;" class="fa fontawesome-icon fa-check circle-no"></i>
+                                                    </div>
+                                                    <h2 class="content-box-heading" style="font-size: 16px;line-height:23px;" data-inline-fontsize="true" data-inline-lineheight="true" data-fontsize="18" data-lineheight="23">10 {{news[1].titre| slice(0,100) }}...</h2>
+                                                </a>
+                                                </div>
+                                                <div class="fusion-clearfix"></div>
+                                                <div class="content-container" style="color:#747474;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="fusion-column content-box-column content-box-column-3 col-lg-4 col-md-4 col-sm-4 fusion-content-box-hover content-box-column-last content-box-column-last-in-row fusion-appear">
+                                            <div class="col content-wrapper-background link-area-box link-type-text icon-hover-animation-slide fusion-animated fadeIn" style="background-color: rgb(30, 115, 190); visibility: visible; animation-duration: 0.25s;" data-link="#" data-link-target="_self" data-animationtype="fadeIn" data-animationduration="0.25" data-animationoffset="100%">
+                                                <div class="heading heading-with-icon icon-left">
+                                                    <a class="heading-link" {% if app.request.locale=='fr'%} href="{{path('readmore',{'id':news[2].id})}}"
+                                        {%else%}
+                                            href="{{path('readmore',{'id':news[2].news.id})}}"
+                                        {%endif%} target="_self">
+                                                        <div class="icon" style="-webkit-animation-duration: 350ms;animation-duration: 350ms;">
+                                                            <i style="background-color:transparent;border-color:transparent;height:auto;width:21pxpx;line-height:normal;color:#549f97;font-size:21px;" class="fa fontawesome-icon fa-check circle-no">
+                                                            </i>
+                                                        </div>
+                                                        <h2 class="content-box-heading" style="font-size: 16px;line-height:23px;" data-inline-fontsize="true" data-inline-lineheight="true" data-fontsize="18" data-lineheight="23">
+                                                        {{news[2].titre| slice(0,100) }}...</h2>
+                                                    </a>
+                                                </div>
+                                                <div class="fusion-clearfix"></div>
+                                                <div class="content-container" style="color:#747474;"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a href="{{path('news')}}" style="float:right"><i class="fa fa-eye"></i>&nbsp;{%trans%}voir_plus{%endtrans%}</a>
+                                        </div>
+                                        <div class="fusion-clearfix"></div>
+                                        <div class="fusion-clearfix"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {%endif%}
+                                    {%endblock%}
+</div>
+
+                    </div>
+                                {%endblock body%}
+
+
+                        
+
+                        
+
+                    <div class="fusion-fullwidth fullwidth-box fusion-fullwidth-4  fusion-parallax-none nonhundred-percent-fullwidth fusion-equal-height-columns" style="border-color:#eae9e9;border-bottom-width: 0px;border-top-width: 0px;border-bottom-style: solid;border-top-style: solid;padding-bottom:25px;padding-top:45px;padding-left:30px;padding-right:30px;background-color:#005cb9;height:170px !important;">
+                        <style type="text/css" scoped="scoped">.fusion-fullwidth-4 {
+                            padding-left: 30px !important;
+                            padding-right: 30px !important;
+                        }</style>
+                        <div class="fusion-row">
+                            <div class="fusion-three-fourth fusion-layout-column fusion-spacing-yes" style="margin-top:0px;">
+                                <div style="height: auto;" class="fusion-column-wrapper">
+                                    <div class="fusion-sep-clear"></div>
+                                    <div class="fusion-separator fusion-full-width-sep sep-none" style="border-color:#e0dede;margin-left: auto;margin-right: auto;margin-top:2px;">
+
+                                    </div>
+                                    <h3 data-lineheight="13" data-fontsize="28" style="text-align: left;">
+                                        <span style="color: #ffffff;font-weight:bold">{%trans%}trouver_aide{%endtrans%}<br>
+                                        </span>
+                                    </h3>
+                                    <div class="fusion-clearfix"></div>
+
+                                </div>
+
+                            </div>
+                            <div class="fusion-one-fourth fusion-layout-column fusion-column-last fusion-spacing-yes" style="margin-top:0px;margin-bottom:20px;">
+                                <div style="min-height: 77px; height: auto;" class="fusion-column-wrapper">
+                                    <div class="fusion-button-wrapper fusion-aligncenter">
+                                        <style type="text/css" scoped="scoped">.fusion-button.button-5
+                                     .fusion-button-text, .fusion-button.button-5 i 
+                                    {color:#ffffff;}.fusion-button.button-5 
+                                    {border-width:0px;border-color:#ffffff;}.fusion-button.button-5 
+                                    .fusion-button-icon-divider{border-color:#ffffff;}.fusion-button.button-5:hover
+                                     .fusion-button-text, .fusion-button.button-5:hover 
+                                    i,.fusion-button.button-5:focus .fusion-button-text, 
+                                    .fusion-button.button-5:focus i,.fusion-button.button-5:active 
+                                    .fusion-button-text, 
+                                    .fusion-button.button-5:active{color:#ffffff;}.fusion-button.button-5:hover,
+                                     .fusion-button.button-5:focus, 
+                                    .fusion-button.button-5:active{border-width:0px;border-color:#ffffff;}.fusion-button.button-5:hover
+                                     .fusion-button-icon-divider, .fusion-button.button-5:hover 
+                                    .fusion-button-icon-divider, .fusion-button.button-5:active 
+                                    .fusion-button-icon-divider{border-color:#ffffff;}.fusion-button.button-5{background:
+                                     #006cba;
+                                                        background-image: -webkit-gradient( linear, left bottom, left top, 
+                                    from( #00af5d ), to( #006cba ) );
+                                                        background-image: -webkit-linear-gradient( bottom, #00af5d, #006cba
+                                     );
+                                                        background-image:   -moz-linear-gradient( bottom, #00af5d, #006cba );
+                                                        background-image:     -o-linear-gradient( bottom, #00af5d, #006cba );
+                                                        background-image: linear-gradient( to top, #00af5d, #006cba 
+                                    );}.fusion-button.button-5:hover,.button-5:focus,.fusion-button.button-5:active{background:
+                                     #67b2aa;}.fusion-button.button-5{width:auto;}
+                                     </style>
+                                            <a class="fusion-button button-flat button-round button-xlarge button-custom button-5" target="_self" href="#" data-toggle="modal" data-target=".expert">
+                                            <span class="fusion-button-text">{%trans%}demander_expert{%endtrans%}</span>
+                                        </a>
+                                    </div>
+                                    <div class="fusion-clearfix"></div>
+
+                                </div>
+
+                            </div><div class="fusion-clearfix"></div>
+                        </div>
+
+                    </div>
+                </div>  <!-- fusion-row -->
+            </div>  <!-- #main -->
+
+
+
+
+        </div>
+        <div class="fusion-footer ">
+
+            {%block footer %}
+               
+
+                <footer  class="fusion-footer-copyright-area">
+                    <div class="fusion-row">
+                        <div class="fusion-copyright-content">
+
+                            <div class="fusion-copyright-notice">
+                                <div><footer id="footer" class="fusion-footer-copyright-area">
+                            <div class="fusion-row">
+                                <div class="fusion-copyright-content">
+
+                                            <div class="fusion-copyright-notice">
+            <div>© Copyright 2016 -&nbsp;<script>document.write(new Date().getFullYear());</script>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;GUCE
+ APIP&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;All Rights 
+Reserved&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+        </div>
+                    <div class="fusion-social-links-footer">
+                <div class="fusion-social-networks boxed-icons">
+                    <div class="fusion-social-networks-wrapper">
+                        <a class="fusion-social-network-icon fusion-tooltip fusion-facebook fa fa-facebook" style="color:#ffffff;background-color:#005cb9;border-color:#005cb9;border-radius:4px;" social_network="facebook" social_link="#" icon_color="#ffffff" box_color="#005cb9" last="" href="#" target="_blank" data-placement="top" data-title="Facebook" data-toggle="tooltip" title="" data-original-title="Facebook">
+                            <span class="screen-reader-text">Facebook</span>
+                        </a>
+                        <a class="fusion-social-network-icon fusion-tooltip fusion-twitter fa fa-twitter" style="color:#ffffff;background-color:#005cb9;border-color:#005cb9;border-radius:4px;" social_network="twitter" social_link="#" icon_color="#ffffff" box_color="#005cb9" last="" href="#" target="_blank" data-placement="top" data-title="Twitter" data-toggle="tooltip" title="" data-original-title="Twitter">
+                            <span class="screen-reader-text">Twitter</span>
+                        </a>
+                        <a class="fusion-social-network-icon fusion-tooltip fusion-googleplus fa fa-google" style="color:#ffffff;background-color:#005cb9;border-color:#005cb9;border-radius:4px;" social_network="googleplus" social_link="#" icon_color="#ffffff" box_color="#005cb9" last="" href="#" target="_blank" data-placement="top" data-title="Google+" data-toggle="tooltip" title="" data-original-title="Google+">
+                            <span class="screen-reader-text">Google+</span>
+                        </a>
+                        <a class="fusion-social-network-icon fusion-tooltip fusion-linkedin fa fa-linkedin" style="color:#ffffff;background-color:#005cb9;border-color:#005cb9;border-radius:4px;" social_network="linkedin" social_link="#" icon_color="#ffffff" box_color="#005cb9" last="" href="#" target="_blank" data-placement="top" data-title="Linkedin" data-toggle="tooltip" title="" data-original-title="Linkedin"><span class="screen-reader-text">Linkedin</span></a></div></div>           </div>
+        
+                                </div> <!-- fusion-fusion-copyright-content -->
+                            </div> <!-- fusion-row -->
+                        </footer>{%trans%}pied_de_page{%endtrans%}  </div>
+                            </div>
+
+
+                        </div> <!-- fusion-fusion-copyright-content -->
+                    </div> <!-- fusion-row -->
+                </footer> <!-- #footer -->
+            {%endblock%}
+        </div> <!-- fusion-footer -->
+        <div class="fusion-modal modal fade modal-1 expert" tabindex="-1" id="nous-contacter" role="dialog" aria-labelledby="modal-heading-1" aria-hidden="true" style="z-index:999999">
+            <style type="text/css">.modal-1 .modal-header, .modal-1 .modal-footer{border-color:#ebebeb;}</style>
+            <div class="modal-dialog modal-lg ">
+                <div class="modal-content fusion-modal-content" style="background-color:#ffffff">
+                    <div class="modal-header">
+                        <button class="close" type="button" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 data-lineheight="30" data-fontsize="18" class="modal-title" id="modal-heading-1" data-dismiss="modal" aria-hidden="true">{%trans%}titre_formulaire_contact{%endtrans%}</h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="fusion-three-fifth fusion-layout-column fusion-column-last fusion-spacing-yes" style="margin-top:0px;margin-bottom:20px;">
+                            <div class="fusion-column-wrapper">
+                                <div role="form" class="wpcf7" id="wpcf7-f661-p8-o1" dir="ltr" lang="fr-FR">
+                                    <div class="screen-reader-response"></div>
+                                    <form action="{{path('nous-contacter')}}" method="post" id="formulaire" class="wpcf7-form">
+
+                                        <p>{{'aide.nom'|trans}} (*)<br>
+                                            <span class="wpcf7-form-control-wrap your-name">
+                                                <input name="nom" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" aria-required="true" aria-invalid="false" type="text">
+                                            </span> 
+                                        </p>
+                                        <p>{{'aide.email'|trans}} (*)<br>
+                                            <span class="wpcf7-form-control-wrap your-email"><input name="your-email" size="40" class="wpcf7-form-control wpcf7-text wpcf7-email wpcf7-validates-as-required wpcf7-validates-as-email" aria-required="true" aria-invalid="false" type="email"></span> </p>
+                                        <p>{{'aide.sujet'|trans}} (*)<br>
+                                            <span class="wpcf7-form-control-wrap your-subject"><input name="your-subject" size="40" class="wpcf7-form-control wpcf7-text" aria-invalid="false" type="text"></span> </p>
+                                        <p>{{'aide.message'|trans}} (*)<br>
+                                            <span class="wpcf7-form-control-wrap your-message"><textarea name="your-message" cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea" aria-invalid="false"></textarea></span> </p>
+                                        <p><input value="{{'aide.envoyer'|trans}}" class="wpcf7-form-control wpcf7-submit" id="envoyer" type="button"></p>
+
+                                        <div class="wpcf7-response-output wpcf7-display-none"></div></form></div><br>
+                                <div class="fusion-clearfix"></div>
+                                <div class = "loading" style = "display:none;margin-top:15px;" class="col-lg-12">
+                                    <img style = "display:block;margin:auto;" src="{{ asset('loading.gif') }}" />
+                                </div>  
+                            </div>
+
+                        </div>
+                        <div class="fusion-clearfix"></div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <a class="fusion-button button-default button-medium button default medium" data-dismiss="modal">{{'aide.fermer'|trans}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- wrapper -->
+
+
+    </div>
+                    {% block javascripts %}
+
+            <script type="text/javascript" src="{{asset('front-office/js/jquery.js')}}"></script>
+            <script type="text/javascript" src="{{asset('front-office/js/scripts.js')}}"></script>
+            <script type="text/javascript" src="{{asset('front-office/js/wp-embed.js')}}"></script>
+            <script src="{{asset('js/jquery.js')}}"></script>
+
+            <!-- Bootstrap Core JavaScript -->
+            <script src="{{asset('js/bootstrap.min.js')}}"></script>
+            <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+            <!-- Morris Charts JavaScript -->
+            <script type="text/javascript" src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+            <script src="{{asset('js/jquery.dataTables.min.js') }}"></script>
+            <script src="{{asset('js/dataTables.bootstrap.min.js') }}"></script>
+               <script src="{{asset('js/toastr/build/toastr.min.js') }}"></script>
+             
+		
+			 
+			 
+            <script type="text/javaScript">
+             $(function() {
+
+              
+                    $('#envoyer').click(function()
+            {
+            $('.loading').show();
+                    var inputs = $('#formulaire').find(':input');
+                    var nom = $(inputs[0]).val();
+                    var email = $(inputs[1]).val();
+                    var sujet = $(inputs[2]).val();
+                    var message = $(inputs[3]).val();
+                    if (nom != '')
+            {
+            if (email != '')
+            {
+            if (sujet != '')
+            {
+            if (message != '')
+            {
+                if(email.match(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i))
+                {
+                    
+                
+              $.ajax({
+            url: "{{ path('nous-contacter') }}",
+                    data: {nom: nom, email: email, sujet: sujet, message: message},
+                    type: 'POST',
+                    success: function (data) {
+                    if (data.resultat == 1)
+                    {
+                    toastr.success('{{"aide.message_succes"|trans}}');
+                    $('#nous-contacter').modal('hide')
+                    }
+                    $('.loading').hide();
+                    },
+                    error: function () {
+                    toastr.warning('{{"erreur_survenue"|trans}}');
+                    }
+
+            });
+            }
+            else
+            {
+             toastr.warning('{{"aide.email_invalide"|trans}}');
+                    $('.loading').hide();
+            }
+            }
+            else
+            {
+            toastr.warning('{{"aide.message_nul"|trans}}');
+                    $('.loading').hide();
+            }
+            }
+            else
+            {
+            toastr.warning('{{"aide.sujet_nul"|trans}}');
+                    $('.loading').hide();
+            }
+            }
+            else
+            {
+            toastr.warning('{{"aide.email_nul"|trans}}');
+                    $('.loading').hide();
+            }
+            }
+            else
+            {
+            toastr.warning('{{"aide.nom_nul"|trans}}');
+                    $('.loading').hide();
+            }
+
+
+
+            });
+                    
+            });            </script>
+			<script type="text/javascript">
+  //document.getElementById("imageLogo").src = "logopath";
+</script>
+                        {% endblock %}
+
+                        </body>     
+                        </html>

@@ -1,0 +1,10 @@
+<ol class="breadcrumb">
+
+    {% for et in listeEtapes %} 
+        {% if rte==et.route %} 
+            <li ><font style="font-size: 10pt;font-weight:bold;color: red;">{{et.titre}}</font></li>     
+        {%else%}
+        <li ><a  href="{{path(et.route ,{'idd':idd})}}" ><font style="font-size: 9pt">{{et.titre}}</font></a></li>
+        {% endif%}
+    {% endfor %}
+</ol>

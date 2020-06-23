@@ -1,0 +1,204 @@
+{% extends '::base.html.twig' %}
+
+{%block title%}nom_application{%endblock%}
+
+
+{% block body %}
+ <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                             {%trans%}definition_originepm{%endtrans%} {% if numeroDossier %} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{numeroDossier}}</label>{%endif%}
+                        </h1>
+                        {% block sousMenu %}
+                            {{ render(controller("BanquemondialeBundle:Shared:etapeBrouillon",{'idd':idDossier})) }}
+                        {% endblock %}                        
+                    </div>
+                </div>
+            </div>   
+<div class="panel-body">
+                        <div class="panel-body">
+    {% if message %}
+        <p class="alert alert-success">{{ message }}</p>
+    {% endif %}
+   
+    
+    <form id="form" action="{{ path('path_originepm',{'idd':idDossier}) }}" method="POST" {{ form_enctype(form)}}>     
+	
+    <div class="row">
+                            <div class="row">
+							<div class="form-group col-sm-4">
+								{% if(estEI) %}
+                                <label>{%trans%}message_Type_Origine{%endtrans%} (*)</label>
+								{% else %}
+								<label>{%trans%}meessage_Type_Origine{%endtrans%} (*)</label>
+								{% endif %}
+                                {{ form_errors(form.typeOrigine,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.typeOrigine, {'attr': {'class': 'form-control'}}) }}
+							</div>
+                            </div>
+                            <div class="row notEI">
+							<div class="form-group col-sm-4">
+                                <label>{%trans%}meessage_siExploitant{%endtrans%} (*)</label>
+                                {{ form_errors(form.siExploitant,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.siExploitant, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							</div>
+							<div id="divExploitant" class="row notEI">
+							<div class="form-group col-sm-4">
+                                <label>{%trans%}nom_exploitant{%endtrans%}</label> 
+                                {{ form_errors(form.nomExploitant,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.nomExploitant, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							<div class="form-group col-sm-4">
+                                <label>{%trans%}prenom_exploitant{%endtrans%}</label> 
+                                {{ form_errors(form.prenomExploitant,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.prenomExploitant, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                             <div class="form-group col-sm-4">
+                                <label>{%trans%}adresse_exploitant{%endtrans%}</label>
+                                {{ form_errors(form.adresseExploitant,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.adresseExploitant, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}rccm_exploitant{%endtrans%}</label> 
+                                {{ form_errors(form.rccmExploitant,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(form.rccmExploitant, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}loueur_fond_exploitant{%endtrans%}</label> 
+                                {{ form_errors(form.loueurFondExploitant,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.loueurFondExploitant, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							</div>
+							<fieldset>
+							<legend class="estEI">{%trans%}message_etablissementSecondaire{%endtrans%}</legend>
+                            <div class="row">
+							<div class="form-group col-sm-4 notEI">
+                                <label>{%trans%}message_siEtablissementSecondaire{%endtrans%} (*)</label> 
+                                {{ form_errors(form.siEtablissementSecondaire,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.siEtablissementSecondaire, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							</div>
+							<div id="divEtablissement" class="row">
+							<div class="form-group col-sm-4 estEI">
+                                <label>{%trans%}message_nomCommercial{%endtrans%}</label> 
+                                {{ form_errors(form.nomCommercial,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.nomCommercial, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							<div class="form-group col-sm-4 estEI">
+                                <label>{%trans%}message_sigleOuEnseigne{%endtrans%}</label> 
+                                {{ form_errors(form.sigleOuEnseigne,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.sigleOuEnseigne, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							<div class="form-group col-sm-4 estEI">
+                                <label>{%trans%}message_dateOuverture{%endtrans%}</label> 
+                                {{ form_errors(form.dateOuverture,{'attr':{'class':'alert alert-danger'}}) }}
+								<div class="input-group date" id="datetimepicker">
+                                {{ form_widget(form.dateOuverture, {'attr': {'class': 'datepicker form-control'}}) }}
+                                <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}message_adresseEtablissementSecondaire{%endtrans%}</label> 
+                                {{ form_errors(form.adresseEtablissementSecondaire,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.adresseEtablissementSecondaire, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}message_activiteEtablissementSecondaire{%endtrans%}</label> 
+                                {{ form_errors(form.activiteEtablissementSecondaire,{'attr':{'class':'alert alert-danger'}}) }}								
+                                {{ form_widget(form.activiteEtablissementSecondaire, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							</div>
+                            <div class="form-group col-sm-4 hidden">                                            
+                                {{ form_widget(form.dossierDemande, {value:idDossier}, {'attr': {'class': 'form-control', 'Style':''}}) }}
+                            </div>
+							<div class="form-group col-sm-4 hidden">                                            
+                                <input type="hidden" id="ei" name="ei" value={{ estEI }} />
+                            </div>
+                            
+    </div>
+	</fieldset>
+                            <div class="form-group col-sm-12">
+                            <p class="text-info pull-left">(*) : {%trans%}message_obligatoire{%endtrans%}</p><br/>
+                            <br />
+                                <br />
+                                <br />
+                                <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" type = "submit" value = "{% trans %}message_enregistrer{% endtrans%}"/>
+                                <a href = "{{ path('path_originepm', { 'id': 0, 'idd':idDossier }) }}" style = "width:100px;" class = "btn btn-default form-control col-md-offset-8 col-sm-1">{%trans%}message_annuler{%endtrans%}</a>                                                                                 
+                            </div>
+   
+ 
+     </form>   
+     {{ form_end(form) }}
+    
+    <!--/div>
+    </fieldset-->
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{parent()}}
+<script type="text/javascript">
+    $(function () {
+        $('#datetimepicker').datetimepicker({ locale: 'fr',format: 'DD-MM-YYYY' });
+    }
+    );
+
+$(function() {
+    $('#divExploitant').hide();
+	if($('#frmOriginePM_siExploitant').val() == true) {
+            $('#divExploitant').show(); 
+        } else {
+            $('#divExploitant').hide(); 
+        }
+    $('#frmOriginePM_siExploitant').change(function(){
+        if($('#frmOriginePM_siExploitant').val() == true) {
+            $('#divExploitant').show(); 
+        } else {
+            $('#divExploitant').hide(); 
+        } 
+    });
+});
+
+
+$(function() {
+    $('#divEtablissement').hide();
+	if($('#frmOriginePM_siEtablissementSecondaire').val() == true) {
+            $('#divEtablissement').show(); 
+        } else {
+            $('#divEtablissement').hide(); 
+        }
+    $('#frmOriginePM_siEtablissementSecondaire').change(function(){
+        if($('#frmOriginePM_siEtablissementSecondaire').val() == true) {
+            $('#divEtablissement').show(); 
+        } else {
+            $('#divEtablissement').hide(); 
+        } 
+    });
+});
+
+
+$(function() {
+    $('.estEI').hide();
+	if($('#ei').val() == true) {
+			$('#divEtablissement').show();
+            $('.estEI').show();
+			$('.notEI').hide();
+        } else {
+            $('.estEI').hide();
+			$('.notEI').show(); 
+			if($('#frmOriginePM_siExploitant').val() == true) {
+            $('#divExploitant').show(); 
+        } else {
+            $('#divExploitant').hide(); 
+        }
+        }
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends '::base.html.twig' %}
+{%block title%}{%trans%}titre_statistique{%endtrans%}{% endblock%}
+{% block body %}
+<link rel="stylesheet" href="{{asset('js/exportdatatable/buttons.dataTables.min.css') }}" />
+<link rel="stylesheet" href="{{asset('js/exportdatatable/jquery.dataTables.min.css') }}" />
+
+   <div class="col-md-12" style="margin:0 0 20px 0">
+            <form method="POST" action="{{ path('statistiques-annuelles') }}">
+                <div class="row">
+			
+					<div class="form-group col-sm-2" style="min-width:175px">
+                        <label>{%trans%}annee_debut_creation{%endtrans %}</label>                                
+                        <div class="input-group" id="date1">
+                            {{ form_widget(form.dateCreationDebut, {'attr': {'class': 'text form-control'}}) }}                            
+                        </div>
+                    </div>
+					
+					<div class="form-group col-sm-2" style="min-width:175px">
+                        <label>{%trans%}annee_fin_creation{%endtrans %}</label>                                
+                        <div class="input-group" id="date1">
+                            {{ form_widget(form.dateCreationFin, {'attr': {'class': 'text form-control'}}) }}                            
+                        </div>
+                    </div>
+			
+					<div style="margin-top:25px" class="form-group col-sm-2">
+						<button type="submit"  class="btn btn-info" >{%trans%}message_valider{% endtrans %}</button>
+					</div>                   
+                </div>
+                      {{ form_rest(form) }} 
+            </form>
+            <br/>
+              <br/>
+                <br/>
+                <div id="container10" style=" margin: 0 auto"></div>       
+    </div>   
+	
+	<div class="panel-body table-responsive">
+            <table id="entreprises" class=" table-striped table table-bordered" >	
+                    <thead>
+                        <tr>
+                            <th>{%trans%}message_periode_creation_entreprise{%endtrans%}</th>
+                            <th>{%trans%}message_nombre_entreprise_cree{%endtrans%}</th>                                                    
+                        </tr>
+                    </thead>
+                     {% for tab in tabResultJS %}
+                                      
+                        {% for data in tab["data"] %}
+						 {% set loop1 = loop.index - 1 %}
+						<tr>
+							<td>{{ categorie[loop1]}}</td>   	
+                            <td>{{ data }}</td>   
+						</tr>   							
+                        {% endfor%}							
+                       									
+                   
+                {% endfor %}
+            </table> 		
+    </div> 
+	
+
+
+{% endblock %}
+{%block javascripts%}
+{{parent()}}    
+
+	<script src="{{asset('js/exportdatatable/jquery-1.12.3.js')}}"></script>	 
+	<script src="{{asset('js/exportdatatable/jquery.dataTables.min.js')}}"></script>		 
+	<script src="{{asset('js/exportdatatable/jszip.min.js')}}"></script>
+	<script src="{{asset('js/exportdatatable/pdfmake.min.js')}}"></script>
+	<script src="{{asset('js/exportdatatable/vfs_fonts.js')}}"></script>		 
+	<script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+	<script type="text/javascript" src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>		
+	<script src="{{asset('js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+	<script src="{{asset('js/exportdatatable/buttons.html5.min.js')}}"></script>
+		
+
+		
+<script src="{{asset('js/highcharts.js')}}" charset="utf-8"></script>
+<script src="{{asset('js/modules/exporting.js')}}" charset="utf-8"></script>
+<script src="{{asset('js/highcharts-3d.js')}}" charset="utf-8"></script>
+
+<script type="text/javascript">
+$(function () {
+    
+    var tab= {{categorie|json_encode()|raw}};
+    var tabSerie= {{tabResultJS|json_encode()|raw}};
+
+    $('#container10').highcharts({
+        title: {
+            text: '{{ "message_evaluation_annuelle_creation_entreprise"|trans|e('js') }}',
+            x: -20 //center
+        },
+        subtitle: {
+            text: '',
+            x: -20
+        },
+        xAxis: {
+            categories: tab
+        },
+        yAxis: {
+            title: {
+                text: '{{ "message_nbr_entreprises"|trans|e('js') }}'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: ''
+        },
+        
+        series: tabSerie
+    });
+});
+
+
+
+
+
+				var buttonCommon = {exportOptions: {format: {body: function ( data, column, row, node ) {
+                    return  data;
+                }
+            }
+        }
+    };
+
+    $('#entreprises').DataTable( {  "language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                },
+				"bPaginate": true,"bInfo" : true,
+
+        dom: 'Bfrtip',
+        buttons: [
+            $.extend( true, {}, buttonCommon, {
+                extend: 'excelHtml5',
+				title: 'entreprises'
+            }),
+            $.extend( true, {}, buttonCommon, {
+                extend: 'pdfHtml5',
+				title: 'entreprises'
+            })
+        ]
+    });
+    
+</script>
+
+{%endblock%}

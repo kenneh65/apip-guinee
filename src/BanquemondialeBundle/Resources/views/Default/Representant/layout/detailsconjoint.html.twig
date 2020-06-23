@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>{%trans%}details_conjoint{%endtrans%}</h1>
+<br/>
+
+<div class="row">
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_nom{%endtrans%}</label>
+		<br/>
+		{{ conjoint.nom }}
+	</div>
+
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_prenom{%endtrans%}</label>
+		<br/>
+		{{ conjoint.prenom }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}date_mariage{%endtrans%}</label>
+		<br/>
+		 {% if conjoint.dateMariage %}{{ conjoint.dateMariage|date('d-m-Y') }}{% endif %} 
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}lieu_mariage{%endtrans%}</label>
+		<br/>
+		{{ conjoint.lieuMariage }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}option_matrimoniale{%endtrans%}</label>
+		<br/>
+		{{ conjoint.optionMatrimoniale }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}regime_matrimonial{%endtrans%}</label>
+		<br/>
+		{%if conjoint.regimeMatrimonial %}{{ conjoint.regimeMatrimonial.libelle }}{%endif%}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}option_matrimoniale{%endtrans%}</label>
+		<br/>
+		{{ conjoint.optionMatrimoniale }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}clauses_restrictives{%endtrans%}</label>
+		<br/>
+		{{ conjoint.clausesRestrictives }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}demande_separation_biens{%endtrans%}</label>
+		<br/>
+		{{ conjoint.demandeSeparationBiens }}
+	</div>	
+	
+</div>
+
+    <a href="{{ path('representant_conjoints', { 'id': 0, 'idr':conjoint.representant.id }) }}" class="btn btn-default">{%trans%}retour_liste{%endtrans%}</a> 
+ 
+
+{% endblock %}

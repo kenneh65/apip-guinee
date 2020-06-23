@@ -1,0 +1,246 @@
+<?php
+
+namespace BanquemondialeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * RepartitionQuittance
+ *
+ * @ORM\Table(name="repartitionquittance")
+ * @ORM\Entity(repositoryClass="BanquemondialeBundle\Repository\RepartitionQuittanceRepository")
+ */
+class RepartitionQuittance
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**	
+      * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\DossierDemande")
+      * @ORM\JoinColumn(name="idDossierDemande", referencedColumnName="id")
+      */
+    private $dossierDemande;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="ParametrageBundle\Entity\Pole")
+     * @ORM\JoinColumn(name="idPole", referencedColumnName="id")
+     */
+    private $pole;
+	
+	/**
+     * @var integer
+     *
+     * 
+     */
+	private $formeJuridique;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="montantDu", type="float")
+     */
+    private $montantDu;
+	
+	
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="montantVerse", type="float")
+     */
+    private $montantVerse;
+	
+	
+	 /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="datePaiement", type="datetime", nullable=true)
+     */
+    private $datePaiement;
+	
+	
+	/**
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Entreprise")
+     *  @ORM\JoinColumn(name="idEntreprise", referencedColumnName="id")
+     */
+    private $entreprise;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set dossierDemande
+     *
+     * @param \BanquemondialeBundle\Entity\DossierDemande $dossierDemande
+     * @return DocumentCollected
+     */
+    public function setDossierDemande(\BanquemondialeBundle\Entity\DossierDemande $dossierDemande = null)
+    {
+        $this->dossierDemande = $dossierDemande;
+
+        return $this;
+    }
+
+    /**
+     * Get dossierDemande
+     *
+     * @return \BanquemondialeBundle\Entity\DossierDemande 
+     */
+    public function getDossierDemande()
+    {
+        return $this->dossierDemande;
+    }
+	
+	
+   /**
+     * Set pole
+     *
+     * @param \ParametrageBundle\Entity\Pole $pole
+     * @return RepartitionQuittance
+     */
+    public function setPole(\ParametrageBundle\Entity\Pole $pole = null)
+    {
+        $this->pole = $pole;
+
+        return $this;
+    }
+
+    /**
+     * Get pole
+     *
+     * @return \ParametrageBundle\Entity\Pole 
+     */
+    public function getPole()
+    {
+        return $this->pole;
+    }
+
+    
+
+    /**
+     * Set montantDu
+     *
+     * @param float $montantDu
+     * @return RepartitionQuittance
+     */
+    public function setMontantDu($montantDu)
+    {
+        $this->montantDu = $montantDu;
+
+        return $this;
+    }
+
+    /**
+     * Get montantDu
+     *
+     * @return float 
+     */
+    public function getMontantDu()
+    {
+        return $this->montantDu;
+    }
+
+	/**
+     * Set formeJuridique
+     *
+     * @param integer $formeJuridique
+     * @return RepartitionQuittance
+     */
+    public function setFormeJuridique($formeJuridique)
+    {
+        $this->formeJuridique = $formeJuridique;
+
+        return $this;
+    }
+
+    /**
+     * Get formeJuridique
+     *
+     * @return integer 
+     */
+    public function getFormeJuridique()
+    {
+        return $this->formeJuridique;
+    }
+	
+    /**
+     * Set montantVerse
+     *
+     * @param float $montantVerse
+     * @return RepartitionQuittance
+     */
+    public function setMontantVerse($montantVerse)
+    {
+        $this->montantVerse = $montantVerse;
+
+        return $this;
+    }
+
+    /**
+     * Get montantVerse
+     *
+     * @return float 
+     */
+    public function getMontantVerse()
+    {
+        return $this->montantVerse;
+    }
+	
+	/**
+     * Set datePaiement
+     *
+     * @param \DateTime $datePaiement
+     * @return RepartitionQuittance
+     */
+    public function setDatePaiement($datePaiement)
+    {
+        $this->datePaiement = $datePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get datePaiement
+     *
+     * @return \DateTime 
+     */
+    public function getDatePaiement()
+    {
+        return $this->datePaiement;
+    }
+	
+	/**
+     * Set entreprise
+     *
+     * @param \BanquemondialeBundle\Entity\Entreprise $entreprise
+     * @return RepartitionQuittance
+     */
+    public function setEntreprise(\BanquemondialeBundle\Entity\Entreprise $entreprise = null) {
+        $this->entreprise = $entreprise;
+
+        return $this;
+    }
+
+    /**
+     * Get entreprise
+     *
+     * @return \BanquemondialeBundle\Entity\Entreprise 
+     */
+    public function getEntreprise() {
+        return $this->entreprise;
+    }
+	
+}

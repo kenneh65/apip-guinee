@@ -1,0 +1,207 @@
+{% extends '::base.html.twig' %}
+
+{%block title%}joindre_piece{%endblock%}
+
+{% block body %}
+    <script type="text/javascript">
+        var _formConfirm_submitted = false;
+    </script>
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    {%trans%}piece_jointe{%endtrans%} {% if dd.numeroDossier %} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>{%endif%}
+                </h1>
+                {% block sousMenu %}
+                    {{ render(controller("BanquemondialeBundle:Shared:etapeBrouillon",{'idd':idd})) }}
+                {% endblock %}                        
+            </div>
+        </div>
+    </div>
+    {% for message in app.session.flashbag.get('info') %}            
+        <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <strong>{{ message }}</strong>
+        </div>
+    {% endfor %} 
+    <div class="panel-body" style="width:100%">
+        {% set myVal = 1 %}
+
+        {% if message %}
+            <p class="alert alert-success">{{ message }}</p>
+        {% endif %}		
+        <form action="{{path('pieceJointe',{'idd':dd.id})}}" method="POST" enctype="multipart/form-data" name="formulairePieceJointe">
+            {% if listPieceEntreprise %}
+                <fieldset style="padding: 20px; margin: 10px 0; border: 1px silver solid;" class="scheduler-border">
+                    <legend class="scheduler-border" style="width: auto !important;
+                            border: none;font-size: 14px;font-weight:bold;border: solid 1px #DDD !important; padding: 5px 10px 5px 10px;
+                            border-bottom: none;">{%trans%}entreprise{%endtrans%} </legend>  
+
+                    <table class="table-responsive table-striped table table-bordered" >
+                        <thead>
+                            <tr>
+                                <th></th> 
+                                <th>{%trans%}document{%endtrans%}</label></th>
+                                <th>{%trans%}denomination{%endtrans%}</label></th> 
+                                <th>{%trans%}joindre{%endtrans%}</label></th>                                
+                            </tr>
+                        </thead>
+                        {% for a in listPieceEntreprise %}
+                            <tr>
+                                <td></td>                        
+                                <td>{{ a.libelle }}<input type="hidden" value="{{a.idDoc}}" name="idDoc{{myVal}}"> </td>  
+                                <td>{{ dd.denominationSociale }}</td>
+                                <td>
+                                    {% if a.nomPiece is null  %}
+                                        <label class="btn btn-default btn-file glyphicon glyphicon-paperclip"><input type="file" name="file[]" class="glyphicon glyphicon-paperclip btn btn-default" onchange="document.getElementById('input_text{{myVal}}').value = this.files[0].name" style ="display:none"/>
+                                        </label>
+                                        <input type="text" id="input_text{{myVal}}" value="aucun fichier choisi" style="border:0"/>
+                                    {% else %}
+                                        <label class="btn btn-default btn-file glyphicon glyphicon-pencil"><input type="file" name="file[]" class="glyphicon glyphicon-paperclip btn btn-default" onchange="document.getElementById('input_text{{myVal}}').value = this.files[0].name" style ="display:none"/></label>
+
+                                        <a href = "{{ path('piecejointe_viewpdf', { 'idd': dd.id, 'pdfName': a.nomPiece }) }} " target="_blank" class="btn btn-default btn-file glyphicon glyphicon-search"></a>
+
+                                        <input type="text" id="input_text{{myVal}}" value="{{ a.nomPiece }}" style="border:0"/>
+                                        <a href="#" data-idd="{{dd.id}}" data-pieceName="{{a.nomPiece}}"  data-url = "{{ path('piecejointe_viewpdf', { 'idd': dd.id, 'pdfName': a.nomPiece }) }} " class="glyphicon glyphicon-remove delPiece" style="color: red"></a>
+                                    {% endif %}
+                                </td>																		
+                            </tr>   
+                            {% set myVal = myVal+1 %}							
+                        {% endfor %}
+
+                    </table> 
+
+                </fieldset>
+            {%endif%}
+            {% if listPieceAdmin %} 
+                <fieldset style="padding: 20px; margin: 10px 0; border: 1px silver solid;" class="scheduler-border">
+                    <legend class="scheduler-border" style="width: auto !important;
+                            border: none;font-size: 14px;font-weight:bold;border: solid 1px #DDD !important; padding: 5px 10px 5px 10px;
+                            border-bottom: none;">{%trans%}dirigeants{%endtrans%}</legend> 
+
+                    <table class="table table-bordered table-responsive table-striped" >
+                        <thead>
+                            <tr>
+                                <th></th> 
+                                <th>{%trans%}document{%endtrans%}</th>
+                                <th>{%trans%}proprietaire{%endtrans%}</th>
+                                <th>{%trans%}fonction{%endtrans%}</th>
+                                <th>{%trans%}joindre{%endtrans%}</th>
+
+                            </tr>
+                        </thead>
+                        {% for a in listPieceAdmin %}
+                            <tr>
+                                <td></td>                        
+                                <td>{{ a.libelle }}<input type="hidden" value="{{a.idDoc}}" name="idDoc{{myVal}}"> </td>  
+                                <td>{{ a.associeName }}<input type="hidden" value="{{a.idAssocie}}" name="idAssocie{{myVal}}" /></td>
+                                <td>{{a.fonctionName}}<input type="hidden" value="{{a.idFct}}" name="idFct{{myVal}}" /> </td>
+                                <td>
+                                    {% if a.nomPiece is null %}
+                                        <label class="btn btn-default btn-file glyphicon glyphicon-paperclip"><input type="file" name="file[]" class="glyphicon glyphicon-paperclip btn btn-default" onchange="document.getElementById('input_text{{myVal}}').value = this.files[0].name" style ="display:none"/></label>
+                                        <input type="text" id="input_text{{myVal}}" value="aucun fichier choisi" style="border:0"/>
+                                    {% else %}
+                                        <label class="btn btn-default btn-file glyphicon glyphicon-pencil"><input type="file" name="file[]" class="glyphicon glyphicon-paperclip btn btn-default" onchange="document.getElementById('input_text{{myVal}}').value = this.files[0].name" style ="display:none"/></label>
+
+                                        <a href = "{{ path('piecejointe_viewpdf', { 'idd': dd.id, 'pdfName': a.nomPiece }) }} " target="_blank" class="btn btn-default btn-file glyphicon glyphicon-search"></a>
+
+                                        <input type="text" id="input_text{{myVal}}" value="{{ a.nomPiece }}" style="border:0"/>
+                                        <a href="#" data-idd="{{dd.id}}" data-pieceName="{{a.nomPiece}}"  data-url = "{{ path('piecejointe_viewpdf', { 'idd': dd.id, 'pdfName': a.nomPiece }) }} " class="glyphicon glyphicon-remove delPiece" style="color: red"></a>
+                                    {% endif %}
+                                </td>																		
+                            </tr>   
+                            {% set myVal = myVal+1 %}							
+                        {% endfor %}
+
+                    </table> 
+
+                </fieldset>
+            {% endif %}
+            <div class="form-group col-sm-12">                                                
+                <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" type = "submit" value = "{{'enregistrer'|trans}}"/>                                                
+
+
+            </div>
+
+
+        </form>
+
+        <form name="frmFrais" method="POST" action="{{path('soumettre_dossier',{'idd':dd.id})}}" onsubmit="if (_formConfirm_submitted == false) {
+                    _formConfirm_submitted = true;
+                    document.getElementById('btnSoumettre').disabled = true;
+					document.getElementById('boutonDemandeModification').disabled = true;
+                    return true;
+                } else {
+                    return false;
+                }" >							
+            <div class="btn-group pull-right" role="group">                                                                                                                                    
+                {% if profilName=='saisi' %}
+                    <input class = "btn btn-warning" type = "button" value = "{%trans%}demande_de_modification{%endtrans%}" id="boutonDemandeModification"/>
+                {%endif%}
+                <input style = "width:100px;" id="btnSoumettre" class = "btn btn-success col-sm-3" type = "submit" value = "{{'soumettre'|trans}}"/>                                                                           
+                <input style="width: 100px" type="button" id="btnPayez" value="{{'payer'|trans}}" class="btn btn-primary col-sm-3" />                            
+            </div>
+        </form>
+    </div>
+
+    <div class="modal fade" id="divPayez" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">                                        
+                <button type="button" class="close" data-dismiss="modal">&times;</button>                                                                            
+                <div class="alert alert-success fade in"><strong>{%trans%}message_module_paiement_absent{%endtrans%}</strong></div>                                        
+            </div>
+        </div>
+    </div>
+    <div id ="divDemandeModification" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <br/>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{%trans%}message_titre_motif_demande_modification{%endtrans%}</h4>
+                </div>
+                <form method="POST" action="{{path('saisi_traiterDossier',{'idd':dd.id})}}" name="frmDemandeModif" >	
+                    <div class="modal-body">
+
+                        <textarea name="textAreaModifier"  rows="4" style="resize:none;width:100%" maxlength="255" required="required"></textarea>   
+                        <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+
+                    </div>
+                    <div class="modal-footer"><input style = "width:220px;" class = "btn btn-success form-control  col-sm-3" type = "submit" value = "{%trans%}valider_demande_modification{%endtrans%}"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $("#btnPayez").click(function () {
+            $("#divPayez").modal();
+        });
+        $("#boutonDemandeModification").click(function () {
+            $("#divDemandeModification").modal();
+        });
+        $(".delPiece").click(function (e) {
+            var nomF = $(this).attr("data-pieceName");
+            var idd = $(this).attr("data-idd");
+            var url = '{{ path("supprimer_piece",{"nomF":"nomF","idd":"idd"} ) }}';
+            e.preventDefault();
+            swal({
+                title: "{{'message_confirmation'|trans}}    ",
+                text: "{{'message_confirmer_suppression'|trans}}",
+                showCancelButton: true,
+                confirmButtonColor: "#3f5872    ",
+                cancelButtonText: "{{'annuler'|trans}}    ",
+                confirmButtonText: "{{'confirm_suppression'|trans}}",
+            },
+                    function () {
+                        url = url.replace("nomF", nomF);
+                        url = url.replace("idd", idd);
+                        window.location.replace(url);
+                    });
+        });
+    </script>
+{%endblock%}
+

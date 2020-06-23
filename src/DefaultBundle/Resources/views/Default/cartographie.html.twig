@@ -1,0 +1,176 @@
+
+{% extends '::base-office.html.twig' %}
+{%block title%}{%trans%}message_nbr_investisseur_par_nationalite{%endtrans%}- {{parent()}}{%endblock%}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':11})) }}
+{%endblock%}
+{% block body -%}
+      <div  class="clearfix width-100" style="height:100%">
+        <div class="fusion-row" style="max-width:100%;">
+            <div id="content" class="full-width">
+                <div class="fusion-row" style="border-color:#e2e2e2;border-bottom-width: 1px;border-top-width: 1px;border-bottom-style: solid;border-top-style: solid;padding-bottom:0px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:#ffffff;margin-bo"> 
+                <div class="panel panel-default">
+                    <div class="panel-heading c-list">
+                        <span class="title">{%trans%}message_nbr_investisseur_par_nationalite{%endtrans%}</span>
+                        <ul class="pull-right c-controls">
+                            <li><a href="#" class="hide-search" data-command="toggle-search" data-toggle="tooltip" data-placement="top" title="{{'Recherche'}}"><i class="fa fa-ellipsis-v"></i></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="row" style="display: none;">
+                        <div class="col-xs-12">
+                            <div class="input-group c-search">
+                                <input type="text" class="form-control" id="contact-list-search">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search text-muted"></span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+{%block style%}
+<style type="text/css">
+		
+	
+		h1 {
+			font-size:30px;
+			margin:auto;
+			margin-top:50px;
+		}
+		
+		h2 {
+			font-size:22px;
+			margin-top:50px;
+		}
+		
+        .container {
+            min-width: 100px;
+            margin:auto;
+        }
+		
+		.zoomIn, .zoomOut {
+			background-color:#fff;
+			border:1px solid #ccc;
+			color:#000;
+			width:15px;
+			height:15px;
+			line-height: 15px;
+			text-align:center;
+			border-radius:3px;
+			cursor:pointer;
+			position:absolute;
+			top : 10px;
+			font-weight:bold;
+			left : 10px;
+			
+			-webkit-user-select: none;  
+			-khtml-user-select: none;
+			-moz-user-select: none; 
+			-o-user-select: none;
+			user-select: none; 
+		}
+		
+		.zoomOut {
+			top:30px;
+		}
+		
+		.map {
+			position:relative;
+		}
+		
+		.mapTooltip {
+			position : absolute;
+			background-color : #fff;
+			moz-opacity:0.70;
+			opacity: 0.70;
+			filter:alpha(opacity=70);
+			border-radius:10px;
+			padding : 10px;
+			z-index: 1000;
+			max-width: 200px;
+			display:none;
+			color:#343434;
+		}
+		
+</style>
+{% endblock %}
+                   <div class="container">
+                    <div class="container3">
+                        <div class="map">
+                         <span>alternative_content_map</span>
+                        </div>
+                    </div>
+                   </div>
+
+                </div>
+            </div>
+        </div>
+
+        </div></div>
+        {% endblock %}
+
+        {%block javascripts%}
+            {{parent()}}
+        <script src="{{asset('js/jquery-1.10.0.min.js')}}" charset="utf-8"></script>
+        <script src="{{asset('js/jquery.mousewheel.min.js')}}" charset="utf-8"></script>
+        <script src="{{asset('js/raphael-min.js')}}" charset="utf-8"></script>
+        <script src="{{asset('js/jquery.mapael.js')}}" charset="utf-8"></script>
+        <script src="{{asset('js/maps/world_countries.js')}}" charset="utf-8"></script>
+		
+		<script>
+		
+	
+
+	$(function()
+    {
+
+	var tabInvestisseurs = {{investisseurs|json_encode()|raw}};
+	
+	var plots = {};
+	
+	for (var i =0;i<tabInvestisseurs.length;i++) {
+		var plot = {};	
+
+		plot.latitude = tabInvestisseurs[i]['latitude'];
+        plot.longitude = tabInvestisseurs[i]['longitude'];
+		plot.tooltip = {content: tabInvestisseurs[i]['libelle']+"<br>Nb Investisseur: "+tabInvestisseurs[i]['nbrInvestisseur']};
+		plots[i] = plot;							
+	}
+	
+	
+	$(".container3").mapael({
+		map : {
+			name : "world_countries",
+			defaultArea: {
+				attrs : {
+					fill : "#f4f4e8"
+					, stroke: "#ced8d0"
+				}
+			}
+            // Default attributes can be set for all links
+            , defaultLink: {
+                factor : 0.4
+                , attrsHover : {
+                    stroke: "#a4e100"
+                }
+            }
+            , defaultPlot : {
+				size: 10,
+                text : {
+                    attrs : {
+                        fill:"#000"
+                    }, 
+                    attrsHover : {
+                        fill:"#000"
+                    }
+                }
+            }						
+		},				
+		plots : plots          
+	});	
+});
+				
+		</script>
+
+        
+       {%endblock%}

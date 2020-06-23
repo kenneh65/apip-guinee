@@ -1,0 +1,86 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}titre_page_ajout_forme{%endtrans%}{% endblock %}
+
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+
+{%endblock%}
+{% block body%}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}titre_page_ajout_forme{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('formejuridique_index') }}">{{'forme_juridique'|trans}}</a>
+                            </li>
+                            <li><i></i>{%trans%}ajout{%endtrans%}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <form method="POST" style = "width:70%;margin:auto;" action="{{path('add_formjuridique')}}" >
+                    <div class = "form-group">
+                        <label>{{'code'|trans}}</label>
+                        {%if resultat==-2%}<div class="alert alert-warning">{{'message_renseigner_code_forme'|trans}}</div>
+                        {%elseif resultat==-3%} <div class="alert alert-warning">{{'message_code_forme_existe'|trans}}</div>{%endif%}
+                        <input placeholder = "{{'forme.code'|trans}}" name = "code_forme" class = "form-control" required/>	
+                    </div>
+                    {%if langues|length==0%}
+                        <div class="alert alert-info">{%trans%}alert_parametrage_langue{%endtrans%}</div>
+                    {%else%}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{'langue' |trans}}</th>
+                                    <th>{{'forme.sigle' |trans}}</th>
+
+                                    <th>{{'libelle'|trans}}</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for langue in langues %}
+                                    <tr>
+                                        <td>{{ langue.libelle|trans }}</td>
+                                        <td>
+                                            <input placeholder = "{{'forme.sigle'|trans}}" name = "sigle_{{ langue.libelle|trans }}" required class = "form-control"/>
+                                            <input type = "hidden" name = "langue" value = "{{ langue.libelle|trans }}" class = "form-control" required/>
+                                        </td>
+                                        <td>  <input placeholder = "{{'libelle'|trans}}" name = "libelle_{{ langue.libelle|trans }}" required class = "form-control"/>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td>
+                                        <input class = "btn btn-success" type = "submit" value = "{{'enregistrer'|trans}}" />
+                                        
+                                    </td>
+                                    <td>
+                                        <a href="{{path('formejuridique_index')}}" class = "btn btn-default" >{{'annuler'|trans}}</td>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    {%endif%}
+                </form>					
+            </div>
+        </div>
+    </div>
+{% endblock %}

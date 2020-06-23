@@ -1,0 +1,96 @@
+<page backtop="14mm" backleft="10mm" backright="10mm">
+    <style type="text/css">
+        body{
+            padding:14mm 10mm 4mm 10mm;
+            width:672px;
+            font-family: times;
+        }
+        .titre {			
+            text-align:center;
+            position:relative;
+            height: 30px;
+            font-size:15pt;
+            font-family: Arial;
+            font-weight: bold;           
+            left: 25px;
+            text-shadow: 2px 2px;
+        }
+        div.soustitre {	
+            text-align:left;
+            font-size:10pt;	
+            left:50%;
+        }
+        div.case{
+            border: 1px solid red;
+            width: 5px;
+            height: 5px;
+        }       
+
+        .divLegende
+        {
+            border: 1px black solid;
+            width: 400px;
+            position: absolute;
+            margin: -10px 30% 0 30%;
+            margin-left:150px;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+
+        }        
+        #tabConjoint td ,th{
+            padding: 7px;
+            border: 1px solid;              
+        }        
+
+    </style>
+
+    <div style="margin: 0px 600px 100px 0px ">
+        <table>
+            <tr>
+                <td><img src="{{asset('img/logo_aguipe.png')}}" style="margin:0 0 0 20px" /></td>
+                <td></td>
+                <td><img src="{{asset('img/logo_mec.png')}}" style="margin:0 430px 0 430px;" /></td>
+            </tr>
+        </table>
+    </div>
+    <div class="titre">ATTESTATION DE DECLARATION</div>        
+    <div style="font-size: 13pt;font-family: times;width: 600px;padding-left: 50px;text-align: justify;">
+        <p>Nous soussignés, Agence Guinéenne pour la Promotion de l'Emploi
+            (AGUIPE) Attestons que l'entreprise :</p>
+        <p><font style="font-weight: bold;font-size:14pt">{{dd.denominationSociale}} &laquo;{{dd.formeJuridique.sigle}}&raquo;,</font>
+            Tel :{{dd.telephone}} sise au quartier {{dd.quartier}} /Commune de {{dd.sousPrefecture.libelle}} - {{dd.region.libelle}}</p>
+        <p style="text-align: center">Est enregistrée au sein de notre Agence sous le</p>
+        <p style="font-weight:bold;text-align: center">N° {{aguipe.numeroImmatriculation}}/AGUIPE/{{dateImmatriculation|date('y')}}</p>
+        <p>En foi de quoi, nous lui délivrons la présente <b>ATTESTATION</b> pour servir et valoir ce que de droit</p>
+        <p style="text-align: right">Conakry, le {{dateImmatriculation|localizeddate('medium','none','fr')}}</p>
+        <p></p> 
+        <table style="width: 580px">
+            <tr>
+                <td style="text-align: left;font-weight: bold;text-decoration: underline;width: 380px">Le préposé de l'Agence Guinéenne<br>pour la Promotion de l'Emploi</td>
+                <td style="text-align: right;font-weight: bold; text-decoration: underline;width: 200px">{{aguipe.fonctionSignataire}}</td> 
+            </tr>
+            
+            <tr style="width: 580px">
+                <td colspan="2" style="height: 50px;"></td>               
+            </tr>
+            <tr style="width: 580px">
+                <td style="text-align: left;font-weight: bold;width: 380px">{{app.user.prenom|upper}} {{app.user.nom|upper}}</td>
+                <td style="text-align: center;font-weight: bold;width: 200px">{%if aguipe.nomSignataire%}{{aguipe.nomSignataire|upper}}{%endif%}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top:150px; height: 3em;position: relative;">
+        ____________________________________________________________________________________________
+        <table style="width: 670px;font-size: 8pt;color: #A4A4A4;">
+            <tr>
+                <td style="width: 230px"><font style="margin:0 0 0 20px"> BP 100 -CONAKRY</font><br><img src="{{asset('img/icone_home.png')}}" /> COMMUNE DE KALOUM <br><font style="margin:0 0 0 30px">ALMAMIYA</font></td>
+                <td style="width: 160px">620 47 57 67<br>631 80 44 44<br>657 61 56 56</td>
+                <td style="width: 280px;text-align: center;"><font style="margin: 0 0 0 25px">INFO@AGUIPEGUINEE.COM</font><br><img src="{{asset('img/e_mail.png')}}"/> &nbsp; WWW.AGUIPEGUINEE.COM<br><font style="margin:0 0 0 20px;">REPUBLIQUE DE GUINEE</font></td>
+            </tr>
+        </table>       
+    </div>   
+</page>        
+
+

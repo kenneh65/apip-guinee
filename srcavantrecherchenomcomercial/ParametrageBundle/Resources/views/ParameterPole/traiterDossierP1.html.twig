@@ -1,0 +1,540 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}{{pole.nom}}{% endblock %}
+{% block body %}
+    <style>
+        .divFieldSet
+        {
+            border:1px black solid;                         
+            position:relative;
+            padding: 5px ;                
+            font-size: 8pt;
+        }
+        .divLegende
+        {
+            border: 1px black solid;
+            width: 50%;
+            position: absolute;
+            margin: -10px 30% 0 30%;
+            margin-left:25%;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .labelFormulaireSmall
+        {
+            width:50px;
+        }
+        .labelFormulaire
+        {
+            width:162px;
+        }
+        .labelFormulaireLong
+        {
+            width:220px;
+        }
+        /*th{
+            background-color: #19AAD8;
+        }*/
+        input[type="text"]{
+            width: 200px;
+        }
+        input[type="number"]{
+            width: 200px;
+        }
+        input[type="select"]{
+            width: 200px;
+        }
+        input[readOnly="true"]{
+            background-color: #dfdfdf;
+        }
+    </style>
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    {%trans%}immatriculation_rccm{%endtrans%} {% if dd.numeroDossier %} <label class="pull-right h4" style="color: #d44"> {%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>{%endif%}
+                </h1>
+                <ol class="breadcrumb">
+                    <li>
+                        <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div>
+            <div style="display:inline-block;width:100%">	
+                {% for message in app.session.flashbag.get('error') %}            
+                    {% if message is not null %}  
+                        <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            <strong>{{ message }}</strong> 
+                        </div>
+                    {%endif%}
+                {% endfor %} 
+                {% for message in app.session.flashbag.get('info') %}            
+                    {% if message is not null %}  
+                        <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                            <strong>{{ message }}</strong> 
+                        </div>
+                    {%endif%}
+                {% endfor %} 
+            </div>
+        </div>
+    </div>
+    {% if motif and statutTraitrement and statutTraitrement.code == "DM" %}
+        <div class="row alert alert-warning">
+            <h4>{{'dossier_retour_modification'|trans}}</h4>
+            {{ motif }}
+        </div>
+    {%endif%}
+    <form method="POST" action="{{path('traiter_pers_physique',{'idd':dd.id})}}" name="frmTraiter" >               
+        <div class="panel-body">
+            <div id="divP1">
+                <div class="text-center"><b>FORMULAIRE DE DEMANDE</b></div>
+                <div class="divFieldSet">
+
+                    {% for typeDeFormalite in listeTypeFormalite%}			
+                        <div class=" row" >                      
+                            <div class="col-md-8"><input type="radio" name="radioFormalite" value="{{typeDeFormalite.id}}" />  <label>{{typeDeFormalite.libelle|upper}} </label></div>
+                        </div>
+                    {%endfor%}                       
+                </div>
+                <br/>
+                <div class="divFieldSet">  
+                    <br/>			
+                    <div class=" row" >                  
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{%trans%}rccm_formalite{%endtrans%} : </label>
+                            <div>
+                                <input type="text" name="complementNumRccm" readonly="true" value="{{formatRccm|slice(0, -2)}}" style="width: 90px" />
+                                <input type="text" name="rccmFormalite"  value="{{numSequentiel}}" required="required" style="width: 110px;{{styleNumeroFormalite}}" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{%trans%}rccm_entreprise{%endtrans%} : </label>
+                            <div>
+                                <input type="text" name="complementNumRccm" readonly="true" value="{{formatRccm}}" style="width: 90px" />
+                                <input type="text" name="rccmEntreprise"  value="{{numSequentielEntreprise}}" required="required" style="width: 110px;{{styleNumeroEntreprise}}" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}message_date{%endtrans%} : </label><input type="text"  value="{{dateRccm|date('d-m-Y')}}" readonly="true" /></div>                   
+                    </div>
+                    <br/>            
+                </div>
+                <br>
+                <div class="divFieldSet">
+                    <div class="divLegende">
+                        RENSEIGNEMENTS RELATIFS A LA PERSONNE PHYSIQUE ASSUJETTIE
+                    </div>        
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}nom{%endtrans%} : </label><input type="text"  value=" {{rep.nom|upper}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}prenom{%endtrans%} : </label><input type="text" value="{{rep.prenom|upper}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}message_genre{%endtrans%} : </label><input type="text"  value="{{rep.genre|upper}}" readonly="true" /></div>                   
+
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}date_naissance{%endtrans%} : </label><input type="text" value="{{rep.dateDeNaissance|date('d-m-Y')}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}lieu_naissance{%endtrans%} : </label><input type="text" value="{{rep.LieuNaissance|upper}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}nationalite{%endtrans%} : </label><input type="text"  value="{{rep.nationalite|upper}}" readonly="true" /></div>                   
+
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}adresse{%endtrans%} : </label><input type="text" value="{{rep.adresse|upper}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}email{%endtrans%} : </label><input type="text" value="{{rep.email|upper}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}phone{%endtrans%} : </label><input type="text"  value="{{rep.telephone|upper}} {{rep.portable|upper}}" readonly="true" /></div>                   
+
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}situation_matrimoniale{%endtrans%} : </label><input type="text"  value="{{rep.situationMatrimoniale|upper}}" readonly="true" /></div>                   
+
+                    </div>
+                    <br/>
+                    <table class="table table-responsive table-striped table-bordered">
+                        <tr>
+                            <th >Conjoint(s)</th>
+                            <th>Nom - Prénoms</th>
+                            <th>Date et lieu du mariage</th>
+                            <th>Option matrimoniale</th>
+                            <th>Régime matrimoniale</th>
+                            <th>{%trans%}clauses_restrictives {%endtrans%}</th>
+                            <th>Demande en séparation de biens</th>			
+                        </tr>
+                        {% set loop1 = 0 %}
+                        {% for conjoint in conjoints%}
+                            {% set loop1 = loop.index %}						
+                            <tr>
+                                <th></th>
+                                <td>{{conjoint.nom}} - {{conjoint.prenom}}</td>
+                                <td>{%if conjoint.dateMariage%}{{conjoint.dateMariage|date('d-m-Y')}} &agrave; {{conjoint.lieuMariage}}{%endif%}</td>
+                                <td>{{conjoint.optionMatrimoniale}}</td>
+                                <td>{%if conjoint.regimeMatrimonial%}{{conjoint.regimeMatrimonial.libelle}}{%endif%}</td>
+                                <td>{{conjoint.clausesRestrictives}}</td>
+                                <td>{{conjoint.demandeSeparationBiens}}</td>
+                            </tr>
+
+                        {%endfor%}
+					{%if loop1 < 4 %}
+                        {% for i in loop1..3 %}
+                            <tr>
+                                <th></th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+					{%endif%}
+                    </table> 
+                </div>
+                <br>
+                <div class="divFieldSet">
+                    <div class="divLegende">RENSEIGNEMENTS RELATIFS A L'ETABLISSEMENT ET A L'ACTIVITE</div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}nom_commercial{%endtrans%} : </label><input type="text"   value="{{ dd.DenominationSociale}}" readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}sigle{%endtrans%} ou {%trans%}enseigne{%endtrans%} : </label><input type="text" {%if dd.sigle %} value="{{dd.sigle}}"{%elseif dd.enseigne %} value="{{dd.Enseigne}}"{%endif%} readOnly="true" /></div>
+                        <div class="col-sm-4"><label class="labelFormulaire">Activitée(S) exercée(S): </label>
+                            <input type="text"  value="{{activitePrincipale}}{%if activiteSecondaire%};{{activiteSecondaire}}{%endif%}{%if dd.activiteSecondaire2%};{{activiteSecondaire2}}{%endif%}{%if dd.ActiviteSociale%};{{dd.ActiviteSociale}}{%endif%}" readonly="true" /></div>                   
+
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{%trans%}date_debut{%endtrans%} : </label>
+                            <input type="text"  value="{{dd.dateDebut|date('d-m-Y')}}" readOnly="true" /></div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{{'nombre_salarie_prevu'|trans}} : </label>
+                            <input type="text"   value="{{dd.nombreSalariePrevu}}" readOnly="true" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaireLong">Adresse de l'établissement principal </label>
+                            <input type="text"  value="{{dd.adresseSiege}}" readonly="true" />
+                        </div>                   
+
+                    </div>
+                    <div class="col-sm-12"><label class="labelFormulaireSmall">Origine : </label> {% for typeOrigine in listeTypeOrigine%} {%if origine and origine.typeOrigine.id == typeOrigine.id%} <input type="checkbox" name="checkOrigine" class="checkOrigine" checked="true" /> {%else%}<input type="checkbox" name="checkOrigine" class="checkOrigine" /> {%endif%}{{typeOrigine.libelle}} {%endfor%} </div>
+                    <div class="row">
+                        <div class="col-sm-4"><label class="labelFormulaire">{%trans%}nom_commercial{%endtrans%} : </label>
+                            <input type="text"  {%if origine %}value="{{origine.nomCommercial}}" {%endif%} readOnly="true" />
+                        </div>
+                        <div class="col-sm-4"><label class="labelFormulaire">{{'sigle'|trans}} ou {%trans%}enseigne{%endtrans%}: </label>
+                            <input type="text"  {%if origine %}value="{{origine.sigleOuEnseigne}}" {%endif%} readOnly="true" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{{'message_dateOuverture'|trans|lower}} : </label>
+                            <input type="text"  {%if origine %}value="{{origine.dateOuverture|date('d-m-Y')}}"{%endif%} readonly="true" />
+                        </div>                   
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{%trans%}adresse{%endtrans%} : </label>
+                            <input type="text"  {%if rep %}value="{%if origine%}{{origine.adresseEtablissementSecondaire}}{%endif%}"{%endif%} readOnly="true" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">{%trans%}Activité{%endtrans%} : </label>
+                            <input type="text"  {%if origine %}value="{{origine.activiteEtablissementSecondaire}}"{%endif%} readonly="true" />
+                        </div>                   
+
+                    </div>
+                </div>
+                <br>
+                <div class="divFieldSet">
+                    <div class="divLegende">RENSEIGNEMENTS RELATIFS AUX ACTIVITES ANTERIEURES</div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label class="labelFormulaireLong">Exercice d'une précédente activité :</label>
+                            <select style="width: 200px" disabled="true" readOnly="true">
+                                {%if activiteAnterieure==null%}
+                                    <option value="NON" selected="true">NON</option>
+                                    <option value="NON">NON</option>
+                                {%else%}
+                                    <option value="NON">NON</option>
+                                    <option value="OUI" selected="true">OUI</option>
+                                {%endif%}                                
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">Nature de l'activité </label>
+                            <select style="width: 200px" disabled="true" readOnly="true">
+                                <option value="Commerciale">Commerciale</option>
+                                <option value="Autre">autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><label class="labelFormulaireLong">Période : de(mois et année) </label>
+                            <input type="text" readonly="true" value="{%if activiteAnterieure%}{{activiteAnterieure.dateDebut}}{%endif%}" />                           
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">à </label>
+                            <input type="text" readonly="true" value="{%if activiteAnterieure%}{{activiteAnterieure.dateFin}}{%endif%}" />
+                        </div>
+                        <div class="col-sm-4"><label class="labelFormulaire">Précédent Rccm</label>
+                            <input type="text" readonly="true" value="{%if activiteAnterieure%}{{activiteAnterieure.precedentRccm}}{%endif%}" /></div>
+                    </div>
+                    <div class="row">    
+                        <div class="col-sm-4">
+                            <label class="labelFormulaireLong">Principal Etablissement secondaire(s)</label>
+                            <input type="text" readonly="true" value="{%if activiteAnterieure%}{{activiteAnterieure.etablissementSecondaire}}{%endif%}" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaire">N° RCCM</label>
+                            <input type="text" readonly="true" value="{%if activiteAnterieure%}{{activiteAnterieure.rccmEtabSecondaire}}{%endif%}" />
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="labelFormulaireLong">Adresse(Géographique et postale)</label>
+                            <input type="text" readonly="true" value="{%if activiteAnterieure%}{{activiteAnterieure.adresse}}{%endif%}" />
+                        </div>        
+                    </div>
+                </div>
+                <br>
+                <div class="divFieldSet">
+                    <div class="divLegende">
+                        PERSONNES POUVANT ENGAGER LA PERS. PHYSIQUE ASSUJETTIE
+                    </div>
+                    <br>
+                    <table class="table table-bordered table-responsive table-responsive">
+                        <tr>
+                            <th>{%trans%}nom{%endtrans%}</th>
+                            <th>{%trans%}prenom{%endtrans%}</th>
+                            <th>{%trans%}Date{%endtrans%} et {%trans%}message_lieu_naissance{%endtrans%} </th>
+                            <th>Domicile</th>
+                            <th>{%trans%}nationalite{%endtrans%}</th>
+                        </tr>
+                        {% for pers in personneEngageurs%}
+                            <tr>
+                                <td>{{pers.nom}}</td>
+                                <td>{{pers.prenom}}</td>
+                                <td>{%if pers.dateNaissance%}{{pers.dateNaissance|date('d-m-Y')}}{%endif%} {{pers.lieuNaissance}}</td>
+                                <td>{{pers.domicile}}</td>
+                                <td>{{pers.nationalite}}</td>
+                            </tr>
+                        {%endfor%}  
+                    </table>
+                </div>
+                <br />  
+                <div class="panel-footer">
+				{%if "gec"|lower not in app.user.profile.description|lower %}
+                    {% if statutTraitrement and statutTraitrement.id==1%}
+                        <input class = "btn btn-success" type = "submit" value = "{%trans%}message_enregistrer{%endtrans%}"/>
+                        <input class = "btn btn-info" type = "button" value = "{{'visualiser'|trans}}" id="btnVisualiser" data-url="{{path('visualiserP1',{'idd':dd.id})}}"/>             
+                        <input class = "btn btn-warning" type = "button" value = "{%trans%}demande_de_modification{%endtrans%}" id="boutonDemandeModification"/>
+                        {%if rccm%}<input class = "btn btn-primary" type = "button" value = "{{'delivrer'|trans}}" id="btnDelivrer"/>{%endif%}
+                    {%endif%}
+                    <input class="btn btn-default btn-goto"   type="button" value="{%trans%}retour{%endtrans%}" data-url="{{path('dossierPole')}}" />			
+				{%elseif "gec"|lower in app.user.profile.description|lower %}
+					{%if dd.statutValidationChefGreffe != 2%}					
+						<input class = "btn btn-info" type = "button" value = "{{'visualiser'|trans}}" id="btnVisualiserChefGreffe" data-url="{{path('visualiserChefGreffeP1',{'idd':dd.id})}}"/>             
+						<input class = "btn btn-primary" type = "button" value = "{{'signer'|trans}}" id="btnDelivrerChefGreffe" />
+						<input class="btn btn-default btn-goto"   type="button" value="{%trans%}retour{%endtrans%}" data-url="{{path('dossierAValiderChefGreffe',{'idS':statutTraitrement.id})}}" />
+					{%endif%}
+					{%if dd.statutValidationChefGreffe == 2%}					            
+						<input class="btn btn-default btn-goto"   type="button" value="{%trans%}retour{%endtrans%}" data-url="{{path('dossierValideChefGreffe',{'idS':statutTraitrement.id})}}" />
+					{%endif%}
+				{%endif%}
+                </div>
+            </div>
+        </div>               
+    </form>
+
+    <div id ="divDemandeModification" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <br/>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{%trans%}message_titre_motif_demande_modification{%endtrans%}</h4>
+                </div>
+                <form method="POST" action="{{path('traiter_pers_physique',{'idd':dd.id})}}" name="frmDemandeModif" >	
+                    <div class="modal-body">
+                        <textarea name="textAreaModifier"  rows="4" style="resize:none;width:100%" maxlength="255" required="required"></textarea>   
+                        <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+                    </div>
+                    <div class="modal-footer"><input style = "width:220px;" class = "btn btn-success form-control  col-sm-3" type = "submit" value = "{%trans%}valider_demande_modification{%endtrans%}"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="divValider" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{path('delivrerDossier' )}}" name="frmDevivrer" ><div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">{%trans%}confirm_demande_modification{%endtrans%}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="idd" value="{{dd.id}}" />
+                        {#<input type="hidden" id="idP" value="{{p.id}}" />#}
+                        <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+                    </div>
+                    <div class="modal-footer">
+                        <input class = "btn btn-success form-control  col-sm-3" type = "button" id="btnConfirm" value = "{%trans%}message_confirmer{%endtrans%}"/>                        
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+	<div id="divValiderChefGreffe" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">{%trans%}confirm_validation_chef_greffe{%endtrans%}</h4>
+                    </div>
+
+                    <div class="modal-body">						
+                        <input type="hidden" id="idd2" value="{{dd.id}}" />
+						<div style="text-align:center">
+							<p class="modal-title">{%trans%}entrez_mdp_pour_valider{%endtrans%}</p>
+							<br/>
+							<label id="msgAlerteMdp" style="color:red;display:none">{{'champ_requis'|trans}}</label>
+							<label id="msgAlerteMdpIncorrect" style="color:red;display:none">{{'mdp_incorrect'|trans}}</label>
+							<br/>
+							<input type="password" id="passwordChefGreffe" value="" />
+						</div>
+						<br/>
+                        <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+                    </div>
+                    <div class="modal-footer">
+                        <input class = "btn btn-success form-control  col-sm-3" type = "button" id="btnConfirmChefGreffe" value = "{%trans%}message_confirmer{%endtrans%}"/>                        
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{%block javascripts %}
+    {{parent()}}
+    <script>
+        $(document).ready(function () {
+            $("input:radio[name=radioFormalite]:first").attr('checked', true);
+        });
+		
+        $("#btnVisualiser").click(function () {
+            var url = $(this).attr('data-url');
+            window.open(url);
+        });
+		
+		$("#btnVisualiserChefGreffe").click(function () {
+            var url = $(this).attr('data-url');
+            window.open(url);
+        });
+		
+        $("#boutonDemandeModification").click(function () {
+            $("#divDemandeModification").modal();
+        });
+        $("#btnDelivrer").click(function () {
+            $("#divValider").modal();
+        });
+		
+		$("#btnDelivrerChefGreffe").click(function () {
+            $("#divValiderChefGreffe").modal();
+        });
+		
+        $("#btnConfirm").click(function () {
+            var idd = $("#idd").val();
+            $('.loading').show();
+            $.ajax({
+                url: "{{ path('delivrerDossier') }}",
+                data: {idd: idd},
+                type: 'POST',
+                success: function (data) 
+				{
+                    if (data.resultat == 1)
+                    {                       
+						toastr.success('{%trans%}message_dossier_delivre_succes{%endtrans%}');
+						$.ajax({
+							type: "POST",
+							url: "{{ path('send_rccm', {'idd': idd}) }}",
+							data: {idd: idd},
+							success: function (data) {
+								if (data.resultat == 1)
+								{	
+									toastr.success('{%trans%}dossier_delivre_rccm_envoye{%endtrans%}');
+									window.location.href = '{{path('dossierPole')}}';
+								}
+								else
+								{
+									//console.log("echec");
+									toastr.warning('{%trans%}dossier_delivre_rccm_non_envoye{%endtrans%}');
+									window.location.href = '{{path('dossierPole')}}';
+								}								
+							},
+							error: function () {
+								//console.log("erreur");
+								toastr.warning('{%trans%}dossier_delivre_rccm_non_envoye{%endtrans%}');
+							}
+						});						                       
+                        //$("#divValider").modal('hide');
+                    } else
+                    {
+                        toastr.warning('{%trans%}erreur_survenue{%endtrans%}');
+                        //window.location.href = '{{path('dossierPole')}}';
+                        $("#divValider").modal('hide');
+                    }
+                    $('.loading').hide();
+                },
+                error: function () {
+                    //alert('{%trans%}erreur_survenue{%endtrans%}');
+					toastr.error('{%trans%}erreur_survenue{%endtrans%}');
+                }
+            });
+        });
+		
+		
+		$("#btnConfirmChefGreffe").click(function () {
+			var mdp = $("#passwordChefGreffe").val();
+			if(mdp)
+			{
+				var idd = $("#idd2").val();				
+				$('.loading').show();
+				$.ajax({
+					url: "{{ path('validerDossierChefGreffeAction') }}",
+					data: {idd: idd, mdp:mdp},
+					type: 'POST',
+					success: function (data) {
+						if (data.resultat == 1)
+						{                       
+							toastr.success('{%trans%}message_dossier_valider_succes{%endtrans%}');
+							$("#divValiderChefGreffe").modal('hide');
+							window.location.href = '{{path('dossierAValiderChefGreffe')}}';							
+							
+						} else if(data.resultat == 2)
+						{
+							//alert("erreur");
+							toastr.error('{%trans%}mdp_incorrect{%endtrans%}');
+							$("#msgAlerteMdpIncorrect").show();
+							//window.location.href = '{{path('dossierPole')}}';
+							//$("#divValiderChefGreffe").modal('hide');
+						}
+						else{
+							toastr.error('{%trans%}erreur_survenue{%endtrans%}');
+							 $("#divValiderChefGreffe").modal('hide');
+						}
+						$('.loading').hide();
+					},
+					error: function () {
+						//alert('{%trans%}erreur_survenue{%endtrans%}');
+						toastr.error('{%trans%}erreur_survenue{%endtrans%}');
+						$('.loading').hide();
+					}
+				});
+			}
+			else{
+				toastr.warning('{%trans%}veuillez_entrer_mdp{%endtrans%}');
+				$("#passwordChefGreffe").css('border', '1px red solid');
+				$("#msgAlerteMdp").show();
+			}
+        });
+		
+
+		
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+		
+		$('input[id=passwordChefGreffe]').on('input',function() {
+			$("#passwordChefGreffe").css('border', '1px black solid');
+			$("#msgAlerteMdp").hide();
+			$("#msgAlerteMdpIncorrect").hide();
+		});
+		
+    </script>
+{%endblock%}

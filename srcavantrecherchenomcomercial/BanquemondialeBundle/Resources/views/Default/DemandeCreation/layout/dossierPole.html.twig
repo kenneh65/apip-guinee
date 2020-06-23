@@ -1,0 +1,233 @@
+{% extends '::base.html.twig' %}
+{%block title %}              {% if idS==2 %} {%trans%}dossiers_delivre{%endtrans%} {%elseif  idS==3%}{%trans%}list_dossier_modification{%endtrans%} {%else%}{%trans%}list_dossier{%endtrans%} {%endif%}
+{%endblock%}
+
+{% block body %}
+
+    <div class="col-lg-12">
+	{% for message in app.session.flashbag.get('error') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                {% if idS==2 %} {%trans%}dossiers_delivre{%endtrans%} {%elseif  idS==3%}{%trans%}list_dossier_modification{%endtrans%} {%else%}{%trans%}list_dossier{%endtrans%} {%endif%}
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                </li>
+            </ol>
+        </div>
+
+
+        <div class="panel-body" >
+            <div class="col-md-12" style="margin:0 0 20px 0">
+                <form method="POST" {{ form_enctype(form) }}>
+
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}numero_dossier{%endtrans %}</label>
+                            {{ form_widget(form.numeroDossier,{'attr':{'class': 'form-control'}}) }}  								                        
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}denomination{%endtrans %}</label>                             
+                            {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}premier_gerant{%endtrans %}</label>                             
+                            {{ form_widget(form.gerant, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        {#<div class="form-group col-sm-4">
+                            <label>{%trans%}statut_traitement{%endtrans %}</label>                         
+                            {{ form_widget(form.statut, {'attr': {'class': 'form-control'}}) }}
+                        </div>#}
+
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}forme_juridique{%endtrans %}</label>                        
+                            {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        <div class="form-group col-sm-2" style="min-width:150px">
+                            <label>{%trans%}date_debut_creation{%endtrans %}</label>                                
+                            <div class="input-group date" id="datetimepicker1">
+                                {{ form_widget(form.dateCreationDebut, {'attr': {'class': 'datepicker1 form-control'}}) }}
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-2" style="min-width:150px">
+                            <label>{%trans%}date_fin_creation{%endtrans %}</label>
+                            <div class="input-group date" id="datetimepicker2">
+                                {{ form_widget(form.dateCreationFin, {'attr': {'class': 'datepicker2 form-control'}}) }}
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_dossier{%endtrans %}</label>                        
+                            {{ form_widget(form.typeDossier, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}structure_appartenance{%endtrans %}</label>                        
+                            {{ form_widget(form.entreprise, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        {% if idS==2 %}
+                            <div class="form-group col-sm-2" style="min-width:150px">
+                                <label>{%trans%}date_debut_delivrance{%endtrans %}</label>                                
+                                <div class="input-group date" id="datetimepicker3">
+                                    {{ form_widget(form.dateDelivranceDebut, {'attr': {'class': 'datepicker3 form-control'}}) }}
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-2" style="min-width:150px">
+                                <label>{%trans%}date_fin_delivrance{%endtrans %}</label>
+                                <div class="input-group date" id="datetimepicker4">
+                                    {{ form_widget(form.dateDelivranceFin, {'attr': {'class': 'datepicker4 form-control'}}) }}
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        {%endif%}
+                        <div class="form-group col-sm-2">
+                            <button type="submit" style="margin-top:25px" class="btn btn-info pull-left" >{%trans%}search{%endtrans %} <span class="glyphicon glyphicon-search"></span></button>
+                        </div>
+
+
+
+                    </div>                
+
+
+                    <br/>
+
+                </form>
+            </div>
+
+            <div class="table-responsive" style="width:100%">		
+                <table id="dossiers" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>{%trans%}numero_dossier{%endtrans %}</th>          
+                            <th>{%trans%}denomination{%endtrans %}</th>
+                            <th>{%trans%}forme_juridique{%endtrans %}</th>
+                            <th>{%trans%}type_dossier{%endtrans %}</th>
+                            <th>{{'structure_appartenance'|trans}}</th>
+                            <th>{%trans%}premier_gerant{%endtrans %}</th>
+                        {%if pole and pole.sigle=="GF"%}
+                            <th>{%trans%}agent_saisi{%endtrans %}</th>
+                        {%endif%}
+                            <th>{{'date_reception'|trans}}</th>
+                            {% if idS==2 %}<th>{{'date_delivrance'|trans}}</th>{%endif%}
+                            {% if idS==2 %}<th>{{'duree_traitement'|trans}}</th>{%endif%}
+                        </tr>
+                    </thead>
+                    {% for a in listerdemande %}
+                        <tr {%if a.orange%} style="color:orange"{%elseif a.red%}style="color:red"{%endif%}>
+                            <td>
+                                <a href="{{ path('documentAccompagnant', { 'idd': a.id,'idS':idS }) }}" title="{%trans%}documents_accompagnants{%endtrans%}">
+                                    <span class='glyphicon glyphicon-folder-close' style="color: green"></span>
+                                </a>
+                            </td>
+                            <td>                                 
+                                <a href="{{ path('traiterDossier', { 'idd': a.id }) }}" title="{%trans%}message_dossier{%endtrans%}">
+                                    {{ a.numeroDossier }}
+                                </a>                               
+                            </td>                                  
+                            <td>{{ a.denominationSociale }}</td>
+                            <td>{{ a.libelleFormeJ }}</td>
+                            <td>{{ a.typDossier }}</td>
+                            <td>{{a.structure}}</td>
+                            <td>{{ a.gerant }}</td>
+                            {%if pole and pole.sigle=="GF"%}
+                            <td>{{ a.agentSaisi }}</td>
+                                {%endif%}
+                            <td>{% if a.dateSoumission %}{{ a.dateSoumission|date('d-m-Y H:i:s') }}{%else%}-{% endif %}</td>
+                            {% if idS==2 %}<td>{% if a.dateDelivrance %}{{ a.dateDelivrance|date('d-m-Y H:i:s') }}{%else%}-{% endif %}</td>
+                            {%endif%}
+                            {% if idS==2 %}<td>{{a.duree}} j</td>{%endif%}
+                        </tr>
+
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{%block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+        $(function () {
+            /*
+             $.fn.dataTable.moment = function ( format, locale ) {
+             var types = $.fn.dataTable.ext.type;
+             
+             // Add type detection
+             types.detect.unshift( function ( d ) {
+             return moment( d, format, locale, true ).isValid() ?
+             'moment-'+format :
+             null;
+             } );
+             
+             // Add sorting method - use an integer for the sorting
+             types.order[ 'moment-'+format+'-pre' ] = function ( d ) {
+             return moment( d, format, locale, true ).unix();
+             };
+             };
+             
+             $.fn.dataTable.moment( 'D-MM-YYYY HH:mm:ss' );*/
+
+
+            $('#dossiers').DataTable({"bInfo": false, "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]], bFilter: false, "language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    },
+                    "aoColumns": [{
+                            sType: "custom-date"
+                        }]
+                }});
+
+
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+            $('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+            $('#datetimepicker3').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+            $('#datetimepicker4').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+        }
+        );
+    </script>
+
+
+{% endblock %}

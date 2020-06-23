@@ -1,0 +1,524 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}resume_page_title{%endtrans%}{% endblock %}
+{% block body %}
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">            
+                </div>
+            </div>
+            <div class="panel-body">    
+				<h1 class="page-header">
+                    {%trans%}identification_page_title{%endtrans%}
+                </h1>                
+                <div class="row">        
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}denomination{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.denominationSociale }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}nom_commercial{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.nomCommercial }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}secteur_activite{%endtrans%}</label>
+						<br/>
+                       {{ dossierDemande.secteurActivite }}                        
+                    </div>
+                </div>     
+                <div class="row">
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}pays{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.pays }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}region{%endtrans%}</label> 
+						<br/>
+                      {{  dossierDemande.region }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}prefecture{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.prefecture.libelle }}                        
+                    </div>  
+					<div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}sousPrefecture{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.sousPrefecture.libelle }}                        
+                    </div>					
+                
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}sigle{%endtrans%}</label> 
+						<br/>
+                      {{  dossierDemande.sigle }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}enseigne{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.enseigne }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}boitepostale{%endtrans%}</label>
+						<br/>
+                       {{ dossierDemande.boitePostale }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}phone{%endtrans%}</label> 
+						<br/>
+                      {{  dossierDemande.telephone }}                        
+                    </div>
+                    <div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}email{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.email }}                        
+                    </div>
+                    
+
+					<div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}forme_juridique{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.formeJuridique }}                        
+                    </div>
+					
+					<div class="dossierDemande-group col-sm-4">
+                        <label>{%trans%}type_dossier{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.typeDossier.libelle }}                        
+                    </div>
+				</div>
+				
+				<div class="row"> 
+                    <div class="dossierDemande-group col-sm-6">
+                        <label>{%trans%}activite_sociale{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.activiteSociale }}                        
+                    </div>
+					
+                    <div class="dossierDemande-group col-sm-6">
+                        <label>{%trans%}adresse{%endtrans%}</label> 
+						<br/>
+                       {{ dossierDemande.adresseSiege  }}                      
+                    </div>
+                </div>       
+            </div>			
+			<hr>			
+			<div class="panel-body">
+			<h1 class="page-header">{%trans%}message_liste_representant{%endtrans%}</h1>			 
+            <div class="table-responsive " style="width:100%">
+                {% if listerRepresentant %}
+					{% if dossierDemande.formeJuridique.sigle == "EI"%}
+                    <table class="table table-striped table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{%trans%}message_nom{%endtrans%}</th>
+                                <th>{%trans%}message_prenom{%endtrans%}</th>
+                                <th>{%trans%}message_date_naissance{%endtrans%}</th>
+                                <th>{%trans%}message_tel_fixe{%endtrans%}</th>
+                                <th>{%trans%}message_tel_portable{%endtrans%}</th>
+                                <th>{%trans%}message_email{%endtrans%}</th>
+                                <th>{%trans%}message_fonction{%endtrans%}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for representant in listerRepresentant %}
+                                <tr>	 
+                                    <td>{{ representant.nom }}</td>
+                                    <td>{{ representant.prenom }}</td>
+                                    <td>{% if representant.dateDeNaissance %}{{ representant.dateDeNaissance|date('d-m-Y') }}{% endif %}</td>
+                                    <td>{{ representant.telephone }}</td>
+                                    <td>{{ representant.portable }}</td>
+                                    <td>{{ representant.email }}</td>		 
+                                    <td>
+                                        {% for b in fonctionTraduit %}
+                                            {% if representant.fonction and representant.fonction.id == b.fonction.id %}
+                                                {{ b.libelle }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+					{% else %}
+					<table class="table table-striped table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{%trans%}message_nom{%endtrans%}</th>
+                                <th>{%trans%}message_prenom{%endtrans%}</th>
+                                {#<th>{%trans%}genre{%endtrans%}</th>#}
+                                <th>{%trans%}date_naissance{%endtrans%}</th>
+                                <th>{%trans%}message_lieu_naissance{%endtrans%}</th>
+                                {#<th>{%trans%}message_nationalite{%endtrans%}</th>#}
+                                <th>{%trans%}message_fonction{%endtrans%}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for representant in listerRepresentant %}
+                                <tr>	 
+                                    <td>{{ representant.nom }}</td>
+                                    <td>{{ representant.prenom }}</td>
+	
+                                    <td>{% if representant.dateDeNaissance %}{{ representant.dateDeNaissance|date('d-m-Y') }}{% endif %}</td>  
+									<td>{{ representant.lieuNaissance }}</td>
+									{#<td>{{ representant.pays.paysTraduction[0].libelle }}</td>#}
+									
+                                    <td>
+                                        {% for b in fonctionTraduit %}
+                                            {% if representant.fonction and representant.fonction.id == b.fonction.id %}
+                                                {{ b.libelle }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+					{% endif %}
+                {% else %}{%trans%}message_aucun_element_trouve{%endtrans%}
+                {%endif%}
+            </div>
+        </div>
+		<hr>
+		{% if dossierDemande.formeJuridique.sigle != 'EI' %}		
+		<div class="panel-body">
+		<h1 class="page-header"> {%trans%}message_administrateurs{%endtrans%}</h1>
+            <div class="table-responsive" style="width:100%">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{%trans%}message_nom{%endtrans%}</th>
+                            <th>{%trans%}message_prenom{%endtrans%}</th>
+                            <th>{%trans%}message_lieu_naissance{%endtrans%}</th>
+                            <th>{%trans%}message_adresse{%endtrans%}</th>
+                            <th>{%trans%}message_duree_mandat{%endtrans%}</th>
+                        </tr>
+                    </thead>
+                    {% for a in listeradmin %}
+                        <tr>         
+                            <td>{{ a.nom }}</td>
+                            <td>{{ a.prenom }}</td>
+                            <td>{{ a.lieuNaissance }}</td>
+                            <td>{{ a.adresse }}</td>
+                            <td>{{ a.dureeMandat }}</td>
+                        </tr>
+                    {% else %} <tr><td>{%trans%}message_aucun_element_trouve{%endtrans%}</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+		<hr>
+		{% endif %}
+
+		{% if dossierDemande.formeJuridique.sigle != 'EI' %}			
+		<div class="panel-body">
+		<h1 class="page-header"> {%trans%}message_associes{%endtrans%}</h1>
+            <div>
+                <table class="table table-striped table-responsive table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{%trans%}message_nom{%endtrans%}</th>
+                            <th>{%trans%}message_prenom{%endtrans%}</th>
+                        </tr>
+                    </thead>  
+                    <tbody>
+                        {% for a in listerassocie %}
+                            <tr> 				
+                                <td>{{ a.nom }}</td>
+                                <td>{{ a.prenom }}</td>
+                            </tr>                    
+                        {% endfor %}
+                    </tbody>
+                </table>               
+            </div>
+        </div>
+		<hr>
+		{% endif %}
+		
+		{% if listCommissaireDossier|length > 0 %}		
+		<div class="panel-body">
+		<h1 class="page-header"> {%trans%}message_commissaires_au_compte{%endtrans%}</h1>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{%trans%}message_fonction{%endtrans%}</th> 
+                            <th>{%trans%}message_nom{%endtrans%}</th>
+                            <th>{%trans%}message_prenom{%endtrans%}</th>            
+                            <th>{%trans%}message_adresse{%endtrans%}</th> 
+                        </tr>
+                    </thead>           
+                    {% for ddc in listCommissaireDossier %}                
+                        <tr>
+                            <td>{{ ddc.typeFonctionTraduction }}</td>
+                            <td>{{ ddc.commissionnaireAuCompte.nom }}</td> 
+                            <td>{{ ddc.commissionnaireAuCompte.prenom }}</td>  
+                            <td>{{ ddc.commissionnaireAuCompte.adresse }}</td>
+                        </tr> 
+                    {% endfor %}
+                </table>
+            </div>          
+        </div>
+		<hr>
+		{% endif %}		
+		<div class="panel-body">
+		<h1 class="page-header">{%trans%}capital_social{%endtrans%}</h1>
+		<div class="row">        
+                        
+                        <div class="dossierDemande-group col-sm-4">
+                            <label>{%trans%}capital_social{%endtrans%}</label> 
+							<br/>
+                            {{ dossierDemande.capitalSocial|number_format(0, '.', '  ') }}
+                        </div>
+       
+                        <div class="dossierDemande-group col-sm-4">
+                            <label>{%trans%}apport_numeraire{%endtrans%}</label> 
+							<br/>
+                           {{  dossierDemande.apportNumeraire|number_format(0, '.', '  ') }}
+                        </div>
+                        <div class="dossierDemande-group col-sm-4">
+                            <label>{%trans%}apport_nature{%endtrans%}</label> 
+							<br/>
+                            {{ dossierDemande.apportNature|number_format(0, '.', '  ') }}
+                        </div>                       
+                </div>		
+		</div>
+		<hr>		
+		<div class="panel-body">              
+			<h1 class="page-header">{%trans%}piece_jointe{%endtrans%}</h1>        
+            <table class="table-responsive table-striped table table-bordered" >
+                <thead>
+                    <tr>
+                        <th>{%trans%}document{%endtrans%}</th>                            
+                        <th style="width:50px"></th>                                
+                    </tr>
+                </thead>                
+                {% for a in listerpieceJointe %}
+                    <tr>                                                   
+                        <td>{{ a.libelleDocument }}</td>
+                        <td>                                  								
+                            <a href = "{{ path('piecejointe_viewpdf', { 'idd': dossierDemande.id, 'pdfName': a.pieceName }) }} " target="_blank" class="btn btn-default btn-file glyphicon glyphicon-search"></a>								
+                        </td>																		
+                    </tr>   
+                {% endfor %}
+            </table>         
+    </div>
+	<hr>	
+
+
+		<div class="panel-body">              
+			<h1 class="page-header">{%trans%}origine{%endtrans%}</h1>        
+         
+		 
+		 {% if dossierDemande.formeJuridique.sigle == "EI" %}
+		 
+			<div class="row">  
+			
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}meessage_Type_Origine{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.typeOrigine.libelle }}                        
+				</div>
+			</div>
+			<br/>
+			<div class="row">
+				<div class="dossierDemande-group col-sm-12">
+					<label>{%trans%}message_etablissementSecondaire{%endtrans%}</label>
+				</div>
+				
+				<br/>
+				<hr>
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}message_nomCommercial{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.nomCommercial }}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}message_sigleOuEnseigne{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.sigleOuEnseigne }}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}message_dateOuverture{%endtrans%}</label> 
+					<br/>
+				   {% if originePM.dateOuverture %}{{ originePM.dateOuverture|date('d-m-Y') }}{% endif %}                        
+				</div>
+				
+			</div>
+			
+			{% endif %}
+			
+			<div class="row">  
+			
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}meessage_Type_Origine{%endtrans%}</label> 
+					<br/>
+				   {% if originePM%}{{ originePM.typeOrigine.libelle }}{%endif%}                        
+				</div>
+	        
+				<div class="dossierDemande-group col-sm-8">
+					<label>{%trans%}meessage_siExploitant{%endtrans%}</label> 
+					<br/>
+				    {% if originePM and originePM.siExploitant == 1 %} 
+						{{ 'oui'|trans}}
+				    {% else %}
+						{{ 'non'|trans}}
+				    {% endif %}                       
+				</div>
+				
+			</div>
+			<br/>	
+			<div class="row">
+				
+				{% if originePM and originePM.siExploitant == 1 %}
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}nom_exploitant{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.nomExploitant }}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}prenom_exploitant{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.prenomExploitant }}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}adresse_exploitant{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.adresseExploitant }}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}rccmExploitant{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.rccmExploitant }}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}loueur_fond_exploitant{%endtrans%}</label> 
+					<br/>
+				   {{ originePM.loueurFondExploitant }}                        
+				</div>
+				
+				{% endif %}
+				
+			</div>
+			
+		
+			<div class="row">
+			<br/>
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}message_siEtablissementSecondaire{%endtrans%}</label> 
+					<br/>
+				   {% if originePM and originePM.siEtablissementSecondaire == 1 %}{{'oui'|trans}}{%else%}{{'non'|trans}}{%endif%} 
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}message_adresseEtablissementSecondaire{%endtrans%}</label> 
+					<br/>
+				   {%if originePM%}{{ originePM.adresseEtablissementSecondaire }}{%endif%}                        
+				</div>
+				
+				<div class="dossierDemande-group col-sm-4">
+					<label>{%trans%}message_activiteEtablissementSecondaire{%endtrans%}</label> 
+					<br/>
+				   {%if originePM%}{{ originePM.activiteEtablissementSecondaire }}{%endif%}                        
+				</div>
+			</div>
+			
+					
+		</div>
+		<hr>
+		
+		
+		<div class="panel-body">              
+			<h1 class="page-header">{%trans%}definition_cnss{%endtrans%}</h1>        
+            <div class="row"> 
+			
+                <div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_Personnel{%endtrans%}</label> 
+					<br/>
+                    {%if cnss.personnel == 1 %}{{'oui'|trans}}{%else%}{{'non'|trans}}{%endif%}                        
+                </div>
+				<div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_EffectifHomme{%endtrans%}</label> 
+					<br/>
+                    {{ cnss.effectifHomme }}                        
+                </div>
+				<div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_EffectifFemme{%endtrans%}</label> 
+					<br/>
+                    {{ cnss.effectifFemme }}                        
+                </div>
+				<div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_EffectifApprentis{%endtrans%}</label> 
+					<br/>
+                    {{ cnss.effectifApprentis }}                        
+                </div>
+				<div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_EffectifTotal{%endtrans%}</label> 
+					<br/>
+                    {{ cnss.effectifTotal }}                        
+                </div>
+				<div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_DatePremierEmbauche{%endtrans%}</label> 
+					<br/>
+                    {%if cnss.datePremierEmbauche %}{{cnss.datePremierEmbauche|date('d-m-Y')}}{%endif%}                        
+                </div>
+				<div class="dossierDemande-group col-sm-4">
+                    <label>{%trans%}message_PersonnelDomestique{%endtrans%}</label> 
+					<br/>
+                    {%if cnss.personnelDomestique == 1%}{{'oui'|trans}}{%else%}{{'non'|trans}}{%endif%}                        
+                </div>
+				
+			</div>					
+		</div>
+		<hr>	
+
+
+	
+			<div class="panel-body col-md-12">
+			<h1 class="page-header">{%trans%}frais_constitution{%endtrans%}</h1>
+                <div class="panel-body table-responsive">                                        
+                        <table class="table table-bordered table-striped">
+                            <tr>
+                                <th>{%trans%}pole{%endtrans%}</th>                             
+                                <th>{%trans%}libelle_frais{%endtrans%}</th>
+                                <th>{%trans%}montant{%endtrans%}</th>                              
+                            </tr>
+                            {% for fraiss in fraisAPIP %}
+                                <tr>
+                                    <td>{{fraiss.Pole.nom|trans}}</td>
+                                    <td>{{fraiss.libelleTarification.libelle|trans}}</td>
+                                    <td>{{fraiss.montant|number_format(0, '.', '  ') }}</td>
+                                </tr>
+                            {%endfor%}
+                           {% for frais in listFraisDossier %}
+                                <tr>
+                                    <td>{{frais.Pole.nom|trans}}</td>
+                                    <td>{{frais.libelleTarification.libelle|trans}}</td>
+                                    <td>{{frais.montant|number_format(0, '.', '  ') }}</td>
+                                </tr>
+                            {%endfor%}
+                            <tr>
+                                <td colspan="2">{%trans%}message_total{%endtrans%}</td>
+                                <td>{{total|number_format(0, '.', '  ') }}</td>
+                            </tr>
+                        </table>                   
+                                      
+                </div>
+            </div>
+			
+			
+			
+			
+        </div>		
+		<a href="{{ path('situationTraitementPole', {'idd': idd }) }}" class="btn btn-primary">{%trans%}retour{%endtrans%}</a>		
+    </div>
+{% endblock %}

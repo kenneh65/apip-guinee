@@ -1,0 +1,116 @@
+<body>
+<style type="text/css">
+table {
+  border-collapse:collapse;
+  width:98%;
+}
+h4 {
+	font-size: 15px;
+	font-style: normal;
+	font-variant: normal;
+}
+p {
+	font-size: 14px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: normal;
+	line-height: 18px;
+	margin:30px;
+}
+th, td {
+  border:0px solid black;
+}
+
+td {
+  text-align:left;
+  font-size:14px;
+  word-wrap: break-word;
+  float: left;
+  position: relative;
+  min-height: 1px;
+  padding-right: 10px;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+
+caption {
+  font-weight:normal
+}
+h3 { font-weight:normal;
+	 font-size:17px;}
+</style>
+
+	<div class="panel-heading"> 
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    {%trans%}fiche_employeur{%endtrans%} {% if dd.numeroDossier %} <label class="pull-right h4" style="color: #d44"> {%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>{%endif%}
+                </h1>
+            </div>
+        </div>
+    </div>
+    <form method="POST" action="{{path('cnss_traiterDossier',{'idd':dd.id})}}" name="frmCnss" >
+        <div class="col-sm-12" id="divMo"> 
+            <div class="divFieldSet">  
+                <br/>			
+                <div class=" row" >                  
+                    
+					<div class="col-sm-4">{%trans%}cnss_employeur{%endtrans%} : <b>{%if complementCnss%}{{complementCnss.numeroEmployeur|upper}}{%endif%}</b></div>
+                    <div class="col-sm-4">{%trans%}cnss_dateImmatriculation{%endtrans%} : <b>{{dateComplementCnss|date('d-m-Y')}}</b></div>
+                    <div class="col-sm-4">{%trans%}cnss_dateEffet{%endtrans%} : <b>{{complementCnss.dateEffet|date('d-m-Y')}}"</b></div>                                                
+					
+					<div class="col-sm-4">{%trans%}cnss_categorie{%endtrans%} : <b>{%if complementCnss%}{{complementCnss.categorie|upper}}{%endif%}</b></div>                   
+					<div class="col-sm-4">{%trans%}cnss_plafonne{%endtrans%} : <b>{%if complementCnss%}{{complementCnss.plafonne|upper}}{%endif%}</b></div>                   
+					<div class="col-sm-4">{%trans%}cnss_plancher{%endtrans%} : <b>{%if complementCnss%}{{complementCnss.plancher|upper}}{%endif%}</b></div>
+					
+					<div class="col-sm-4">{%trans%}cnss_personnel{%endtrans%} : <b>{%if cnss is not null%}{%if cnss.personnel%}{%trans%}Oui{%endtrans%}{%else%}{%trans%}Non{%endtrans%}{%endif%}{%endif%}</b></div>
+                    <div class="col-sm-4">{%trans%}cnss_datePremierEmbauche{%endtrans%} : <b>{%if cnss is not null%}{{cnss.datePremierEmbauche|date('d-m-Y')}}{%endif%}</b></div>
+                    <div class="col-sm-4">{%trans%}cnss_effectifHomme{%endtrans%} : <b>{%if cnss is not null%}{{cnss.effectifHomme}}{%endif%}</b></div>                   
+					
+					<div class="col-sm-4">{%trans%}cnss_effectifFemme{%endtrans%} : <b>{%if cnss is not null%}{{cnss.effectifFemme}}{%endif%}</b></div>                   
+					<div class="col-sm-4">{%trans%}cnss_effectifApprentis{%endtrans%} : <b>{%if cnss is not null%}{{cnss.effectifApprentis}}{%endif%}</b></div>                   
+					<div class="col-sm-4">{%trans%}cnss_effectfTotal{%endtrans%} : <b>{%if cnss is not null%}{{cnss.effectifTotal}}{%endif%}</b></div>
+					
+					<div class="col-sm-4">{%trans%}cnss_personnelDomestique{%endtrans%} : <b>{%if cnss is not null%}{%if cnss.personnelDomestique%}{%trans%}Oui{%endtrans%}{%else%}{%trans%}Non{%endtrans%}{%endif%}{%endif%}</b></div>
+				</div>
+                <br/>            
+            </div>
+            <br/><br/>
+            <div class="divFieldSet">
+                <div class="divLegende">RENSEIGNEMENTS RELATIFS A LA L'ENTREPRISE</div>
+                <br><br>
+                <div class=" row" >   
+
+                    
+					<div class="col-sm-4">{%trans%}denomination{%endtrans%} : <b>{{dd.denominationSociale}}</b></div>
+                    <div class="col-sm-4">{%trans%}sigle{%endtrans%} : <b>{{dd.sigle}}</b></div>
+                    <!--div class="col-sm-4">{%trans%}etat{%endtrans%} : </label><input type="text" readonly="true" value="" /></div-->
+
+                    <div class="col-sm-4">{%trans%}forme_juridique{%endtrans%} : <b>{{dd.formeJuridique.sigle}}</b></div>
+                    <div class="col-sm-4">{%trans%}capital_Social{%endtrans%} : <b>{{dd.capitalSocial}}</b></div>
+					<div class="col-sm-4">{%trans%}no_agrement{%endtrans%} : <b>{%if rccm is not null%}{{rccm.numRccmFormalite}}{%endif%}</b></div>
+                    <div class="col-sm-4">{%trans%}rccm_siege{%endtrans%} : </div>
+
+                    <div class="col-sm-4">{%trans%}apport_numeraire{%endtrans%} : <b>{{dd.apportNumeraire}}</b></div>
+                    <div class="col-sm-4">{%trans%}apport_nature{%endtrans%} : <b>{{dd.apportNature}}</b></div>
+                    <div class="col-sm-4">{%trans%}duree{%endtrans%} : <b>{{dd.duree}}</b></div>
+					
+					<div class="col-sm-4">{%trans%}activite_principal{%endtrans%} : <b>{%if dd.secteurActivite is not null%}{{dd.secteurActivite.code}}{%endif%}</b></div>
+                    <div class="col-sm-4">{%trans%}activite_secondaire{%endtrans%} : <b>{%if dd.activiteSecondaire is not null%}{{dd.activiteSecondaire.code}}{%endif%}</b></div>
+                    <div class="col-sm-4">{%trans%}activite_secondaire{%endtrans%} : <b>{{dd.activiteComplementaire}}</b></div>
+
+					<div class="col-sm-4">{%trans%}prefecture{%endtrans%} : <b>{{dd.prefecture.libelle}}</b></div>
+                    <div class="col-sm-4">{%trans%}commune{%endtrans%} : <b>{{dd.sousPrefecture.libelle}}</b></div>
+                    <div class="col-sm-4">{%trans%}quartier{%endtrans%} : <b>{{dd.adresseSiege}}</b></div>
+					
+					<div class="col-sm-4">{%trans%}ville{%endtrans%} : <b>{{dd.ville}}</b></div>
+                    <div class="col-sm-4">{%trans%}boite_postale{%endtrans%} : <b>{{dd.boitePostale}}</b></div>
+                    <div class="col-sm-4">{%trans%}email{%endtrans%} : <b>{{dd.email}}</b></div>
+					
+					<div class="col-sm-4">{%trans%}telephone{%endtrans%} : <b>{{dd.telephone}}</b></div>
+
+                </div>
+            </div>
+        </div>        
+    </form>
+</body>

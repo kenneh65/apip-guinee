@@ -1,0 +1,74 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}definition_cnss{%endtrans%} {% endblock %}
+
+{% block body %}
+
+    <div class="hpanel">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        {%trans%}definition_cnss{%endtrans%} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>
+                    </h1>
+                    {% block sousMenu %}
+                        {{ render(controller("BanquemondialeBundle:Shared:etapeCreationPole",{'idd':dd.id})) }}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="panel-body table-bordered">
+
+            {% if cnss%}
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_Personnel{%endtrans%}</label>
+                        <br/> {%if cnss.personnel and cnss.personnel=='true' %}{%trans%}oui{%endtrans%}{%else%}{%trans%}non{%endtrans%}{%endif%}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_EffectifHomme{%endtrans%}</label> 
+                        <br/>{{cnss.effectifHomme}} 
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_EffectifFemme{%endtrans%} </label>                                                    								 
+                        <br/> {{cnss.effectifFemme}}
+                    </div>
+                </div>
+                <div class="row">                                                   
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_EffectifApprentis{%endtrans%} </label>                                                 								 
+                        <br/> {{cnss.effectifApprentis}}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_EffectifTotal{%endtrans%} </label>                                                  								 
+                        <br/> {{cnss.effectifTotal}}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_DatePremierEmbauche{%endtrans%}</label> 
+                        <br/>{%if cnss.datePremierEmbauche%} {{cnss.datePremierEmbauche|date('d-m-Y')}}{%endif%}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}message_PersonnelDomestique{%endtrans%}</label> 
+                        <br/> {%if cnss.personnelDomestique and cnss.personnelDomestique=='true' %}{%trans%}oui{%endtrans%}{%else%}{%trans%}non{%endtrans%}{%endif%}
+                    </div>
+                </div>
+            {%endif%}
+            <div class="row pull-right">
+                <br/>
+                {% if routeAvant %}<input class="btn btn-primary btn-goto" style="width: 100px" value="{{'precedent'|trans}}" type="button" data-url="{{path(routeAvant,{'idd':idd})}}" />{% endif %}
+                {% if rteSuivant %}<input class="btn btn-info btn-goto" style="width: 100px" value="{{'suivant'|trans}}" type="button" data-url="{{path(rteSuivant,{'idd':idd})}}" />{% endif %}
+            </div>
+        </div>        
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+    </script>
+{% endblock %}

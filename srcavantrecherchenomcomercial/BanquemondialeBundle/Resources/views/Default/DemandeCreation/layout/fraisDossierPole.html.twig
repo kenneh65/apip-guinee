@@ -1,0 +1,57 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}frais_constitution{%endtrans%} {% endblock %}
+
+
+{% block body %}
+    {% set idd=dd.id %}    
+    <div class="hpanel">
+        <div class="panel-heading">
+            <h1 class="page-header">
+                {%trans%}frais_constitution{%endtrans%} 
+                <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier{%endtrans%} n° {{dd.numeroDossier}}</label>
+            </h1>
+            {% block sousMenu %}
+                {{ render(controller("BanquemondialeBundle:Shared:etapeCreationPole",{'idd':dd.id})) }}
+            {% endblock %}                                    
+        </div>      
+
+        <div class="panel-body col-md-12">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>{%trans%}pole{%endtrans%}</th>                             
+                    <th>{%trans%}libelle_frais{%endtrans%}</th>
+                    <th>{%trans%}montant{%endtrans%}</th>                              
+                </tr>
+                {% for frais in listFraisDossier %}
+                    <tr>
+                        <td>{{frais.Pole.nom|trans}}</td>
+                        <td>{{frais.libelleTarification.libelle|trans}}</td>
+                        <td>{{frais.montant|number_format(0, '.', '  ') }} GNF</td>
+                    </tr>
+                {%endfor%}
+                <tr>
+                    <td colspan="2">{%trans%}message_total{%endtrans%}</td>
+                    <td>{{total|number_format(0, '.', '  ') }} GNF</td>
+                </tr>
+            </table>
+
+            <div class="row pull-right">                
+                {% if routeAvant %}<input class="btn btn-primary btn-goto" style="width: 100px" value="{{'precedent'|trans}}" type="button" data-url="{{path(routeAvant,{'idd':idd})}}" />{% endif %}
+                {% if rteSuivant %}<input class="btn btn-info btn-goto" style="width: 100px" value="{{'suivant'|trans}}" type="button" data-url="{{path(rteSuivant,{'idd':idd})}}" />{% endif %}
+            </div>
+        </div>
+
+    </div>    
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+    </script>
+
+{% endblock %}

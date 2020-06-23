@@ -1,0 +1,97 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}parametrage_langue_titre{%endtrans%}{% endblock %}
+
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+
+{%endblock%}
+
+{% block body%}
+
+   <div class="col-lg-12">
+            {% for message in app.session.flashbag.get('info') %}            
+                <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endfor %} 
+                <div class="hpanel">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h1 class="page-header">
+                                    {%trans%}parametrage_langue_titre{%endtrans%}
+                                </h1>
+                                <ol class="breadcrumb">
+                                    <li>
+                                        <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{{'dashboard'|trans}}</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('langue_index') }}">{{'langues'|trans}}</a>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                     {%if langues | length!=0%}
+                    
+  <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>{{'code'|trans}}</th>
+                <th>{{'langue.libelle'|trans}}</th>
+                <th>{{'actions'|trans}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for langue in langues %}
+            <tr>
+                <td>{{ langue.code }}</td>
+                <td>{{ langue.libelle }}</td>
+                <td>
+					<a href="#" title="{{'supprimer'|trans}}" class="supprimer" data-id="{{langue.id}}"><i class="fa fa-remove"></i></a>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="{{path('langue_edit',{'id':langue.id})}}" title="{{'modifier'|trans}}"><i class="fa fa-pencil"></i></a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+  {%else%}
+                  <div class="alert alert-info">{{'aucune_langue'|trans}}</div>
+                {%endif%}
+
+   <a href="{{path('langue_new')}}"><i class="fa fa-plus">&nbsp;&nbsp;{{'ajouter_langue'|trans}}</i></a>
+        
+    </div></div></div>
+{% endblock %}
+
+        
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function () {
+
+$('.supprimer').click(function () {
+                var entityId = '';
+                entityId = $(this).attr('data-id');
+                var url = '{{path("langue_delete",{"id":"entityId"})}}';
+
+
+                swal({
+                    title: "{{'message_confirmation'|trans}}",
+                    text: "{{'message_confirmer_suppression'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_suppression'|trans}}",
+                },
+                        function () {
+                            url = url.replace("entityId", entityId);
+                            window.location.replace(url);
+                        });
+            });
+			
+})
+</script>
+{%endblock%}

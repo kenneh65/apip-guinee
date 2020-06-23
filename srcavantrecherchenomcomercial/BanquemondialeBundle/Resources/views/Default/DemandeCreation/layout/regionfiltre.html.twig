@@ -1,0 +1,71 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+
+
+    
+       
+            <select id="region">
+                {% for region in regions %}
+                <option value="{{region.id}}">{{ region.region }}</option>
+                {% endfor %} 
+            </select>    
+                
+            
+            <select id="departement">   
+                
+                    
+                   {% for departement in departements %}
+                        <option{{ path('departementfiltre',{'departement' : departement.id })}}>
+
+                            {{ departement.departement }}
+
+                        </option>
+                        
+                   
+                    {% endfor %} 
+                
+                
+            </select>
+               
+ 
+{% endblock %}
+
+{% block javascripts %}
+            <script>
+                
+                $(function(){
+          //alert('ready');
+    var region = $('#region');
+    var departement = $('#departement');
+     
+    // chargement des régions
+    
+    // à la sélection d une région dans la liste
+    region.on('change', function() {
+       // alert('test');
+        var val = $(this).val(); // on récupère la valeur de la région
+ 
+        if(val != '') {
+            departement.empty(); // on vide la liste des départements
+             
+            $.ajax({
+                url: '{{ path("departementfiltre") }}',
+                data: {region:val}, // on envoie $_GET['id_region']
+                dataType: 'json',
+                type : 'POST',
+                success: function(data) {
+                    for (var i in data)
+                    {
+                        departement.append('<option value="'+ data[i]+'">'+ data[i] +'</option>');
+                    }
+                }
+            });
+        }
+    });
+});
+                </script>
+      
+       
+            
+ {%endblock%}

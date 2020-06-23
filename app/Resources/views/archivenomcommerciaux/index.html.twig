@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>ArchiveNomCommerciaux list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Denominationsociale</th>
+                <th>Formejuridique</th>
+                <th>Gerantprincipal</th>
+                <th>Secteuractivite</th>
+                <th>Telephone</th>
+                <th>Siegesocial</th>
+                <th>Anneecreation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for archiveNomCommerciaux in archiveNomCommerciauxes %}
+            <tr>
+                <td><a href="{{ path('archivenomcommerciaux_show', { 'id': archiveNomCommerciaux.id }) }}">{{ archiveNomCommerciaux.id }}</a></td>
+                <td>{{ archiveNomCommerciaux.denominationSociale }}</td>
+                <td>{{ archiveNomCommerciaux.formeJuridique }}</td>
+                <td>{{ archiveNomCommerciaux.gerantPrincipal }}</td>
+                <td>{{ archiveNomCommerciaux.secteurActivite }}</td>
+                <td>{{ archiveNomCommerciaux.telephone }}</td>
+                <td>{{ archiveNomCommerciaux.siegeSocial }}</td>
+                <td>{{ archiveNomCommerciaux.anneeCreation }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('archivenomcommerciaux_show', { 'id': archiveNomCommerciaux.id }) }}">show</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    
+{% endblock %}

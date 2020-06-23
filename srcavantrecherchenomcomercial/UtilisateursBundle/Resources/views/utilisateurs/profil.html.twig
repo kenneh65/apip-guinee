@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+{% block title %} {%trans%}modification_profil{%endtrans%}{% endblock%}
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
+
+{% endblock %}
+{%block body%}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}modification_profil{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+
+                            <li> {%trans%}modification_profil{%endtrans%}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">  
+
+                <div class="panel-body">
+                    {%if erreurs.username==-1 or erreurs.email==-1 or erreurs.password==-1%}
+                        <div class="alert alert-danger">{{"profil_incorrect"|trans}}</div>
+                    {%endif%}
+                    {%if  erreurs.password==-2%}<div class="alert alert-danger">{{"utilisateur.erreur_mot_passe"|trans}}</div>{%endif%}
+
+                    <div class="well">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#home" data-toggle="tab">{%trans%}profil{%endtrans%}</a></li>
+                            <li><a href="#profile" data-toggle="tab">{%trans%}security.login.password{%endtrans%}</a></li>
+                        </ul>
+                        <div id="myTabContent" class="tab-content">
+                            <div class="tab-pane active in" id="home">
+                                <form id="tab" method="POST" action="{{path('utilisateurs_infos',{'id':app.user.id})}}">
+                                    <div class="form-group">
+                                        <label>{%trans%}utilisateur.username {%endtrans%} (*)</label>
+                                        {%if  erreurs.username==-1%} <div class="alert alert-danger">{{"profil.nom_utilisateur_existe"|trans}}</div>
+                                        {%elseif   erreurs.username==-2%} <div class="alert alert-danger">{{"profil.nom_utilisateur_nul"|trans}}</div>{%endif%}
+                                        <input type="text" value="{{app.user.username}}" name='username' class="input-xlarge form-control" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>{%trans%}
+                                            utilisateur.prenom{%endtrans%}</label>
+                                        <input type="text" value="{{app.user.nom}}" name='prenom' class="input-xlarge form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>{%trans%}utilisateur.nom{%endtrans%}</label>
+                                        <input type="text" value="{{app.user.prenom}}" name='nom' class="input-xlarge form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>{%trans%}utilisateur.email{%endtrans%} </label>
+                                        {%if  erreurs.email==-1%} <div class="alert alert-danger">{{"profil.email_existe"|trans}}</div>{%endif%}
+                                        <input type="text" value="{{app.user.email}}" name='email' id="email" class="input-xlarge form-control" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>{%trans%}utilisateur.adresse{%endtrans%}</label>
+                                        <textarea value="{{app.user.adresse}}" rows="3" name='adresse' class="input-xlarge form-control">{{app.user.adresse}}
+                                        </textarea>
+                                    </div>
+
+                                    <div>
+                                        <button class="btn btn-success" id="modifier1">{%trans%}modifier{%endtrans%}</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="profile">
+                                <form id="tab2" method="POST" action="{{path('utilsateur_password')}}">
+                                    <div class="form-group">
+                                        <label>{%trans%}utilisateur.password{%endtrans%}</label>
+                                        <input type="password" name="password" class="input-xlarge form-control">
+                                        <div>{%if  erreurs.password==-1%} <div class="alert alert-danger">{{"utilisateur.different_mot_passe"|trans}}</div>
+                                            {%elseif erreurs.password==-2%}<div class="alert alert-danger">{{"utilisateur.mot_passe_invalide"|trans}}</div>
+                                                {%elseif erreurs.password==-3%}
+                                                    <div class="alert alert-danger">{{"mot_passe_identique"|trans}}</div>
+                                                    {%endif%}</div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>{%trans%}utilisateur.verification{%endtrans%}</label>
+                                                    <input type="password" name="password1" class="input-xlarge form-control">
+                                                </div>
+                                                <div>
+                                                    <button class="btn btn-success" id="modifier2">{{'modifier'|trans}}</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endblock %}
+                            {%block javascripts%}
+                                {{parent()}}
+                                <script>
+                                    $(function () {
+                                        $("#modifier1").click(function () {
+                                            if (!$("#email").val().match(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i))
+                                            {
+                                                toastr.warning('{{"aide.email_invalide"|trans}}');
+                                                return false;
+                                            }
+
+                                        }
+                                        );
+                                    })
+                                </script>
+                            {%endblock%}

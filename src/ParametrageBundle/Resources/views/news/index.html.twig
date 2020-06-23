@@ -1,0 +1,134 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}titre_page_news{%endtrans%}{% endblock %}
+
+{%block active%}
+{{ render(controller("DefaultBundle:Default:menuAdmin",{'active':3})) }}
+{% endblock %}
+
+{% block body%}
+
+<div class="col-lg-12">
+{% for message in app.session.flashbag.get('info') %}            
+<div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+<strong>{{ message }}</strong>
+</div>
+{% endfor %} 
+<div class="hpanel">
+<div class="panel-heading">
+<div class="row">
+<div class="col-lg-12">
+<h1 class="page-header">
+{%trans%}titre_page_news{%endtrans%}
+</h1>
+<ol class="breadcrumb">
+<li>
+<i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+</li>
+<li>
+<i class="fa fa-fw fa-newspaper-o"></i>&nbsp;&nbsp;News
+</li>
+
+</ol>
+</div>
+</div>
+</div>
+<div>
+<a href="{{path('news_new')}}" class="btn btn-default"><i class="fa fa-plus">&nbsp;&nbsp;{{'ajouter_news'|trans}} </i></a>
+<hr />	
+</div>
+
+<div class="panel-body table-responsive">
+
+<table id="news" class="table table-bordered table-hover">
+<thead>
+<tr>
+<th>{{'Titre'|trans}}</th>
+<th>{{'date_publication'|trans}}</th>
+<th>{{'date_expiration'|trans}}</th>
+<th>{%trans%}actions{%endtrans%} </th>
+</tr>
+</thead>
+<tbody>
+{%for new in news %}
+<tr>
+<td>{{new.titre}}</td>
+<td>{%if app.request.locale=='fr'%}{{new.datePublication |  date(" d/m/y  H:i") }}
+{%else%}{{new.news.datePublication |  date(" d/m/y  H:i") }}{%endif%} </td>
+<td>{%if app.request.locale=='fr'%}{{new.dateExpiration|  date(" d/m/y  H:i") }}
+{%else%}{{new.news.dateExpiration|  date(" d/m/y  H:i") }}{%endif%}</td>
+
+<td>
+	<a {%if app.request.locale=='fr'%}
+		href="{{path('news_display',{'id':new.id})}}"
+	{%else%}
+		href="{{path('news_display',{'id':new.news.id})}}"
+	{%endif%}
+	title="{{'visualiser'|trans}}"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<a {%if app.request.locale=='fr'%}href="{{path('news_edit',{'id':new.id})}}"
+{%else%}href="{{path('news_edit',{'id':new.news.id})}}" {%endif%} title="{{'modifier'|trans}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a {%if app.request.locale=='fr'%} href="{{path('news_edit',{'id':new.id})}}"
+{%else%}href="{{path('news_edit',{'id':new.news.id})}}"{%endif%}title="{{'supprimer'|trans}}" class="supprimer"><i class="fa fa-remove "></i></a>
+
+</td>
+</tr>
+{%endfor%}
+
+</tbody>
+
+</table>
+</div></div></div>
+{%endblock%}
+{%block javascripts%}
+{{parent()}}
+<script type="text/javascript">
+
+$(function () {
+	$('#news').DataTable({"language": {
+			"sProcessing": "{{'Traitement en cours...'|trans}}",
+			"sSearch": "{{'rechercher'|trans}} :",
+			"sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+			"sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+			"sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+			"sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+			"sInfoPostFix": "",
+			"sLoadingRecords": "Chargement en cours...",
+			"sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+			"sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+			"oPaginate": {
+				"sFirst": "{{'premier'|trans}}",
+				"sPrevious": "{{'precedent'|trans}}",
+				"sNext": "{{'suivant'|trans}}",
+				"sLast": "{{'dernier'|trans}}"
+			},
+			"oAria": {
+				"sSortAscending": ": activer pour trier la colonne par ordre croissant",
+				"sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+			}
+		}});
+
+	/*
+	$('.supprimer').click(function (e) {
+		e.preventDefault();
+		var a = $(this);
+		swal({
+title: "{{'message_confirmation'|trans}}",
+text: "{{'message_suppression_news'|trans}}",
+type: "warning",
+showCancelButton: true,
+confirmButtonColor: "#3f5872",
+confirmButtonText: "{{'confirm_suppression'|trans}}",
+cancelButtonText: "{{'annuler'|trans}}"
+		},
+		function (isConfirm) {
+			if (isConfirm) {
+				window.location = a.attr('href');
+			} else {
+				e.preventDefault();
+			}
+		});
+	});
+	*/
+});
+</script>
+{%endblock%}

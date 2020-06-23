@@ -1,0 +1,71 @@
+
+{% extends '::FrontOffice.html.twig' %}
+
+{% block body -%}
+    <h1>Liste des créations d'entreprises</h1>
+   <div >
+                    
+                    <form action="{{path('recherche')}}" method="POST">
+                    <input type="search" placeholder="forme juridique" name="fomejuridique"class="fa-search" />
+                      <input type="search" placeholder="dénomination sociale" name="denomination" class="fa-search" />
+                      <input type="submit" value="rechercher">
+                    </form>
+                </div>
+               
+
+    
+    <table id="entreprises" class="table table-striped table-hover">
+        <thead>
+            <tr>
+              
+                <th>type opération</th>
+                <th>forme juridique</th>
+                <th>Secteur Activité</th>
+                 <th>Pays</th>
+                <th>région</th>
+                <th>département</th>
+                <th>dénomination sociale</th>
+                <th>nom commerciale</th>
+              
+                <th>Activité sociale</th>
+               
+               
+                <th>Adresse Siège</th>
+                
+                <th>sigle</th>
+                 <th> Téléphone </th>
+                <th>email</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entity in entities %}
+            <tr>
+                <td>{{ entity.typeoperation }}</td>
+                <td>{{ entity.formejuridique }}</td>
+                <td>{{ entity.nom }}</td>
+                <td>{{ entity.pays}}</td>
+                <td>{{ entity.region }}</td>
+                <td>{{ entity.departement}}</td>
+               
+                <td>{{ entity.denominationSociale }}</td>
+                <td>{{ entity.nomCommercial}}</td>
+                
+                 <td>{{ entity.activiteSociale}}</td>
+                 <td>{{ entity.adresseSiege }}</td>
+                 <td>{{ entity.sigle}}</td>
+                 <td>{{ entity.telephone}}</td>
+                 
+                 <td>{{ entity.email}}</td>
+              
+               
+                
+               
+            </tr>
+        {% endfor %}
+         </tbody>
+         
+    </table>
+      
+
+    {% endblock %}
+    

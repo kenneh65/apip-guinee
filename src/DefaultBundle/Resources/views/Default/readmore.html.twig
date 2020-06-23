@@ -1,0 +1,24 @@
+{% extends '::base-office.html.twig' %}
+{%block title%}{{news.titre}}{%endblock%}
+ {%block menu %}
+        {{ render(controller("DefaultBundle:Default:menu",{'active':5})) }}
+    {%endblock%}
+
+{% block body %}
+    <div class=" " style = "background:white;width:98%;margin:20px; padding:40px;">
+            <div class=" news fusion-content-boxes content-boxes columns fusion-columns-4 fusion-columns-total-4 fusion-content-boxes-1 content-boxes-icon-on-top row content-left" data-animationoffset="100%" style="margin-top:10px;margin-bottom:20px;">
+
+    <h1 style="color:#005cb9"> {{news.titre }} </h1>
+    <hr/>
+     
+<div class="">
+    <div class="col-md-12">
+   {{news.contenu |raw}}
+        <hr>
+    </div>
+</div>
+   <a href="{{path('news')}}"><i class="fa fa-long-arrow-left"></i>&nbsp;{{'retour'|trans}}</a>
+         </div>
+</div>
+        
+    {% endblock %}

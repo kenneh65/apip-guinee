@@ -1,0 +1,75 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}UtilisateursBundle:Entreprise:show{% endblock %}
+
+{% block body %}    
+    <div class="col-lg-12">
+        <h2 class="page-header">
+            {%trans%}details_entreprise{%endtrans%}
+        </h2>
+        <ol class="breadcrumb">
+            <li>
+                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+            </li>
+            <li>
+                <a href="{{path('entreprise_index')}}">{%trans%}entreprise_menu{%endtrans%}</a>
+            </li>            
+        </ol>
+    </div>
+    <div class="panel-body">  
+
+        {{form_start(form)}}
+        <div class="row">
+            <div class="col-sm-4">
+                {{ form_label(form.pole) }} 
+                {{ form_errors(form.pole,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.pole, {'attr': {'class': 'form-control'}}) }}			
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                {{ form_label(form.denomination) }} 
+                {{ form_errors(form.denomination,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.denomination, {'attr': {'class': 'form-control'}}) }}			
+            </div>
+
+            <div class="col-sm-4">
+                {{ form_label(form.telephone) }} 
+                {{ form_errors(form.telephone,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}			
+            </div>
+            <div class="col-sm-4">
+                {{ form_label(form.email) }} 
+                {{ form_errors(form.email,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}			
+            </div>
+            <div class="col-sm-4">
+                {{ form_label(form.region) }} 
+                {{ form_errors(form.region,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.region, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-sm-4">
+                {{ form_label(form.prefecture) }} 
+                {{ form_errors(form.prefecture,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.prefecture, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-sm-4">
+                {{ form_label(form.sousPrefecture) }} 
+                {{ form_errors(form.sousPrefecture,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.sousPrefecture, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-sm-12">
+                {{ form_label(form.adresse) }} 
+                {{ form_errors(form.adresse,{'attr':{'class':'alert alert-danger'}}) }} 											
+                {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}			
+            </div>
+        </div>
+        {#<div class="clearfix"></div>#}
+        {{ form_end(form) }}
+    </div>
+    <hr>
+    <a href="{{ path('entreprise_index') }}">
+        <i class="fa fa-arrow-left"></i>&nbsp;&nbsp; {%trans%}retour{%endtrans%}
+    </a>
+
+{% endblock %}

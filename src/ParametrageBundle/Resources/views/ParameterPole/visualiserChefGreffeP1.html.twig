@@ -1,0 +1,695 @@
+<page backtop="5mm" backbottom="5mm" backleft="5mm" backright="5mm">
+<style type="text/css">
+
+	#pageDeGarde
+	{
+		font-weight:bold;
+		font-style: italic;
+	}
+	
+</style>
+<div id="pageDeGarde">
+	<div style="font-size:16px;width:300px;margin-left:190px;text-align:center;">
+	REPUBLIQUE DE GUINEE <br/>
+	TRAVAIL – JUSTICE – Solidarité <br/>
+	<div style="font-size:16px;margin-left:-280px">---------------</div> <br/>
+	</div>
+
+	<div style="font-size:26px;width:400px;margin-left:150px;text-align:center;">
+	MINISTERE DE LA JUSTICE<br/>
+	<div style="font-size:16px;margin-left:-380px">-----------------</div> <br/>
+	</div>
+
+	<div style="font-size:22px;width:500px;margin-left:90px;text-align:center;">
+	COUR D'APPEL DE CONAKRY<br/>
+	<div style="font-size:16px;margin-left:-480px">-----------</div> <br/>
+	</div>
+
+	<div style="font-size:24px;width:660px;margin-left:10px;text-align:center;">
+	TRIBUNAL DE PREMIERE INSTANCE DE KALOUM<br/>
+	</div>
+	<div style="font-size:26px;width:100px;margin-left:280px;text-align:center;">
+	CONAKRY <br/>
+	<div style="font-size:16px;margin-left:-90px">-------------</div> <br/>
+	</div>
+	<div style="font-size:24px;width:660px;margin-left:10px;text-align:center;">
+	REGISTRE DE COMMERCE ET DU CREDIT MOBILIER<br/>
+	( R C C M ) <br/>
+	<div style="font-size:16px;margin-left:-660px">-------------</div> <br/>
+	<br/>
+	</div>
+
+	<div style="font-size:28px;width:660px;margin-left:10px;text-align:center;">
+	{{ dd.DenominationSociale|upper}}<br/>
+	<br/>	
+	{% if dd.sigle %} « {{ dd.sigle|upper}} »  {% endif %}<br/>
+	 <br/>
+	( <u>PERSONNE PHYSIQUE</u> ) <br/>
+	</div>
+	<div style="font-size:30px;width:660px;margin-left:10px;text-align:center;">
+	<br/>
+	<u>C  R  E  A  T  I  O  N</u> <br/>
+	<br/>
+	
+	N°FORMALITE/RCCM/{%if rccm%}{{rccm.numRccmFormalite}}{%endif%} <br/>
+	<br/>
+	</div>
+	<div style="font-size:28px;width:660px;margin-left:10px;text-align:center;">
+	N°ENTREPRISE/RCCM/{%if rccm%}{{rccm.numRccmEntreprise}}{%endif%} <br/>
+	<br/>
+	</div>
+	<div style="font-size:30px;width:660px;margin-left:10px;text-align:center;">
+	DATE: {%if dateRccm %}{{dateRccm|localizeddate('long', 'none')|upper}}{%endif%}
+	</div>
+
+</div>
+</page>
+
+<page backtop="5mm" backbottom="5mm" backleft="5mm" backright="5mm">
+
+    <style type="text/css">
+        body{
+            padding:5mm 5mm 5mm 5mm;
+            width:672px;
+        }
+        div.titre {			
+            text-align:center;
+            position:relative;
+            font-size:12pt;
+            border:solid 1px ;			
+            padding:0;
+            margin:0;			
+            width :50%;			
+        }
+        div.soustitre {	
+            text-align:left;
+            font-size:10pt;	
+            left:50%;
+        }
+        div.case{
+            border: 1px solid red;
+            width: 5px;
+            height: 5px;
+        }       
+        .divFieldSet
+        {
+            border:1px black solid;
+            height:150px;                
+            position:relative;
+            padding: 5px ;                
+            font-size: 9pt;
+        }
+
+        .divLegende
+        {
+            border: 1px black solid;
+            width: 400px;
+            position: absolute;
+            margin: -10px 30% 0 30%;
+            margin-left:150px;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+
+        } 
+        #tabConjoint th{
+
+            border: 1px solid;
+			padding-top:2px;			
+        }  
+        #tabConjoint td {
+            padding: 0 2px 0 2px;
+            border: 1px solid;              
+        }        
+
+    </style>
+	
+    <table style="text-align:left;font-weight: bold;">
+        <tr>
+            <td>
+                RCCM			
+            </td>
+        </tr>
+        <tr>
+            <td>2010-P1</td>
+        </tr>
+    </table>
+    <br>
+    <table align="center" style=" text-align:center;">
+        <tr>
+            <td><b>FORMULAIRE DE DEMANDE</b></td>
+        </tr>
+    </table>
+    <table cellspacing="0" align="center" style="width:662px;font-size: 8pt">
+        <tr>
+            <td>
+                <table>
+                    {% for typeDeFormalite in listeTypeFormalite%}	
+                        <tr>
+                            <td style="width: 8px;font-size: 7pt">{% if loop.first%}{%else%}OU{%endif%}</td>
+                            <td>
+                                {% if rccm and rccm.typeFormaliteRccm.id==typeDeFormalite.id %}
+                                    <img src="{{asset('img/checked.png')}}"/>
+                                {%else%}
+                                    <img src="{{asset('img/unchecked.png')}}"/>                               
+                                {%endif%}
+                            </td>  
+                            <td>
+                                {% if rccm and rccm.typeFormaliteRccm.id==typeDeFormalite.id %}
+                                    <b>{{typeDeFormalite.libelle|upper}}</b>
+                                {%else%}
+                                    {{typeDeFormalite.libelle|upper}}
+                                {%endif%}
+                            </td>
+                        </tr>
+                    {%endfor%}
+                </table>
+            </td>
+        </tr>
+    </table>	
+    <br>
+    <div class="divFieldSet" style="height: 275px;padding-right: 10px;">
+        <div class="divLegende" style="width: 450px; margin-left: 135px">
+            RENSEIGNEMENTS RELATIFS A LA PERSONNE PHYSIQUE ASSUJETTIE
+        </div>        
+        <br>
+        <table style="font-size:8pt;">		
+            <tr>
+                <td>	
+                    <table style="width:650px;">
+                        <tr>
+                            <td>NOM :</td>
+                            <td>
+                                {% if rep.civilite and rep.civilite.id == 1%}
+                                    <img src="{{asset('img/checked.png')}}"/>
+                                {%else%}
+                                    <img src="{{asset('img/unchecked.png')}}"/>
+
+                                {%endif%}
+                            </td>                            
+                            <td>M</td>
+                            <td>
+                                {% if rep.civilite and rep.civilite.id == 2%}
+                                    <img src="{{asset('img/checked.png')}}"/>
+                                {%else%}
+                                    <img src="{{asset('img/unchecked.png')}}"/>                                                          
+                                {%endif%}
+                            </td>  
+                            <td>Mme</td>
+
+                            <td>
+                                {% if rep.civilite and rep.civilite.id == 3%}
+                                    <img src="{{asset('img/checked.png')}}"/>
+                                {%else%}
+                                    <img src="{{asset('img/unchecked.png')}}"/>
+                                {%endif%}
+                            </td>                                 
+
+                            <td>Mlle</td>
+                            <td style="width: 180px;margin-right:10px;"><b>{%if rep.nom%}{{rep.nom|upper}}{%endif%}</b></td>
+                            <td style="width: 300px;">PRENOM(s) : <b>{%if rep.prenom%}{{rep.prenom|upper}}{%endif%}</b></td>
+                        </tr>
+                    </table>
+                    <table style="width: 650px;">
+                        <tr>
+                            <td style="width: 425px;">DATE ET LIEU DE NAISSANCE : <b>{%if rep.dateDeNaissance%}{{rep.dateDeNaissance|date('d-m-Y')}}{%endif%} &agrave; {%if rep.LieuNaissance%}{{rep.LieuNaissance|upper}}{%endif%}</b></td>
+                            <td style="width: 200px;">NATIONALITE : <b>{%if rep.nationalite%}{{rep.nationalite|upper}}{%endif%}</b></td>						
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="width: 425px;">ADRESSE POSTALE : &nbsp;&nbsp;&nbsp;&nbsp;TEL:<b>{%if rep.telephone%}{{rep.telephone}}{%endif%} {%if rep.portable%}{{rep.portable}}{%endif%}
+							</b></td>
+                        </tr>
+                    </table>
+                    <table style="width: 650px">
+                        <tr>
+                            <td colspan="3">
+                                DOMICILE PERSONNEL : &nbsp;<b>{%if rep.adresse%}{{rep.adresse|upper}}{%endif%}</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 15%"></td>
+                            <td style="width: 35%">VILLE : &nbsp;<b>{%if rep.ville%}{{rep.ville|upper}}{%endif%}</b></td>
+                            <td style="width: 50%">QUARTIER : &nbsp;<b>{%if rep.quartier%}{{rep.quartier|upper}}{%endif%}</b></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="2">
+                                AUTRES PRECISIONS : <b>{%if rep.numeroIdentiteNational%}{{rep.numeroIdentiteNational}} / {{ 'now'|date('Y')}}{%if rep.typeIdentification%} ({{rep.typeIdentification|upper}}){%endif%}{%endif%}</b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                COORDONNEES ELECTRONIQUES (s'il ya lieu): <b>{{rep.email}} </b>
+                            </td>
+                        </tr>
+                        <tr >
+                            <td colspan="3">
+                                <span>
+                                    SITUATION MATRIMONIALE : 
+                                </span>                       
+
+                                <span style="border:1px red solid">
+                                    {% if rep.codeSituationMatrimoniale == 'C'%}
+                                        <img src="{{asset('img/checked.png')}}"/>
+                                    {%else%}
+                                        <img src="{{asset('img/unchecked.png')}}"/>                                
+                                    {%endif%}
+                                </span>
+                                <span style="border:1px red solid">Célibataire</span>,
+
+                                <span>
+                                    {% if rep.codeSituationMatrimoniale == 'M'%}
+                                        <img src="{{asset('img/checked.png')}}"/>
+                                    {%else%}
+                                        <img src="{{asset('img/unchecked.png')}}"/>                                
+                                    {%endif%}
+                                </span>
+                                <span>Mari&eacute;(e)</span>,
+
+                                <span>
+                                    {% if rep.codeSituationMatrimoniale == 'V'%}
+                                        <img src="{{asset('img/checked.png')}}"/>
+                                    {%else%}
+                                        <img src="{{asset('img/unchecked.png')}}"/>                                
+                                    {%endif%}
+                                </span>
+                                <span>Veuf(ve)</span>,
+
+                                <span>
+                                    {% if rep.codeSituationMatrimoniale == 'D'%}
+                                        <img src="{{asset('img/checked.png')}}"/>
+                                    {%else%}
+                                        <img src="{{asset('img/unchecked.png')}}"/>                                
+                                    {%endif%}
+                                </span>
+                                <span>Divorc&eacute;(e)</span>
+                            </td>				
+                        </tr>						
+                    </table>
+                    <br>
+                    <div style="border: 0px;position: relative;">
+                        <table id="tabConjoint" style="text-align:left;font-size:7pt;border-collapse:collapse;width:700px;">
+
+                            <tr style="text-align:center">
+                                <th style="width: 60px;">Conjoint(s)</th>
+                                <th style="width: 100px;">Nom - Prénoms</th>
+                                <th style="width: 100px;">Date et lieu du mariage</th>
+                                <th style="width: 90px">Option matrimoniale</th>
+                                <th style="width: 90px">Régime matrimoniale</th>
+                                <th style="width: 90px">{%trans%}clauses_restrictives {%endtrans%}</th>
+                                <th style="width: 90px">Demande en séparation de biens</th>			
+                            </tr>								
+							{% set loop1 = 0 %}
+							{% for conjoint in conjoints%}
+								{% set loop1 = loop.index %}						
+								<tr>
+									<th style="width:60px"></th>
+									<td style="width:100px">{{conjoint.nom}} - {{conjoint.prenom}}</td>
+									<td style="width:100px">{%if conjoint.dateMariage%}{{conjoint.dateMariage|date('d-m-Y')}} {% if conjoint.lieuMariage%}&agrave; {{conjoint.lieuMariage}}{%endif%}{%endif%}</td>
+									<td style="width:90px;font-size:8px">{{conjoint.optionMatrimoniale}}</td>
+									<td style="width:90px;font-size:8px;">{%if conjoint.regimeMatrimonial%}{{conjoint.regimeMatrimonial.libelle}}{%endif%}</td>
+									<td style="width:90px;font-size:8px">{{conjoint.clausesRestrictives}}</td>
+									<td style="width:90px; ">{{conjoint.demandeSeparationBiens}}</td>
+								</tr>
+							{%endfor%}
+							{%if loop1 < 4 %}
+								{% for i in loop1..3 %}
+									<tr>
+										<th style="width:60px;height:5px"></th>
+										<td style="width:100px"></td>
+										<td style="width:100px"></td>
+										<td style="width:90px"> </td>
+										<td style="width:90px"></td>
+										<td style="width:90px"></td>
+										<td style="width:90px"></td>
+									</tr>
+								{% endfor %}
+							{%endif%}
+					
+					
+                        </table>			
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <br>
+    <div class="divFieldSet"  style="height: 270px;padding-right: 10px">
+        <div class="divLegende" style="width: 450px; margin-left: 130px">RENSEIGNEMENTS RELATIFS A L'ETABLISSEMENT ET A L'ACTIVITE</div>       
+        <table cellspacing="0" style="padding:0px; border-spacing:0px;font-size:8pt;">        
+            <tr>
+                <td>
+                    <table style="width:672px;">
+                        <tr>
+                            <td colspan="3" style="height: 30px;width:600px;">NOM COMMERCIAL (s'il y a lieu) : <b>{%if dd.DenominationSociale%}{{ dd.DenominationSociale|upper}}{%endif%}</b></td>                            
+                        </tr>
+                        <tr>
+                            <td colspan="3">SIGLE OU ENSEIGNE (s'il y a lieu) : <b>{%if dd.sigle %}{{dd.sigle|upper}}{%elseif dd.enseigne %}{{dd.Enseigne|upper}}{%endif%}</b> </td>                            
+                        </tr>
+                        <tr><td colspan="3" style="height: 30px;width:600px;">ACTIVITE(S) EXERCEE(S)(préciser) : <b>{{activitePrincipale}}{%if activiteSecondaire%};{{activiteSecondaire}}{%endif%}{%if dd.activiteSecondaire2%};{{activiteSecondaire2}}{%endif%}{%if dd.ActiviteSociale%};{{dd.ActiviteSociale}}{%endif%}</b></td></tr>
+                        <tr>
+                            <td style="width: 25%">DATE DE DEBUT : <b>{%if dd.dateDebut%}{{dd.dateDebut|date('d/m/y')}}{%endif%}</b></td>
+                            <td style="width: 40%">N° RCCM(s'il y a lieu) : <b>{#if rccm%}{{rccm.numRccmEntreprise}}{%endif#}</b></td>
+                            <!--td style="width: 200px;">Nbre Salariés prévues ({{dd.nombreSalariePrevu}})</td-->
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 30px;width:600px;">ADRESSE DE L'ETABLISSEMENT PRINCIPAL (géographique et postale) : <b>{%if dd.AdresseSiege%}{{dd.AdresseSiege|upper}}{%endif%}</b></td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%">
+                        <tr>                      
+                            <td>ORIGINE : &nbsp;</td>
+                            {% if listeTypeOrigine is not defined %}
+                                {% set listeTypeOrigine = [] %}
+                            {% endif%}
+                            {% for typeOrigine in listeTypeOrigine%}
+                                {%if origine and origine.typeOrigine and origine.typeOrigine.id == typeOrigine.id%} 
+                                    <td><img src="{{asset('img/checked.png')}}"/></td>
+                                    <td><label style="font-weight: bold;">&nbsp;<b>{%if typeOrigine.libelle%}{{typeOrigine.libelle|upper}}{%endif%}</b>&nbsp;</label></td>
+                                {%else%}
+                                    <td><img src="{{asset('img/unchecked.png')}}"/></td>
+                                    <td>&nbsp;<b>{%if typeOrigine.libelle%}{{typeOrigine.libelle|upper}}{%endif%}</b>&nbsp;</td>
+                                {%endif%}
+                            {%endfor%}
+                        </tr>
+                    </table>                   
+                    <table>
+                        <tr>
+                            <td>ETABLISSMENT SECONDAIRE OU SUCCURSALE :</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="width: 100%">
+                                    <tr>
+                                        <td style="width: 30px"></td>
+                                        <td>NOM COMMERCIAL (s'il y a lieu):&nbsp;{%if origine and origine.nomCommercial%}<b>{{origine.nomCommercial|upper}}</b>{%endif%}</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>SIGLE OU ENSEIGNE (s'il y a lieu):&nbsp;{%if origine and origine.sigleOuEnseigne%}<b>{{origine.sigleOuEnseigne|upper}}</b>{%endif%}</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>DATE D'OUVERTURE :&nbsp;
+                                            {% if origine and origine.dateOuverture%}<b>{{origine.dateOuverture|date('d/m/Y')}}</b>{%endif%}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td style="width:560px;">ADRESSE (géogreaphique et postale):&nbsp;{%if origine and origine.adresseEtablissementSecondaire%}<b>{{origine.adresseEtablissementSecondaire|upper}}</b>{%endif%}</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td style="width:560px;">ACTIVITE(S)(préciser):&nbsp;{%if origine%}<b>{{origine.activiteEtablissementSecondaire}}</b>{%endif%}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <br>
+    <div class="divFieldSet">
+        <div class="divLegende" style="margin-left:160px">RENSEIGNEMENTS RELATIFS AUX ACTIVITES ANTERIEURES</div>
+        <br>
+        <table>
+            <tr><td>Exercice d'une précédente activité :</td>
+                {% if activiteAnterieure %}
+                    <td><img src="{{asset('img/unchecked.png')}}"/></td>
+                    {%else%}
+                    <td><img src="{{asset('img/checked.png')}}"/></td>                                 
+                    {%endif%}
+                <td>NON</td>
+            </tr>
+            <tr>
+                <td></td>
+                {% if activiteAnterieure %}
+                    <td><img src="{{asset('img/checked.png')}}"/></td>
+                    {%else%}
+                    <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                    {%endif%}
+                <td>OUI</td>
+                {% if activiteAnterieure and activiteAnterieure.natureActivite=='Commerciale' %}
+                    <td><img src="{{asset('img/checked.png')}}"/></td>
+                    {%else%}
+                    <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                    {%endif%}
+                <td>Commerciale</td>
+
+                <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+
+                <td>Autre :(préciser)</td></tr>
+        </table>
+        <br>
+        <div style="width:600px;"> . Période : de(mois et année) &nbsp;<b>{%if activiteAnterieure%}{{activiteAnterieure.dateDebut}}{%endif%}</b> &agrave; &nbsp;<b>
+                {%if activiteAnterieure%}{{activiteAnterieure.dateFin}}{%endif%}</b> Précédent RCCM(s'il y a lieu) <b>{%if activiteAnterieure%}{{activiteAnterieure.precedentRccm}}{%endif%}</b></div>  
+        <div style="width:600px;"> . Nature de l'activité : &nbsp;{%if activiteAnterieure%}<b>{{activiteAnterieure.natureActivite}}</b>{%endif%}</div>
+        <div style="width:600px;"> . Principal établissement(s) secondaire(s) : &nbsp;{%if activiteAnterieure%}<b>{{activiteAnterieure.etablissementSecondaire|upper}}</b>{%endif%},N° RCCM(s'il y a lieu) <b>{%if activiteAnterieure%}{{activiteAnterieure.rccmEtabSecondaire}}{%endif%}</b></div>
+        <div style="width:600px;"> . Adresse(géogreaphique et postale) : &nbsp;{%if activiteAnterieure%}<b>{{activiteAnterieure.adresse|upper}}</b>{%endif%}</div>
+    </div>    
+
+    <br>
+</page>
+<page backtop="5mm" backbottom="5mm" backleft="5mm" backright="5mm">
+<page_footer>	
+            <table class="page_footer" style="width: 100%;">
+                <tr>
+				<td>			
+				</td>
+                    <td style="width: 100%; text-align:right">
+                        
+                    </td>
+                </tr>
+            </table>			
+    </page_footer>
+    <style type="text/css">        
+
+        .divZoneSignature1{
+            position: absolute;
+            right: 0;
+            top: 0;
+            border: 1px black solid;
+            width: 130px;
+            height: 60px;
+            font-size: 9pt;
+
+        }
+        .divZoneSignature2{
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            border: 1px black solid;
+            width: 130px;
+            height: 50px;
+        }
+		#divSignature{
+			position:absolute;
+			bottom:-50;
+			left:0;
+			margin-left:0;
+			margin-top:150px;
+			height:120px;
+			width:382px;
+		}
+
+		#divCodeQR{
+			border:1px green solid;
+			position:absolute;
+			bottom:20;
+			right:0;
+			height:80px;
+			width:80px;
+		}
+    </style>
+	
+    <table style="text-align:left;font-weight: bold">
+        <tr>
+            <td>
+                RCCM			
+            </td>
+        </tr>
+        <tr>
+            <td>2010-P1</td>
+        </tr>
+    </table>
+    <br>
+    <div class="divFieldSet">
+        <div class="divLegende" style="margin-left:160px">
+            AUTRES PERSONNES POUVANT ENGAGER LA PERSONNE PHYSIQUE ASSUJETTIE
+        </div>
+        <br><br>
+        <div style="width: 650px"> 
+            {%if personneEngageurs%}
+                {%for pers in personneEngageurs%}
+                    <table style="width: 650px;">
+                        <tr><td style="width: 300px">Nom : &nbsp;<b>{%if pers.nom%}{{pers.nom|upper}}{%endif%}</b></td><td style="width: 300px;">Prénoms : &nbsp;<b>{%if pers.prenom%}{{pers.prenom|upper}}{%endif%}</b></td></tr>
+                    </table>
+                    <table style="width: 620px;">
+                        <tr><td style="width: 300px">Date,lieu de naissance : 
+                                {%if pers.dateNaissance%} <b>{{pers.dateNaissance|date('d/m/Y')}}</b>{%endif%}
+                                , {%if pers.lieuNaissance%}{{pers.lieuNaissance|upper}}{%endif%}</td>
+                            <td style="width: 300px">{%trans%}nationalite{%endtrans%} : <b>{%if pers.nationalite%}{{pers.nationalite|upper}}{%endif%}</b></td></tr>
+                    </table>
+                    <table style="width: 650px">
+                        <tr><td>Domicile :</td><td style="font-weight: bold;width:500px;">{%if pers.domicile%}{{pers.domicile|upper}}{%endif%}</td></tr>
+                    </table>
+                {%endfor%}
+                {% if personneEngageurs|length == 1 %}
+                    <table style="width: 620px">
+                        <tr><td style="width: 620px;height: 5px"></td></tr>
+                    </table>
+                    <table style="width: 620px">
+                        <tr><td style="width: 300px">Nom :</td><td style="width: 300px">Prénoms : </td></tr>
+                    </table>
+                    <table style="width: 620px">
+                        <tr><td style="width: 300px">Date,lieu de naissance :</td><td style="width: 300px">{%trans%}nationalite{%endtrans%} : </td></tr>
+                    </table>
+                    <table style="width: 620px">
+                        <tr><td>Domicile :</td><td></td></tr>
+                    </table>                   
+                {% endif %}
+
+            {%else%}
+                <table style="width: 620px">
+                    <tr><td style="width: 300px">Nom :</td><td style="width: 300px">Prénoms : </td></tr>
+                </table>
+                <table style="width: 620px">
+                    <tr><td style="width: 300px">Date,lieu de naissance :</td><td style="width: 300px">Nationalité : </td></tr>
+                </table>
+                <table style="width: 620px">
+                    <tr><td>Domicile :</td><td></td></tr>
+                </table>
+                <table style="width: 620px">
+                    <tr><td style="width: 300px">Nom : </td><td style="width: 300px">Prénoms : </td></tr>
+                </table>
+                <table style="width: 620px">
+                    <tr><td style="width: 300px">Date,lieu de naissance : </td><td style="width: 300px">{%trans%}nationalite{%endtrans%} : </td></tr>
+                </table>
+                <table style="width: 620px">
+                    <tr><td>Domicile :</td><td></td></tr>
+                </table>
+            {%endif%}
+        </div>
+
+    </div>
+    <br>
+    <div class="divFieldSet" style="height: 100px;"> 
+        <div style="width:490px">
+            LE SOUSSIGNE (préciser si mandataire): <b>{%if rep.civilite%} {{rep.civilite.code}}{%endif%} {{rep.nom|upper}} {{rep.prenom|upper}}, {{rep.libelleFonction}}</b>
+        </div>
+        <div class="divZoneSignature1" style="padding:10px;">
+            <div>Fait &agrave;&nbsp;<b>Conakry</b></div>
+            <div>Le : <b>{{dateRccm|date('d/m/Y')}}</b> </div>
+            <p>Signature</p>
+        </div>
+        <div style="padding:10px;width:400px">
+            <p>Demande &aacute; ce que la présente constitue : </p>
+
+            <div>
+                <table style="font-size: 8pt;">
+                    <tr>
+                        {% if rccm %}
+                            <td><img src="{{asset('img/checked.png')}}"/></td>
+                            {%else%}
+                            <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                            {%endif%}
+                        <td style="font-weight: bold;"><u>UNE DEMANDE D'IMMATRICULATION PRINCIPALE AU RCCM</u></td>
+                    </tr>
+                    <tr>                    
+                        <td><img src="{{asset('img/unchecked.png')}}"/></td>                                                          
+                        <td>UNE DEMANDE D'IMMATRICULATION SECONDAIRE</td>
+                    </tr>
+                    <tr>
+                        <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                        <td>UNE DEMANDE D'OUVERTURE d'UNE SUCCURSALE</td>
+                    </tr>
+                    <tr>
+                        <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                        <td>UNE DEMANDE DE REPRISE D'ACTIVITE</td>
+                    </tr>                    
+                </table>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="divFieldSet" style="height: 180px;width:694px">
+        <div style="font-size: 8pt;font-weight: bold;">Le greffier ou le responsable de l'organe compétent soussigné a reçu le formulaire sous le numéro d'ordre: ...... du registre d'arrivée 
+            <i> La régularité de la demande a été vérifiée en application de l'article 44 de l'acte uniforme portant sur le droit commercial général par le 
+                Greffier ou le responsable le lorgane compétent qui a:</i>
+        </div>
+        <br>
+        <table>
+            <tr>
+                {% if rccm %}
+                    <td><img src="{{asset('img/checked.png')}}"/></td>
+                    {%else%}
+                    <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                    {%endif%}
+                <td><b><i>Immatriculé au RCCM sous le numéro <font style="font-size: 11pt">{%if rccm%}{{rccm.numRccmEntreprise}}{%endif%}</font> et délivré un accusé d'enregistrement</i></b></td>
+            </tr>
+            <tr>
+                <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                <td><b><i>Rejeté la demande au(x) motif(s) que : .....................</i></b></td> 
+            </tr>                                  
+        </table>
+        <br>
+        <table>
+            <tr>
+                <td>Intercalaire (s) complétant la ou les rubrique(s) n°(s) .....</td>
+                <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                <td>OUI</td>
+                <td><img src="{{asset('img/unchecked.png')}}"/></td>                                 
+                <td>NON (si OUI, nombre de pages intercalaires : ....)</td>
+            </tr>
+        </table>
+        <br>
+        <table style="font-size: 8pt;">           
+            <tr>
+                <td>Fait, &aacute; Conakry, le &nbsp;{{dateRccm|date('d/m/Y')}}</td>
+            </tr>
+            <tr><td colspan="1">{{libelleSignatureGreffe}}</td></tr>
+			<tr>
+				<td>
+					<p style='font-size: 6pt;color:red;'>
+						{%if afficherSignature == 1%}
+							<div id="divSignature">
+								<img src="{{asset('img/signature.png')}}" width="382" height="120"/>
+							</div>
+						{%endif%}
+					</p>
+				</td>
+			</tr>
+        </table>
+        <br/>
+        <div class="divZoneSignature2" style="padding:2px">
+            Signature
+        </div>
+	<br/><br/><br/><br/>
+    </div>
+    <br>
+    <div class="divFieldSet" style="height: 50px;font-size: 8pt">
+        (En cas de rejet de la demande par le greffier ou le responsable de l'organe compétent)<b> Le demandeur atteste que le présent formulaire y compris
+            le(s) intercalaire(s) y relatifs </b>(s'il y a lieu) <b>comportant les motifs du rejet de sa demande lui a été remis le ..../.../...</b>(JJ/MM/AAAA)
+        <b> et reconnait que cette remise vaut notification de ce rejet.</b> (signature du demandeur)
+        <br>
+        <div style="right: 0;position: absolute;bottom: 0; width: 150px;"><hr  size="1" width="100%"></div>
+    </div>
+	<span style='font-size: 6pt;color:red;'>
+	  {%if afficherQRCodeGreffe == 1%}
+		<div id="divCodeQR">
+			{%if documentValide %}
+				<img id="imgQr" src="{{asset('img/qrcodegreffe.png')}}" width="80" height="80"/>
+			{%else%}
+				<img id="imgQr" src="{{asset('img/qrcodetempgreffe.png')}}" width="80" height="80"/>
+			{%endif%}
+		</div>
+	{%endif%}
+	</span>
+</page>
+
+

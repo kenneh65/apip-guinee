@@ -1,0 +1,12 @@
+tui_session:
+    expired_response: session_expired
+
+services:
+    session_expired:
+        class: Symfony\Component\HttpFoundation\Response
+        arguments:
+            - 'Your login expired, sorry!'
+    app.form.translatable:
+        class: AppBundle\Form\Type\TranslatableType
+        arguments:
+          - @translator

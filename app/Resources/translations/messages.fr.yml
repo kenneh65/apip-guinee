@@ -1,0 +1,128 @@
+portal : Portail
+parametrage : Paramètrage
+accueil : Accueil
+ajout : Ajouter
+ajouter: Ajouter
+modifier: Modifier
+supprimer: Supprimer
+regions: Ville
+dashboard : Tableaux de bord
+enregistrer: Enregister
+edition_page_region : 'Edition des villes'
+administration_page_region : 'Administration des regions'
+gerer_news : 'Gestion des news'
+gerer_contact : 'Gestion des contacts'
+gerer_faq : 'Gérer FAQ'
+faq: 'Foire Aux Questions'
+obligatoire: Obligatoire
+edition_page_contact : 'Edition page de contact'
+erreur_survenue : 'Une erreur est survenue'
+nom_nul: 'Renseigner votre nom!'
+telephone_nul: 'Renseigner le numéro de téléphone!'
+email_invalide: 'Enter a valid e-mail!'
+adresse_nul: 'Enter the address!'
+message_confirmation : 'Are-you sure?'
+message_suppression_contact: 'You will remove the contact!'
+confirm_suppression : 'Yes, delete'
+annuler: Cancel
+message_modification_contact : 'You will update the contact!'
+confirm_modification: 'Yes, update!'
+nouvelle_question : 'New question'
+message_suppression_question': 'You will remove the question!'
+message_modification_question : 'You will update the question!'
+succes_modification: 'The question has been updated!'
+question_nulle: 'Enter the question!'
+reponse_nulle: 'Enter the response!'
+succes_ajout_question: 'The question has been added;'
+succes_suppression_question: 'The question has been deleted'
+fonction_nulle: 'Enter the function'
+edition_news: 'Edit News'
+ajout_news: 'Add news'
+retour: Back
+titre: Title
+date_publication: 'Publication Date'
+date_expiration: 'Expiration Date'
+succes_suppression_news: 'The news has been deleted.'
+succes_ajout_news: 'The news has been added.'
+succes_modification_news: 'The news has been updated'
+ajout_news: 'Add news'
+traitement_cours: 'Ongoing treatment...'
+rechercher: Search
+suivant: Next
+dernier: Last
+premier: First
+'Afficher _MENU_ éléments': 'Display _MENU_ items'
+'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments': 'Viewing _START_ item _END_ items of _TOTAL_'
+precedent: Previous
+'Aucun élément à afficher': 'No items to display'
+'Aucune donnée disponible dans le tableau': 'No data available in table'
+'filtré de _MAX_ éléments au total': 'filtered _Max_ items total'
+'Affichage des éléments 0 à 0 sur 0 élément': 'Displaying the Item 0-0 0 element'
+langues: Language
+pays: Countries
+ajouter_pays : Add a new country
+villes: Towns
+gestion_pays: 'Manage countries'
+liste_pays: 'List of countries'
+liste_villes: 'List of towns'
+gestion_villes: 'Manage towns'
+modification_villes: 'Edit town'
+nouvelle_ville: 'New town'
+aucune_ville: 'No town'
+gestion_langues: 'Manage languages'
+ajout_langue: 'Add language'
+succes_ajout_langue : 'The language has been added.'
+modification_langue: 'Edit a language'
+modification: Update
+suppression: Deleting
+succes_modification_langue: 'The language has been updated.'
+succes_suppresion_langue :  'The language has been removed.'
+supprimer_langue: 'Delete language'
+retour_liste : 'Back to the list'
+nouvelle_langue: 'New language'
+Iinscription: Registration
+se_souvenir : 'keep me logged-in'
+mot_passe_oublie: 'Forgotten password ?'
+region.enregistrer: Save
+region.annuler: Cancel
+region.libelle: Label
+region.pays: Country
+region.code : Code
+contact.nom: Name
+contact.telephone: Phone
+contact.fonction: Function
+contact.adresse: Address
+contact.email: E-mail
+contact.ajouter: Add
+contact.modifier: Update
+contact.supprimer: Delete
+contact.delete_success: 'The contact has been deleted'
+contact.add_success: 'The contact has been added'
+faq.question: Question
+faq.reponse: Response
+news.titre: 'Title (*)'
+news.date_publication: 'Publication Date (*)'
+news.date_expiration: 'Expiration Date (*)'
+news.contenu: Content
+langue.libelle : 'Label (*)'
+messages: Messages
+profil : Profile
+parametrage: Settings
+deconnexion: 'Log Out'
+pays :
+    langue : Language
+    nom : Name
+    libelle : Country
+code_pays : Country code
+succes_suppression_pays: The country has been deleted
+succes_ajout_pays : The country has been added
+Liste_utilisateurs : List of users
+utilisateur :
+    profil : Profile
+    username : Username
+    email : E-mail
+    confirm_password : Confirm the password (*)
+    password : Password (*)
+guide :
+     titre : Title
+     

@@ -1,0 +1,111 @@
+{% extends '::base.html.twig' %}
+
+
+
+{% block body %}
+    <div class="col-lg-12">
+        <div class="hpanel">  
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}document_collecter{%endtrans%} n° {{idd}}
+                        </h1>
+                        {% block sousMenu %}
+                            {{ render(controller("BanquemondialeBundle:Shared:etapeBrouillon",{'idd':idd})) }}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="nbrePoleCocher" name="nbrePoleCocher" value="{{nbreCocher}}" />
+
+        <div class="panel-body">
+            <form name="frmDocColled" action="{{path('docToBeCollected',{'idd':idd})}}" method="POST">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>                                                      
+                            <th>{%trans%}pole{%endtrans%}</th>
+                            <th>{%trans%}document{%endtrans%}</th>
+                            <th>{%trans%}ordre{%endtrans%}</th>                                       
+                        </tr>
+                    </thead>
+                    {%set myVal=1%}
+                    {% for a in listDocument %}
+
+
+                        {%set printed=0%}
+                        {% for form in a.formulaire %}
+                            <tr>
+                                {%if printed==0%}
+                                    <td {%if a.rowspan!=0%} rowspan="{{a.rowspan}}" {%endif%}>
+
+                                        {% set lepole=0 %}
+                                        {% for b in listPoleCocher %} 
+                                            {% if b.idPole==a.idPole %}
+                                                {% set lepole=1 %}
+												{%if a.siglePole != "AGUIPE"%} <input type="checkbox" class="cocher" checked="true" disabled="disabled"/>
+												<input type="hidden" class="cocher" name="checkbox[{{myVal}}]" value="true" />{%endif%} 
+                                                {%if a.siglePole == "AGUIPE"%}<input type="checkbox" class="cocher" name="checkbox[{{myVal}}]" checked="{{b.cocher}}" />{%endif%} 
+                                                <input type="hidden" name="idPole[{{myVal}}]" value="{{ a.idPole }}" />
+                                                <input type="hidden" name="ordre[{{myVal}}]" value="{{a.ordre}}" /> 
+
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if lepole==0 %}										
+                                            
+											{%if a.siglePole != "AGUIPE"%}<input type="checkbox" class="cocher" checked="true" disabled="disabled"/>
+											<input type="hidden" class="cocher" name="checkbox[{{myVal}}]" value="true" />{%endif%} 
+                                            {%if a.siglePole == "AGUIPE"%}<input type="checkbox" class="cocher" name="checkbox[{{myVal}}]" />{%endif%} 
+                                            <input type="hidden" name="idPole[{{myVal}}]" value="{{ a.idPole }}" />
+                                            <input type="hidden" name="ordre[{{myVal}}]" value="{{a.ordre}}" /> 
+                                        {%endif %}
+                                    </td>
+                                {%endif%}
+                                {%if printed==0%}
+                                    <td {%if a.rowspan!=0%} rowspan="{{a.rowspan}}" {%endif%}>
+                                        {{ a.nomPole }}
+                                    </td>
+                                {%endif%}
+                                <td>{{form.libelle}}</td>
+                                {%if printed==0%}
+                                    <td {%if a.rowspan!=0%} rowspan="{{a.rowspan}}" {%endif%}>
+                                        {{ a.ordre }}
+                                    </td>
+                                {%endif%}                             
+                                {%set printed=printed+1%}
+                            </tr> 
+                        {%endfor%}
+
+
+                        {% set myVal=myVal+1%}
+                    {% endfor %}
+
+
+                </table>
+                {%if profilName==null%}
+                    <div class="btn-group">                                               
+                        <br />                    
+                        <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" id="btnSubmit" name="btnSubmit" type = "submit" value = "Enregistrer"/>                            
+
+
+                    </div>  
+                {%endif%}
+            </form>
+        </div>
+
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $(document).ready(function () {
+            var nbc = $("#nbrePoleCocher").val();
+            if (nbc == 0) {
+
+                $(".cocher").attr("checked", true);
+            }
+        });
+    </script>
+{%endblock %}   

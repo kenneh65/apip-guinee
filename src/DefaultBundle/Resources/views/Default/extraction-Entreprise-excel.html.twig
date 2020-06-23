@@ -1,0 +1,273 @@
+{% extends '::base.html.twig' %}
+{%block title %}{%trans%}titre_statistique{%endtrans%}{%endblock %}
+
+{% block body %}
+    <link rel="stylesheet" href="{{asset('js/exportdatatable/buttons.dataTables.min.css') }}" />
+    <link rel="stylesheet" href="{{asset('js/exportdatatable/jquery.dataTables.min.css') }}" />
+    <style>
+        .divFieldSet
+        {
+            border:1px #dddddd solid;                         
+            position:relative;
+            padding: 5px ;                
+            font-size: 9pt;
+            margin-top:5px;
+        }
+        .divLegende
+        {
+            border: 1px #dddddd solid;
+            width: 50%;
+            position: absolute;
+            margin: -10px 30% 0 30%;
+            margin-left:25%;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .boutonMoyen
+        {
+            width:120px;
+        }
+
+    </style>
+
+    <div class="row"> 
+        <div class="col-lg-12">
+            <h3 class="page-header">
+                <div>
+                    {{"Export_Entreprise"|trans}}
+                </div>
+            </h3>
+        </div>
+    </div>
+
+    <div class="container" style="width:100%">   
+
+        <div class="col-md-12">
+            <form method="POST" {{ form_enctype(form) }}>
+
+
+                <div class="row text-center">
+                    <div class="form-group col-sm-4"></div>
+                    <div class="form-group col-sm-2" style="min-width:175px">
+                        <label>{%trans%}date_debut_creation{%endtrans %}</label>                                
+                        <div class="input-group date" id="datetimepicker1">
+                            {{ form_widget(form.dateCreationDebut, {'attr': {'class': 'datepicker1 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2" style="min-width:175px">
+                        <label>{%trans%}date_fin_creation{%endtrans %}</label> 
+                        <div class="input-group date" id="datetimepicker2">
+                            {{ form_widget(form.dateCreationFin, {'attr': {'class': 'datepicker2 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:25px" class="text-left">
+                        <button type="submit"  class="btn btn-info" >{%trans%}valider{%endtrans %}</button>
+                    </div>
+
+                </div>
+                {{ form_rest(form) }} 
+            </form>
+
+        </div>  
+
+
+        <div class="panel-body table-responsive">
+            <table id="entreprises" class=" table-striped table table-bordered" >
+                <thead>
+                    <tr>
+                        <th>{%trans%}numero_dossier{%endtrans%}</th>
+                        <th>{%trans%}denomination{%endtrans%}</th>
+                        <th>{%trans%}rccm_Entreprise{%endtrans%}</th>
+                        <th>{%trans%}rccm_formalite{%endtrans%}</th> 
+                        <th style="white-space: nowrap">{%trans%}date_depot{%endtrans%}</th>
+                        <th style="white-space: nowrap">{%trans%}date_retrait{%endtrans%}</th> 
+                        <th>{%trans%}nom_gerant{%endtrans%}</th>
+                        <th>{%trans%}prenom_gerant{%endtrans%}</th> 
+                        <th>{%trans%}structure_appartenance{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}genre_gerant{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}date_naissance{%endtrans%}</th> 
+                        <th class='acacher'>{%trans%}lieu_naissance{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}adresse_gerant{%endtrans%}</th>                         
+                        <th class='acacher'>{%trans%}email{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}telephone{%endtrans%}</th> 
+                        <th class='acacher'>{%trans%}situation_matrimoniale{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}nom_commercial{%endtrans%}</th> 
+                        <th class='acacher'>{%trans%}sigle ou ensigne{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}activité(s) excercée(s){%endtrans%}</th> 
+                        <th class='acacher'>{%trans%}date_debut{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}adresse_etab_principal{%endtrans%}</th> 
+
+                        <th class='acacher'>{%trans%}date de saisie{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}date_delivrance_rccm{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}excercie_precente_activite{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}nature_activité{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}periode{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}principal_etab_secondaire{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}adresse{%endtrans%}</th>
+                        <th  class='acacher'>{%trans%}date_delivrance_aguipe{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}date_delivrance_nif{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}numero_nif{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}localité{%endtrans%}</th>
+
+                        <th class='acacher'>{%trans%}Profession{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}en_activite{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}date_delivrance_CNSS{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}nbre_employe_reel{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}nbre_employe_previsionnel{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}forme_juridique{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}rccm_siege{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}apport_numeraire{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}apport_nature{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}duree{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}principale_etab_succursale{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}nationalite{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}capital_social{%endtrans%}</th>
+
+                        <th class='acacher'>{%trans%}numero_employeur{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}categorie{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}plafond{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}plancher{%endtrans%}</th>
+                        <th class='acacher'>{%trans%}date_quittance{%endtrans%}</th>
+
+                    </tr>
+                </thead>
+                {% for tab in listerdemande %}
+                    <tr>
+                        <td >{{ tab['id'] }}</td>                     
+                        <td>{{ tab['denomination']}}</td> 
+                        <td>{{ tab['rccmEntreprise'] }}  </td>                     
+                        <td>{{ tab['rccmFormalite']}}</td>
+                        <td>{%if tab['dateDepot']%}{{tab['dateDepot']|date('d-m-Y h:m:s')}}{%endif%}</td>                                             
+                        <td>{%if tab['dateRetrait']%}{{tab['dateRetrait']|date('d-m-Y h:m:s')}}{%endif%}</td>                     
+                        <td>{{ tab['nomGerant']}}</td>
+                        <td>{{ tab['prenomGerant'] }}  </td>   
+                        <td>{{tab['structure']}}</td>
+                        <td class='acacher'>{{tab['genre']}}</td>
+                        <td class='acacher'>{%if tab['dateNaissanceGerant']%}{{tab['dateNaissanceGerant']|date('d-m-Y')}}{%endif%}</td>
+                        <td class='acacher'>{{ tab['lieuNaissanceGerant'] }}  </td>                                             
+                        <td class='acacher'>{{ tab['adresseGerant'] }}  </td>                     
+                        <td class='acacher'>{{ tab['emailGerant']}}</td>
+                        <td class='acacher'>{{ tab['telephoneGerant'] }}  </td>                     
+                        <td class='acacher'>{{ tab['sitMatrimonialeGerant']}}</td>
+                        <td class='acacher'>{{ tab['nomCommercial'] }}  </td> 
+                        <td class='acacher'>{{ tab['sigle']}}</td>
+                        <td class='acacher'>{{ tab['activiteExcerce']}}</td>
+                        <td class='acacher'>{%if tab['dateDebut']%} {{ tab['dateDebut']|date('d-m-Y') }} {%endif%} </td>                     
+                        <td class='acacher'>{{ tab['adresse']}}</td>                        
+                        <td class='acacher'>{%if tab['dateSaisi']%}{{tab['dateSaisi']|date('d-m-Y h:m:s')}}{%endif%}</td>
+                        <td class='acacher'>{%if tab['dateDelivranceRccm']%}{{tab['dateDelivranceRccm']|date('d-m-Y h:m:s')}}{%endif%}</td>
+                        <td class='acacher'>{{ tab['existOld']}}</td>
+                        <td class='acacher'>{{ tab['natureActivite']}}</td>
+                        <td class='acacher'>{{ tab['periode']}}</td>
+                        <td class='acacher'>{{ tab['etablissementPrincipal']}}</td>
+                        <td class='acacher'>{{ tab['adresseOldEtab']}}</td>
+                        <td class='acacher'>{%if tab['dateDelivranceAguipe']%}{{tab['dateDelivranceAguipe']|date('d-m-Y h:m:s')}}{%endif%}</td>
+                        <td class='acacher'>{%if tab['dateDelivranceNIF']%}{{tab['dateDelivranceNIF']|date('d-m-Y h:m:s')}}{%endif%}</td>
+                        <td class='acacher'>{{ tab['numeroNIF']}}</td>
+                        <td class='acacher'>{{ tab['localite']}}</td>                        
+                        <td class='acacher'>{{ tab['profession']}}</td>
+                        <td class='acacher'>{%if tab['enActivite']%}{{ tab['enActivite']|trans}}{%endif%}</td>
+                        <td class='acacher'>{%if tab['dateDelivranceCnss']%}{{tab['dateDelivranceCnss']|date('d-m-Y h:m:s')}}{%endif%}</td>
+                        <td class='acacher'>{{ tab['nbreSalarie']}}</td>
+                        <td class='acacher'>{{ tab['nbreEmployePrevi']}}</td>                        
+                        <td class='acacher'>{{ tab['formeJuridique']}}</td>
+                        <td class='acacher'>{{ tab['rccmSiege']}}</td>
+                        <td class='acacher'>{{ tab['apportNumeraire']}}</td>
+                        <td class='acacher'>{{ tab['apportNature']}}</td>
+                        <td class='acacher'>{{ tab['duree']}}</td>
+                        <td class='acacher'>{{ tab['denomination']}}</td>
+                        <td class='acacher'>{{ tab['nationaliteGerant']}}</td>
+                        <td class='acacher'>{{ tab['capitalSocial']}}</td>                                                
+                        <td class='acacher'>{{ tab['numeroEmployeur']}}</td>
+                        <td class='acacher'>{{ tab['categorie']}}</td>
+                        <td class='acacher'>{{ tab['plafond']}}</td>
+                        <td class='acacher'>{{ tab['plancher']}}</td>
+                        <td class='acacher'>{%if tab['dateQuittance']%}{{tab['dateQuittance']|date('d-m-Y h:m:s')}}{%endif%}</td>
+
+                    </tr>   
+                {% endfor %}
+            </table> 		
+        </div>    
+    </div> 
+
+
+
+
+{% endblock %}
+
+{%block javascripts %}
+    {{parent()}}        
+
+    <script src="{{asset('js/exportdatatable/jquery-1.12.3.js')}}"></script>	 
+    <script src="{{asset('js/exportdatatable/jquery.dataTables.min.js')}}"></script>		 
+    <script src="{{asset('js/exportdatatable/jszip.min.js')}}"></script>
+    <script src="{{asset('js/exportdatatable/vfs_fonts.js')}}"></script>		 
+    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+    <script type="text/javascript" src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>		
+    <script src="{{asset('js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+    <script src="{{asset('js/exportdatatable/buttons.html5.min.js')}}"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".acacher").hide();
+        });
+        $(function () {
+
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY', maxDate: 'now'});
+
+            $('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY', maxDate: 'now'});
+
+            $("#datetimepicker1").on("dp.change", function (e) {
+                $('#datetimepicker2').data("DateTimePicker").minDate(e.date);
+            });
+
+            $('#entreprises').DataTable({"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],"language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}}     :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours..    .",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                },
+                "bSort": false,
+                "bPaginate": true,
+                "bInfo": true,
+                dom: 'Bfrtip',
+                buttons: [{
+                        extend: 'excel',
+                        text: '{{"generer_excel"|trans}}',
+                        filename: "{{'extraction_entreprise_cree'|trans|e('js')}}",
+                        title: '{{"Liste des champs à exporter pour la production des statistiques"|trans|e("js")}}',
+                        messageTop: '{{"du"|trans}} {{dateDebut|localizeddate("none", "none", locale, null, "dd MMMM y")}} {{"au"|trans}} {{dateFin|localizeddate("none", "none", locale, null, "dd MMMM y")}}'
+                    }
+                ]
+            });
+
+        });
+
+    </script>
+
+{%endblock %}	

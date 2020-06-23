@@ -1,0 +1,121 @@
+{% extends '::base-office.html.twig' %}
+{%block title%}{%trans%}verification{%endtrans%}- {{parent()}}{%endblock%}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':0})) }}
+{%endblock%}
+	
+{% block body -%}
+	<style type="text/css">
+	   .tableVerification
+	   {
+			margin:0 auto;
+	   }
+	   table {
+			border: none;
+		}
+		th,td{
+			border:none;
+		}
+		#divTable{
+			max-width:600px;
+			border: 4px #dd8708 ridge;
+			margin:0 auto 50px auto;
+			font-size:14px;
+			padding:0 40px 20px 40px;
+		}
+		table.tableVerification TD,TR,TH {
+			border: none !important;
+			padding: 5px 0px 5px 0;
+		}
+		.titre{
+			font-weight:bold;
+			color:#337ab7;
+			max-width:120px;
+		}
+		
+		.valeur{
+			color:#337ab7;
+		}
+		#divAucuneInfo
+		{
+			text-align:center;
+			padding-top:20px;
+		}
+		
+	</style>
+	<div  class="clearfix width-100" >
+		<div class="fusion-row" style="max-width:100%;">		
+			<div id="content" class="full-width">
+				<div class="fusion-row" style="border-color:#e2e2e2;border-bottom-width: 1px;border-top-width: 1px;border-bottom-style: solid;border-top-style: solid;padding-bottom:0px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:#ffffff;margin-bo">  
+					<div id="divTable">						
+						{% for message in app.session.flashbag.get('error') %}            
+							<div class="col-lg-12 text-center m-t-md alert alert-danger fade in" style="margin: 10px 0 10px 0;">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<strong>{{ message }}</strong>
+							</div>
+						{% endfor %}
+		
+						{%if dossierRccm and dossierRccm.dossierDemande and gerant%}					
+						<table style="width:100%" class="tableVerification">
+							<tr>
+								<th style="max-width:120px"></th>
+								<th></th>
+							</tr>
+							<tr>
+								<td class="titre">{%trans%}numero_rccm{%endtrans%}:</td>
+								<td class="valeur">{{dossierRccm.numRccmEntreprise}}</td>
+							</tr>
+							<tr>
+								<td class="titre">{%trans%}forme_juridique{%endtrans%}:</td>
+								<td class="valeur">{{dossierRccm.dossierDemande.formeJuridique.sigle}}</td>
+							</tr>
+							<tr>
+								<td class="titre">{%trans%}raison_sociale{%endtrans%}:</td>
+								<td class="valeur">{{dossierRccm.dossierDemande.denominationSociale}}</td>
+							</tr>
+							<tr>
+								<td class="titre">{%trans%}adresse_siege{%endtrans%}:</td>
+								<td class="valeur">{{dossierRccm.dossierDemande.adresseSiege}}</td>
+							</tr>
+							<tr>
+								<td class="titre">{%trans%}Date de création{%endtrans%}:</td>
+								<td class="valeur">{{dossierRccm.date|date('d/m/Y')}}</td>
+							</tr>
+							{% if dossierRccm.dossierDemande.capitalSocial %}
+							<tr>
+								<td class="titre">{%trans%}capital_social{%endtrans%}:</td>
+								<td class="valeur">{{dossierRccm.dossierDemande.capitalSocial|number_format(0, '.', '  ')}}</td>
+							</tr>
+							{% endif %}
+							<tr>
+								<td class="titre">{%trans%}gerant{%endtrans%}:</td>
+								<td class="valeur">{{gerant.prenom|capitalize}} {{gerant.nom|upper}}</td>
+							</tr>
+							{%if gerant.portable or gerant.telephone%}
+							<tr>
+								<td class="titre">{%trans%}telephone_gerant{%endtrans%}:</td>
+								<td class="valeur">{{gerant.portable}}  {{gerant.telephone}} </td>
+							</tr>
+							{% endif %}
+							{%if gerant.email%}
+							<tr>
+								<td class="titre">{%trans%}email_gerant{%endtrans%}:</td>
+								<td class="valeur">{{gerant.email}}</td>
+							</tr>
+							{% endif %}							
+						</table> 						
+						{%else%}
+							<div id="divAucuneInfo">{%trans%}validation_dossier_non_trouve{%endtrans%}</div>							
+						{%endif%}						
+					</div>
+					
+				</div>
+			</div>
+        </div>
+	</div>
+{% endblock %}
+{%block javascripts%}
+{{parent()}}    
+    <script type="text/javascript">
+    </script>
+{%endblock%}

@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>ArchiveNomCommerciaux</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ archiveNomCommerciaux.id }}</td>
+            </tr>
+            <tr>
+                <th>Denominationsociale</th>
+                <td>{{ archiveNomCommerciaux.denominationSociale }}</td>
+            </tr>
+            <tr>
+                <th>Formejuridique</th>
+                <td>{{ archiveNomCommerciaux.formeJuridique }}</td>
+            </tr>
+            <tr>
+                <th>Gerantprincipal</th>
+                <td>{{ archiveNomCommerciaux.gerantPrincipal }}</td>
+            </tr>
+            <tr>
+                <th>Secteuractivite</th>
+                <td>{{ archiveNomCommerciaux.secteurActivite }}</td>
+            </tr>
+            <tr>
+                <th>Telephone</th>
+                <td>{{ archiveNomCommerciaux.telephone }}</td>
+            </tr>
+            <tr>
+                <th>Siegesocial</th>
+                <td>{{ archiveNomCommerciaux.siegeSocial }}</td>
+            </tr>
+            <tr>
+                <th>Anneecreation</th>
+                <td>{{ archiveNomCommerciaux.anneeCreation }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('archivenomcommerciaux_index') }}">Back to the list</a>
+        </li>
+    </ul>
+{% endblock %}

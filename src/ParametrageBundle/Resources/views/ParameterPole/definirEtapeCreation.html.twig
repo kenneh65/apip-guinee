@@ -1,0 +1,139 @@
+{% extends "::base.html.twig" %}
+
+{% block title %}{%trans%}etape_creation{%endtrans%}{% endblock %}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+
+{% endblock%}
+{% block body %}    
+    <div class="col-lg-12">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        {%trans%}etape_creation{%endtrans%}
+                    </h1>
+                    <ol class="breadcrumb">
+                        <li>
+                            <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                        </li> 
+                        <li>
+                            <i></i>{%trans%}etape_creation{%endtrans%}
+                        </li>						
+                    </ol>
+                </div>
+            </div>
+        </div>
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="panel-body">            
+            <form method="POST" name="frmEtape" id="frmEtape" action="{{path('definirEtapeCreation',{'idE':idE})}}" {{ form_enctype(form) }}>
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        {{ form_label(form.etape,'message_etape'|trans ) }} 
+                        {{ form_errors(form.etape,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                        {{ form_widget(form.etape, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}forme_juridique{%endtrans%}</label>
+                        {{ form_errors(form.formeJuridique,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                        {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        {{ form_label(form.ordre,'ordre'|trans ) }} 
+                        {{ form_errors(form.ordre,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                        {{ form_widget(form.ordre, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>            
+                <div class="form-group col-sm-12">
+                    <div class="row ">
+                        <div class="form-group col-sm-2">
+                            <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" type = "submit" value = "{%trans%}enregistrer{%endtrans%}"/>                            
+                        </div>
+                        <div class="form-group col-sm-2">                            
+                            <input style = "width:100px;" class = "btn btn-default btn-goto col-sm-3" type = "button" value = "{%trans%}annuler{%endtrans%}" data-url="{{path('definirEtapeCreation')}}"/>                            
+                        </div>
+                    </div>                  
+                </div>
+                {{ form_rest(form) }}           
+            </form>
+        </div>
+        <table id ="etapes" class="table table-bordered table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>{%trans%}forme_juridique{%endtrans%}</th>                                        
+                    <th>{%trans%}message_etape{%endtrans%}</th>                          
+                    <th>{%trans%}ordre{%endtrans%}</th>
+                    <th></th> 
+                </tr>
+            </thead>
+            {% for et in lesEtapes%}
+                <tr>
+                    <td>{{et.libbelleFormeJ}}</td>
+                    <td>{{ et.titre}}</td>
+                    <td>{{ et.ordre }}</td>
+                    <td class="text-nowrap">
+                        <a href="{{path('definirEtapeCreation',{idE:et.id})}}" title="modifier" class=""><span class='glyphicon glyphicon-pencil'></span></a> |
+                        <a href="#"  data-url="{{path('supprimer_Etape',{'idE':et.id})}}" title="{{'supprimer'|trans}}" class="deleteEtape"><span class="glyphicon glyphicon-trash"/></a>
+                    </td>                                                         
+                </tr>            
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $("#btnSearch").click(function () {
+            $("#frmEtape").attr("action", "{{ path('searchPole') }}");
+            $("#frmEtape").submit();
+        });
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+        $(".deleteEtape").click(function () {
+            var url = $(this).attr("data-url");
+            swal({
+                title: "{{'message_confirmation'|trans}}",
+                text: "{{'message_confirmer_suppression'|trans}}",
+                showCancelButton: true,
+                confirmButtonColor: "#3f5872",
+                cancelButtonText: "{{'annuler'|trans}}",
+                confirmButtonText: "{{'confirm_suppression'|trans}}",
+            },
+                    function () {
+
+                        window.location.replace(url);
+                    });
+        });
+        $('#etapes').DataTable({"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]], "language": {
+                "sProcessing": "{{'traitement_en_cours'|trans}}",
+                "sSearch": "{{'rechercher'|trans}} :",
+                "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                "sInfoPostFix": "",
+                "sLoadingRecords": "Chargement en cours...",
+                "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                "oPaginate": {
+                    "sFirst": "{{'premier'|trans}}",
+                    "sPrevious": "{{'precedent'|trans}}",
+                    "sNext": "{{'suivant'|trans}}",
+                    "sLast": "{{'dernier'|trans}}"
+                },
+                "oAria": {
+                    "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                    "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                }
+            }});
+
+    </script>
+{% endblock %}

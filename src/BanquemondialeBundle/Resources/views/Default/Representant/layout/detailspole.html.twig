@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+{%block title%}}message_details_representant{%endblock%}
+
+{% block body %}
+<h2>{%trans%}message_details_representant{%endtrans%}</h2>
+<br/>
+<div class="row">
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_nom{%endtrans%}</label>
+		<br/>
+		{{ representant.nom }}
+	</div>
+
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_prenom{%endtrans%}</label>
+		<br/>
+		{{ representant.prenom }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_date_naissance{%endtrans%}</label>
+		<br/>
+		 {% if representant.dateDeNaissance %}{{ representant.dateDeNaissance|date('Y-m-d') }}{% endif %} 
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_adresse{%endtrans%}</label>
+		<br/>
+		{{ representant.adresse }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}utilisateur.type_identification{%endtrans%}</label>
+		<br/>
+		{{ representant.typeIdentification }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_num_cni{%endtrans%}</label>
+		<br/>
+		{{ representant.numeroIdentiteNational }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_tel_fixe{%endtrans%}</label>
+		<br/>
+		{{ representant.telephone }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_tel_portable{%endtrans%}</label>
+		<br/>
+		{{ representant.portable }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_email{%endtrans%}</label>
+		<br/>
+		{{ representant.email }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_pays{%endtrans%}</label>
+		<br/>
+		{{ definedPaysTraduction }}
+	</div>
+	
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_genre{%endtrans%}</label>
+		<br/>
+		{{ definedGenreTraduction }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_situation_matrimoniale{%endtrans%}</label>
+		<br/>
+		{{ definedSituationMatrimonialeTraduction }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_fonction{%endtrans%}</label>
+		<br/>
+		{{ definedFonctionTraduction }}
+	</div>
+	
+	
+</div>
+
+<h3>{%trans%}message_liste_conjoints{%endtrans%}</h3>
+<div class="table-responsive " style="width:100%">
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>{%trans%}message_nom{%endtrans%}</th>
+            <th>{%trans%}message_prenom{%endtrans%}</th>
+            <th>{%trans%}message_date_naissance{%endtrans%}</th>
+            <th>{%trans%}message_lieu_naissance{%endtrans%}</th>             
+        </tr>
+        </thead>
+        {% for conjoint in listerConjoint %}
+     <tr> 
+         <td>{{ conjoint.nom }}</td>
+         <td>{{ conjoint.prenom }}</td>
+         <td>{% if conjoint.dateNaissance %}{{ conjoint.dateNaissance|date('d-m-Y') }}{% endif %}</td>
+         <td>{{ conjoint.lieuNaissance }}</td>         
+     </tr>
+        {% else %} <tr><td>{%trans%}message_aucun_element_trouve{%endtrans%}</td></tr>
+        {% endfor %}
+    </table>
+
+</div>	
+	
+
+            <a href="{{ path('representant_listerrepresentantpole', {'idd':representant.dossierDemande.id }) }}" style = "width:150px;" class = "btn btn-warning form-control col-md-offset-1 col-sm-1">{%trans%}message_retour_liste{%endtrans%}</a>
+ 
+
+{% endblock %}

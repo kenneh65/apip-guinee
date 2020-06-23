@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+{% block title %} 
+    {%trans%}liste_entreprise_titre{%endtrans%}
+{% endblock %}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+{% endblock %}
+{% block body %}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+
+            <div class="panel-heading">
+                <h1 class="page-header">
+                    {%trans%}liste_entreprise_titre{%endtrans%}
+                </h1>
+                <ol class="breadcrumb">
+                    <li>
+                        <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                    </li>
+                    <li>
+                        {%trans%}entreprise_menu{%endtrans%}
+                    </li>
+
+                </ol>
+            </div>              
+
+            <div class="panel-body">
+                <div style="margin-left:15px"> 
+                    <a href="{{ path('entreprise_new') }}" class="btn btn-default"><i class="fa fa-plus"></i>&nbsp;&nbsp;{{'message_nouveau'|trans}}</a>
+                    <hr/>
+                </div>
+                <table class="table table-bordered" id="entreprises">
+                    <thead>
+                        <tr>
+                            <th>{%trans%}denomination{%endtrans%}</th>
+                                {#<th>{%trans%}region{%endtrans%}</th>#}
+                            <th>{%trans%}prefecture{%endtrans%}</th>
+                            <th>{%trans%}sousPrefecture{%endtrans%}</th>
+                            <th>{%trans%}phone{%endtrans%}</th>
+                                {#<th>{%trans%}email{%endtrans%}</th>#}
+                            <th>{%trans%}adresse{%endtrans%}</th>                          
+                            <th>{%trans%}pole{%endtrans%}</th>
+                            <th>{%trans%}actions{%endtrans%}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entreprise in entreprises %}
+                            <tr>
+                                <td>{{entreprise.denomination}}</td>
+                                {#<td>{{entreprise.region}}</td>#}
+                                <td>{%if entreprise.prefecture%}{{entreprise.prefecture.libelle}}{%endif%}</td>
+                                <td>{%if entreprise.sousPrefecture%}{{entreprise.sousPrefecture.libelle}}{%endif%}</td>
+                                <td>{{entreprise.telephone}}</td>
+                                {#<td>{{entreprise.email}}</td>#}
+                                <td>{{entreprise.adresse}}</td>                                
+                                <td>{{entreprise.pole}}</td>
+                                <td>
+                                    <a href="{{ path('entreprise_show', { 'id': entreprise.id }) }}" title="{%trans%}details{%endtrans%}"><i class="fa fa-info-circle"></i></a>&nbsp;&nbsp;
+                                    <a href="{{ path('entreprise_edit', { 'id': entreprise.id }) }}" title="{%trans%}modifier{%endtrans%}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;
+                                        {%if entreprise.actif %}
+                                        <a href="#" title="{%trans%}desactiver{%endtrans%}"><i class="fa fa-remove desactiverEntreprise"  data-id="{{entreprise.id}}"></i></a>
+                                        {% else %}	
+                                        <a href="#" title="{%trans%}activer{%endtrans%}"><i class="fa fa-check activerEntreprise" data-id="{{entreprise.id}}"></i></a>
+                                        {% endif %}	
+                                </td>
+                            </tr>
+                        {%endfor%}   
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{%endblock%}
+
+{%block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+
+        $(function () {
+            $('#entreprises').DataTable({"aaSorting": [] ,"language": {
+                    "sProcessing": "{{'Traitement en cours...'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
+        });
+
+        $('.desactiverEntreprise').click(function () {
+            var secteurId = '';
+            secteurId = $(this).attr('data-id');
+            var url = '{{ path("entreprise_remove",{"id":"entrepriseid"} ) }}';
+
+            swal({
+                title: "{{'message_confirmer_desactivation_titre'|trans}}",
+                text: "{{'message_confirmer_desactivation'|trans}}",
+                showCancelButton: true,
+                confirmButtonColor: "#3f5872",
+                cancelButtonText: "{{'annuler'|trans}}",
+                confirmButtonText: "{{'confirm_desactivation'|trans}}",
+            },
+                    function () {
+                        url = url.replace("entrepriseid", secteurId);
+                        window.location.replace(url);
+                    });
+        });
+
+        $('.activerEntreprise').click(function () {
+            var secteurId = '';
+            secteurId = $(this).attr('data-id');
+            var url = '{{ path("entreprise_activer",{"id":"entrepriseid"} ) }}';
+
+            swal({
+                title: "{{'message_confirmation'|trans}}",
+                text: "{{'message_confirmer_activation'|trans}}",
+                showCancelButton: true,
+                confirmButtonColor: "#3f5872",
+                cancelButtonText: "{{'annuler'|trans}}",
+                confirmButtonText: "{{'confirm_activation'|trans}}",
+            },
+                    function () {
+                        url = url.replace("entrepriseid", secteurId);
+                        window.location.replace(url);
+                    });
+        });
+    </script>
+{%endblock %}

@@ -1,0 +1,108 @@
+{% extends "::base.html.twig" %}
+{% block title %}{{'titre_page_faq'|trans}}{% endblock %}
+
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':3})) }}
+{% endblock %}
+
+{% block body%}
+
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {{'titre_page_faq'|trans}}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <i class="fa fa-fw fa-newspaper-o"></i>&nbsp;&nbsp;FAQ
+                            </li>
+                            <li><i></i>{%trans%}ajout{%endtrans%}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+                       
+            <div class="panel-body">
+                 <a href="{{path('faq_new')}}" class="btn btn-default"><i class="fa fa-plus">&nbsp;&nbsp;{%trans%}ajouter_faq{%endtrans%}</i></a>
+                 <hr/>
+            </div>
+            {%if fAQs | length!=0%}
+                <table id="faqs" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>{{'faq.question'|trans}}</th>
+                            <th>{{'faq.reponse'|trans}}</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corps">
+                        {% for fAQ in fAQs %}
+                            <tr id="{{fAQ.id}}">
+                                <td>{{fAQ.question |slice(0,500)}}</td>
+                                <td>{{fAQ.reponse |slice(0,500)}}</td>
+                                <td>
+                                    <a {% if app.request.locale=='fr'%} href="{{path('faq_edit',{'id':fAQ.id})}}"
+                                    {%else%}
+                                        href="{{path('faq_edit',{'id':fAQ.faq.id})}}"
+                                        {%endif%}title="{{'modifier'|trans}}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;
+                                            <a {% if app.request.locale=='fr'%} href="{{path('faq_edit',{'id':fAQ.id})}}"
+                                    {%else%}
+                                        href="{{path('faq_edit',{'id':fAQ.faq.id})}}"
+                                        {%endif%} title="{{'supprimer'|trans}}"><i class="fa fa-remove"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                                <a style="display: none"  id="modifier"></a>
+                                <a style="display: none"  id="update"></a>
+                                <a style="display: none"  id="delete"></a>
+                            </table>
+                            {%else%}
+                                <div class="alert alert-info">{%trans%}aucune_question{%endtrans%}</div>
+                                {%endif%}
+
+                                   
+                                </div></div></div>
+                                {% endblock %}
+
+                            {%block javascripts%}
+                                {{parent()}}
+                                <script type="text/javascript">
+                                    $(function () {
+                                        $('#faqs').DataTable({"language": {
+                                                "sProcessing": "{{'Traitement en cours...'|trans}}",
+                                                "sSearch": "{{'rechercher'|trans}} :",
+                                                "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                                                "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                                                "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                                                "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                                                "sInfoPostFix": "",
+                                                "sLoadingRecords": "Chargement en cours...",
+                                                "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                                                "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                                                "oPaginate": {
+                                                    "sFirst": "{{'premier'|trans}}",
+                                                    "sPrevious": "{{'precedent'|trans}}",
+                                                    "sNext": "{{'suivant'|trans}}",
+                                                    "sLast": "{{'dernier'|trans}}"
+                                                },
+                                                "oAria": {
+                                                    "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                                                    "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                                                }
+                                            }});
+                                            });
+                                </script>
+                            {%endblock%}

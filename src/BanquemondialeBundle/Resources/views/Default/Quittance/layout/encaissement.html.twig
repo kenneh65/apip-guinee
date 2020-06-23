@@ -1,0 +1,91 @@
+{%extends '::base.html.twig'%}
+
+{% block title %}{%trans%}dashboard{%endtrans%}{% endblock %}
+{%block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
+{%endblock %}
+{%block body %}
+<div class="panel-body">     
+    <div class="panel-body">
+	 <h1 class="page-header">{%trans%}repartition_des_encaissements{%endtrans%}</h1>
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 		
+		 <form method="POST" {{ form_enctype(form) }}>
+                <div class="row">
+                    <div class="form-group col-sm-2" style="min-width:170px">
+                        <label>{%trans%}date_debut_creation{%endtrans %}</label>                                
+                        <div class="input-group date" id="datetimepicker1">
+                            {{ form_widget(form.debutPeriode, {'attr': {'class': 'datepicker1 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2" style="min-width:170px">
+                        <label>{%trans%}date_fin_creation{%endtrans %}</label> 
+                        <div class="input-group date" id="datetimepicker2">
+                            {{ form_widget(form.finPeriode, {'attr': {'class': 'datepicker2 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+					{%if app.user.entreprise.isSiege%}
+					<div class="form-group col-sm-4">
+						<label>{%trans%}structure_appartenance{%endtrans %}</label> 
+						<div class="input-group" style="width:100%">
+							{{ form_widget(form.entreprise, {'attr': {'class': 'form-control'}}) }}
+						</div>
+					</div>
+					{%else%}
+						{% do form.entreprise.setRendered %}
+					{%endif%}
+                    <div style="margin:25px 0 0 15px">
+                        <button type="submit"  class="btn btn-info">{%trans%}valider{%endtrans %} </button>
+                    </div>                   
+                </div>
+				<br/>
+				{% do form.pole.setRendered %}
+				{% do form.formeJuridique.setRendered %}
+                {{ form_rest(form) }} 
+            </form>			
+			<div>						
+	 <a href="{{path('gestion_caisse')}}" class="btn btn-default col-sm-offset-7">{%trans%}message_liste_dossier_attente_paiement{%endtrans%}</a>
+	 <br/><br/>
+	 </div>   
+	<div class="panel-body table-responsive">
+            <table id="repartition" class=" table-striped table table-bordered" >	
+                <thead>
+                    <tr>
+                        <th>{%trans%}pole{%endtrans%}</th>
+                        <th>{%trans%}sous_total{%endtrans%}</th>                                                    
+                    </tr>
+                </thead>
+                {% for repartition in repartitions %}
+                    <tr>
+                        <td>{{ repartition.pole|trans }}</td>						
+                        <td class="text-right">{{ repartition.montant|number_format(0, '.', '  ') }}</td>   										
+                    </tr>   
+                {% endfor %}
+				<tr>
+                    <td><strong>{%trans%}total{%endtrans%}</strong></td>						
+                    <td class="text-right"><strong>{{ montantTotal|number_format(0, '.', '  ') }}</strong></td>   										
+                </tr> 
+            </table> 		
+        </div>  
+</div>	
+{%endblock %}
+{%block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+            $('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+        });
+    </script>		
+{%endblock %}

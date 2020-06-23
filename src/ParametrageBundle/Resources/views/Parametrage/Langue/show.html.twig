@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+{% block title %}{%trans%}supprimer_langue{%endtrans%}{% endblock %}
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+
+{%endblock%}
+
+{% block body%}
+
+   <div class="col-lg-12">
+            {% for message in app.session.flashbag.get('info') %}            
+                <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endfor %} 
+                <div class="hpanel">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h1 class="page-header">
+                                    {%trans%}supprimer_langue{%endtrans%}
+                                </h1>
+                                <ol class="breadcrumb">
+                                    <li>
+                                        <i class="fa fa-dashboard"></i>  <a href="index.html">{{'dashboard'|trans}}</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('langue_index') }}">{{'langues'|trans}}</a>
+                                    </li>
+                                    <li><i></i>{%trans%}suppression{%endtrans%}</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">   <h1>{{'Langue'|trans}} {{langue.libelle}}</h1>
+
+    <table class="table table-hover">
+        <tbody>
+            <tr>
+                <th>{{'meassage_code'|trans}}</th>
+                <td>{{ langue.code }}</td>
+            </tr>
+            <tr>
+                <th>{{ 'langue.libelle'|trans }}</th>
+                <td>{{ langue.libelle }}</td>
+            </tr>
+            <tr>
+                <th>{{'actions'|trans}}</th>
+                <td> 
+                  {{ form_start(delete_form) }}
+                <input type="submit" value="Delete" class="btn btn-danger btn-sm">
+            {{ form_end(delete_form) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('langue_index') }}" class="btn btn-default btn-sm">{{'retour_liste'|trans}}</a>
+     </div>
+                </div>
+            </div>
+
+{% endblock %}

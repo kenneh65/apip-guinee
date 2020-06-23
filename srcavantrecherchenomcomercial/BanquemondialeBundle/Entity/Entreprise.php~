@@ -1,0 +1,450 @@
+<?php
+
+namespace BanquemondialeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * Entreprise
+ *
+ * @ORM\Table(name="entreprise")
+ * @ORM\Entity(repositoryClass="BanquemondialeBundle\Repository\EntrepriseRepository")
+ *  @UniqueEntity("ninea",message="direction.ninea_unique") 
+  */
+class Entreprise
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+ /**
+     * @var string
+     *
+     * @ORM\Column(name="denomination", type="string", length=200, nullable=false)
+     */
+    private $denomination;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="ninea", type="string", length=100, nullable=true)
+     */
+    private $ninea;
+	
+	/**
+     * @var string
+     *
+     * @ORM\Column(name="adresse", type="string", length=200, nullable=true)
+     */
+    private $adresse;
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="actif", type="boolean", options={"default"=true})
+     */
+    private $actif;
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isSiege", type="boolean", options={"default"=false})
+     */
+    private $isSiege;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="telephone", type="string", length=20, nullable=true)
+     * @Assert\Regex(pattern="/^(\((\+|00)[0-9]{2,5}\))([0-9 ]{1,20})$/",
+
+     *     match=true,
+
+     *     message="telephone_invalide")
+     * 
+     */
+    private $telephone;
+	
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=100, nullable=true)
+     */
+    private $email;
+
+/**
+     * @ORM\ManyToOne(targetEntity="ParametrageBundle\Entity\Pole")
+     * @ORM\JoinColumn(name="idPole", referencedColumnName="id")
+     */
+    private $pole;
+   
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+       * @ORM\OneToMany(targetEntity="UtilisateursBundle\Entity\Utilisateurs",mappedBy="entreprise",cascade={"remove"})
+ * @ORM\JoinColumn(nullable=true)
+     */
+    private $utilisateurs;
+    /**
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\FormeJuridique")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $formeJuridique;
+    
+    
+    /**
+      * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Region")
+      * @ORM\JoinColumn(name="idRegion", referencedColumnName="id")
+      */
+    private $region;
+		
+    /**
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Prefecture")
+     * @ORM\JoinColumn(name="idPrefecture", referencedColumnName="id")
+     */
+    private $prefecture;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\SousPrefectureCommune")
+     * @ORM\JoinColumn(name="idSousPrefecture", referencedColumnName="id")
+     */
+    private $sousPrefecture;
+
+
+    /**
+     * Set denomination
+     *
+     * @param string $denomination
+     * @return Entreprise
+     */
+    public function setDenomination($denomination)
+    {
+        $this->denomination = $denomination;
+
+        return $this;
+    }
+
+    /**
+     * Get denomination
+     *
+     * @return string 
+     */
+    public function getDenomination()
+    {
+        return $this->denomination;
+    }
+
+    /**
+     * Set ninea
+     *
+     * @param string $ninea
+     * @return Entreprise
+     */
+    public function setNinea($ninea)
+    {
+        $this->ninea = $ninea;
+
+        return $this;
+    }
+
+    /**
+     * Get ninea
+     *
+     * @return string 
+     */
+    public function getNinea()
+    {
+        return $this->ninea;
+    }
+
+    
+    /**
+     * Set administrateur
+     *
+     * @param \UtilisateursBundle\Entity\Utilisateurs $administrateur
+     * @return Entreprise
+     */
+    public function setAdministrateur(\UtilisateursBundle\Entity\Utilisateurs $administrateur = null)
+    {
+        $this->administrateur = $administrateur;
+
+        return $this;
+    }
+
+    /**
+     * Get administrateur
+     *
+     * @return \UtilisateursBundle\Entity\Utilisateurs 
+     */
+    public function getAdministrateur()
+    {
+        foreach($this->utilisateurs as $user)
+        {
+            if ($user->hasRole('ROLE_ADMIN'))
+            {
+                return $user;
+            }
+        }
+    }
+
+    /**
+     * Set formeJuridique
+     *
+     * @param \BanquemondialeBundle\Entity\FormeJuridique $formeJuridique
+     * @return Entreprise
+     */
+    public function setFormeJuridique(\BanquemondialeBundle\Entity\FormeJuridique $formeJuridique = null)
+    {
+        $this->formeJuridique = $formeJuridique;
+
+        return $this;
+    }
+
+    /**
+     * Get formeJuridique
+     *
+     * @return \BanquemondialeBundle\Entity\FormeJuridique 
+     */
+    public function getFormeJuridique()
+    {
+        return $this->formeJuridique;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->utilisateurs = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->formeJuridique=null;
+    }
+
+    /**
+     * Add utilisateurs
+     *
+     * @param \UtilisateursBundle\Entity\Utilisateurs $utilisateurs
+     * @return Entreprise
+     */
+    public function addUtilisateur(\UtilisateursBundle\Entity\Utilisateurs $utilisateurs)
+    {
+        $this->utilisateurs[] = $utilisateurs;
+
+        return $this;
+    }
+
+    /**
+     * Remove utilisateurs
+     *
+     * @param \UtilisateursBundle\Entity\Utilisateurs $utilisateurs
+     */
+    public function removeUtilisateur(\UtilisateursBundle\Entity\Utilisateurs $utilisateurs)
+    {
+        $this->utilisateurs->removeElement($utilisateurs);
+    }
+
+    /**
+     * Get utilisateurs
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUtilisateurs()
+    {
+        return $this->utilisateurs;
+    }
+
+    /**
+     * Set pole
+     *
+     * @param \ParametrageBundle\Entity\Pole $pole
+     * @return Entreprise
+     */
+    public function setPole(\ParametrageBundle\Entity\Pole $pole = null)
+    {
+        $this->pole = $pole;
+
+        return $this;
+    }
+
+    /**
+     * Get pole
+     *
+     * @return \ParametrageBundle\Entity\Pole 
+     */
+    public function getPole()
+    {
+        return $this->pole;
+    }
+	
+	/**
+     * Set adresse
+     *
+     * @param string $adresse
+     * @return Entreprise
+     */
+    public function setAdresse($adresse)
+    {
+        $this->adresse = $adresse;
+
+        return $this;
+    }
+
+    /**
+     * Get adresse
+     *
+     * @return string 
+     */
+    public function getAdresse()
+    {
+        return $this->adresse;
+    }
+
+    /**
+     * Set telephone
+     *
+     * @param string $telephone
+     * @return Entreprise
+     */
+    public function setTelephone($telephone)
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    /**
+     * Get telephone
+     *
+     * @return string 
+     */
+    public function getTelephone()
+    {
+        return $this->telephone;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return Entreprise
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set region
+     *
+     * @param \BanquemondialeBundle\Entity\Region $region
+     * @return Entreprise
+     */
+    public function setRegion(\BanquemondialeBundle\Entity\Region $region = null)
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    /**
+     * Get region
+     *
+     * @return \BanquemondialeBundle\Entity\Region 
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * Set prefecture
+     *
+     * @param \BanquemondialeBundle\Entity\Prefecture $prefecture
+     * @return Entreprise
+     */
+    public function setPrefecture(\BanquemondialeBundle\Entity\Prefecture $prefecture = null)
+    {
+        $this->prefecture = $prefecture;
+
+        return $this;
+    }
+
+    /**
+     * Get prefecture
+     *
+     * @return \BanquemondialeBundle\Entity\Prefecture 
+     */
+    public function getPrefecture()
+    {
+        return $this->prefecture;
+    }
+
+    /**
+     * Set sousPrefecture
+     *
+     * @param \BanquemondialeBundle\Entity\SousPrefectureCommune $sousPrefecture
+     * @return Entreprise
+     */
+    public function setSousPrefecture(\BanquemondialeBundle\Entity\SousPrefectureCommune $sousPrefecture = null)
+    {
+        $this->sousPrefecture = $sousPrefecture;
+
+        return $this;
+    }
+
+    /**
+     * Get sousPrefecture
+     *
+     * @return \BanquemondialeBundle\Entity\SousPrefectureCommune 
+     */
+    public function getSousPrefecture()
+    {
+        return $this->sousPrefecture;
+    }
+
+    /**
+     * Set actif
+     *
+     * @param boolean $actif
+     * @return Entreprise
+     */
+    public function setActif($actif)
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    /**
+     * Get actif
+     *
+     * @return boolean 
+     */
+    public function getActif()
+    {
+        return $this->actif;
+    }
+
+}

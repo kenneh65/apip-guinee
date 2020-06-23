@@ -1,0 +1,24 @@
+<ul class="nav navbar-nav side-nav">
+    
+    <li class="active">
+        <a href="javascript:;" data-toggle="collapse" data-target="#dossier"><i class="fa fa-fw fa-folder-o"></i>&nbsp;&nbsp;&nbsp;{%trans%}Dossier de demande{%endtrans%}<b class="caret"></b></a>
+        <ul class="collapse" id="dossier">
+            <li>
+                <a href="javascript:;" data-toggle="collapse" data-target="#brouillon"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;&nbsp;{%trans%}Brouillon{%endtrans%}<b class="caret"></b></a>
+                <ul class="collapse" id="brouillon">
+                    {% for et in listeEtapes %}
+                        <li>
+                            <a style="color: whitesmoke" href="{{path(et.etape.route ,{idd:active})}}">{{et.etape.titre}}</a>
+
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+            <li>
+                <a href="{{path('creerDossier')}}"><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp;&nbsp; {%trans%}Ajouter un dossier{%endtrans%}</a>
+            </li>
+
+        </ul>    
+    </li>
+        
+</ul>

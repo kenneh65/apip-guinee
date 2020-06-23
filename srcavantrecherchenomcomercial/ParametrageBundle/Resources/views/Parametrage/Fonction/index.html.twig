@@ -1,0 +1,167 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}liste_fonctions{%endtrans%}{% endblock %}
+{%block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+{% endblock %}
+{% block body %}
+
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}liste_fonctions{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('fonction_index') }}">{%trans%}fonction{%endtrans%}</a>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive panel-body" style="width:100%">
+                <div>
+                    <a href="{{path('fonction_new')}}" class="btn btn-default"><i class="fa fa-plus">&nbsp;&nbsp;{%trans%}nouvelle_fonction{%endtrans%}</i></a>
+                    <hr/>
+                </div>
+                {% if fonctions | length!=0 %}
+
+                    <table id="fonctions" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>{%trans%}message_libelle{%endtrans%}</th>
+								<th>{%trans%}message_libelle_Feminin{%endtrans%}</th>
+                                <th>{%trans%}sigle{%endtrans%}</th>		
+
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id = "listefonction">
+                            {% for fonction in fonctions %}
+                                <tr class="" id="{{ fonction.id }}">
+                                    <td>{{ fonction.libelle }}</td>
+									<td>{{ fonction.libelleFeminin }}</td>
+                                    <td class = "code" >
+                                        {{ fonction.fonction.code }}
+                                    </td>
+                                    <td>									
+                                        <a style = "margin-right:15px;" href = "{{path('fonction_show',{'id':fonction.fonction.id})}}" title = "{%trans%}details{%endtrans%}" ><i class="fa fa-pencil"></i></a>	
+                                        {%if fonction.fonction.actif %}
+					<a href="#" title="{%trans%}desactiver{%endtrans%}"><i class="fa fa-remove desactiverFonction"  data-id="{{fonction.fonction.id}}"></i></a>
+				{% else %}	
+					<a href="#" title="{%trans%}activer{%endtrans%}"><i class="fa fa-check activerFonction" data-id="{{fonction.fonction.id}}"></i></a>
+				{% endif %}	&nbsp;&nbsp;							
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>	
+
+
+
+                {%else%}                 <div class="alert alert-info">{%trans%}message_aucun_element_trouve{%endtrans%}</div>
+
+
+                {%endif%}
+
+
+            </div></div></div>
+        {% endblock %}
+        {% block javascripts %}
+            {{ parent() }}
+    <script>
+        $(function () {
+            $('.supprimerFonction').click(function () {
+                var fonctionId = '';
+                fonctionId = $(this).attr('data-id');
+                var url = '{{ path("fonction_delete",{"id":"fonctionId"} ) }}';
+                swal({
+                    title: "{{'message_confirmation'|trans}}",
+                    text: "{{'message_confirmer_suppression'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_suppression'|trans}}",
+                },
+                        function () {
+                            url = url.replace("fonctionId", fonctionId);
+                            window.location.replace(url);
+                        });
+            });
+            $('.desactiverFonction').click(function () {
+                var fonctionId = '';
+                fonctionId = $(this).attr('data-id');
+                var url = '{{ path("fonction_toggle",{"id":"fonctionId"} ) }}';
+
+                swal({
+                    title: "{{'message_confirmer_desactivation_titre'|trans}}",
+                    text: "{{'message_confirmer_desactivation'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_desactivation'|trans}}",
+                },
+                        function () {
+                            url = url.replace("fonctionId", fonctionId);
+                            window.location.replace(url);
+                        });
+            });
+
+            $('.activerFonction').click(function () {
+                var fonctionId = '';
+                fonctionId = $(this).attr('data-id');
+                var url = '{{ path("fonction_toggle",{"id":"fonctionId"} ) }}';
+
+                swal({
+                    title: "{{'message_confirmation'|trans}}",
+                    text: "{{'message_confirmer_activation'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_activation'|trans}}",
+                },
+                        function () {
+                            url = url.replace("fonctionId", fonctionId);
+                            window.location.replace(url);
+                        });
+            });
+
+            $('#fonctions').DataTable({"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]], "language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
+
+
+
+        })
+    </script>
+{% endblock %}	

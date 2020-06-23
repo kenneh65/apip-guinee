@@ -1,0 +1,73 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}message_creation_entreprise{%endtrans%} {% endblock %}
+
+{% block body %}
+
+    <div class="hpanel">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        {%trans%}personnes_engageur{%endtrans%} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>
+                    </h1>
+                    {% block sousMenu %}
+                        {{ render(controller("BanquemondialeBundle:Shared:etapeCreationPole",{'idd':dd.id})) }}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="panel-body table-bordered">
+
+            {% for pers in listePersEngageur%}
+                <div class="table-bordered">          
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}message_nom{%endtrans%}</label>
+                            <br/>{{pers.nom}}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}message_prenom{%endtrans%}</label> 
+                            <br/>{{pers.prenom}} 
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}message_date_naissance{%endtrans%} </label>                                                    								 
+                            <br/> {{pers.dateDeNaissance|date('d-m-Y')}}
+                        </div>
+                    </div>
+                    <div class="row">                                                   
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}message_lieu_naissance{%endtrans%} </label>                                                 								 
+                            <br/> {{pers.lieuDeNaissance}}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}message_nationalite{%endtrans%} </label>                                                  								 
+                            <br/> {{pers.pays.code}}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}message_adresse{%endtrans%}</label> 
+                            <br/> {{pers.domicile}}
+                        </div>
+                    </div>
+                </div> 
+            {%endfor%}
+
+            <div class="row pull-right">
+                <br/>
+                {% if routeAvant %}<input class="btn btn-primary btn-goto" style="width: 100px" value="{{'precedent'|trans}}" type="button" data-url="{{path(routeAvant,{'idd':idd})}}" />{% endif %}
+                {% if rteSuivant %}<input class="btn btn-info btn-goto" style="width: 100px" value="{{'suivant'|trans}}" type="button" data-url="{{path(rteSuivant,{'idd':idd})}}" />{% endif %}
+            </div>
+        </div>        
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+    </script>
+{% endblock %}

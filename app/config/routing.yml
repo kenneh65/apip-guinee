@@ -1,0 +1,44 @@
+parametrage_archive_nom_commerciaux:
+    resource: "@ParametrageBundle/Controller/ArchiveNomCommerciauxController.php"
+    type:     annotation
+
+utilisateurs_utilisateurs:
+    resource: "@UtilisateursBundle/Controller/UtilisateursController.php"
+    type:     annotation
+    prefix : /{_locale}
+
+banquemondiale:
+    resource: "@BanquemondialeBundle/Resources/config/routing.yml"
+    prefix:   /{_locale}/admin
+
+default_bundle:
+    resource: "@DefaultBundle/Controller/"
+    type:     annotation
+    prefix : /
+parametrage:
+    resource: "@ParametrageBundle/Controller/"
+    type:     annotation
+    prefix:   /{_locale}/parametrage
+
+utilisateur_bundle:
+    resource: "@UtilisateursBundle/Resources/config/routing.yml"
+    prefix:   /{_locale}/utilisateurs
+    
+parametrage_bundle:
+    resource: "@ParametrageBundle/Resources/config/routing.yml"
+    prefix:   /{_locale}/parametrage
+    
+lexik_translation_edition:
+    resource: "@LexikTranslationBundle/Resources/config/routing.yml"
+    prefix:   /{_locale}/traduction
+
+traduction_route:
+    resource: "@TraductionBundle/Controller/"
+    type:     annotation
+    prefix : /{_locale}/traduction
+
+pageNotFound:
+    pattern:  /{path}
+    defaults: { _controller: BanquemondialeBundle:PageNotFound:pageNotFound, path: '' }
+    requirements:
+        path: .*

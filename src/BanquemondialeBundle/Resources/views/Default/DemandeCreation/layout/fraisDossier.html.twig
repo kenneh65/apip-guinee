@@ -1,0 +1,84 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}frais_de_creation{% endblock %}
+
+{% block body %}
+
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}frais_constitution{%endtrans%} {% if dd.numeroDossier %} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>{%endif%}
+                        </h1>
+                        {% block sousMenu %}
+                            {{ render(controller("BanquemondialeBundle:Shared:etapeBrouillon",{'idd':dd.id})) }}
+                        {% endblock %} 
+                    </div>
+                </div>
+            </div>
+
+            {#% for message in app.session.flashbag.get('info') %}            
+                <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endfor %} #}
+
+            <div class="panel-body col-md-12">
+                <div class="panel-body table-responsive">                                        
+                    <form name="frmFrais" method="POST" action="{{path('fraisDossier',{'idd':dd.id})}}" > 
+                        <label></label>
+                        <table class="table table-bordered table-striped">
+                            <tr>
+                                <th>{%trans%}pole{%endtrans%}</th>                             
+                                <th>{%trans%}libelle_frais{%endtrans%}</th>
+                                <th>{%trans%}montant{%endtrans%}</th>                              
+                            </tr>
+                            {% for fraiss in fraisAPIP %}
+                                <tr>
+                                    <td>{{fraiss.Pole.nom|trans}}</td>
+                                    <td>{{fraiss.libelleTarification.libelle|trans}}</td>
+                                    <td>{{fraiss.montant|number_format(0, '.', '  ') }}</td>
+                                </tr>
+                            {%endfor%}
+                           {% for frais in listFraisDossier %}
+                                <tr>
+                                    <td>{{frais.Pole.nom|trans}}</td>
+                                    <td>{{frais.libelleTarification.libelle|trans}}</td>
+                                    <td>{{frais.montant|number_format(0, '.', '  ') }}</td>
+                                </tr>
+                            {%endfor%}
+                            <tr>
+                                <td colspan="2">{%trans%}message_total{%endtrans%}</td>
+                                <td>{{total|number_format(0, '.', '  ') }}</td>
+                            </tr>
+                        </table>
+						
+                        <div class="btn-group">                                               
+                            <br />                    
+                            <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" type = "submit" value = "{{'suivant'|trans}}"/>                            
+                        </div>                     
+                    </form>                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="divPayez" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">                                        
+                <button type="button" class="close" data-dismiss="modal">&times;</button>                                                                            
+                <div class="alert alert-success fade in"><strong>{%trans%}message_module_paiement_absent{%endtrans%}</strong></div>                                        
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $("#btnPayez").click(function () {
+            $("#divPayez").modal();
+        });
+    </script>
+{%endblock%}

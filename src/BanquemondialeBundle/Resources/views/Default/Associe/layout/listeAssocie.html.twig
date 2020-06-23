@@ -1,0 +1,70 @@
+{% extends '::base.html.twig' %}
+{%block title%}message_associes{%endblock%}
+
+
+
+{% block body %}
+    <div class="hpanel" >
+        <div class="panel-heading">
+            <h1 class="page-header"> 
+                {%trans%}message_associes{%endtrans%}
+                <label class="pull-right h4" style="color: #d44" >{%trans%}message_dossier{%endtrans%} n° {{dd.numeroDossier}}</label> 
+            </h1>
+            {% block sousMenu %}
+                {{ render(controller("BanquemondialeBundle:Shared:etapeCreationPole",{'idd':idd})) }}
+            {% endblock %}
+        </div>
+        <div class="panel-body">
+            <div>
+                <table class="table table-striped table-responsive table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>{%trans%}message_nom{%endtrans%}</th>
+                            <th>{%trans%}message_prenom{%endtrans%}</th>
+                            <th>{%trans%}message_date_naissance{%endtrans%}</th>
+                            <th>{%trans%}message_lieu_naissance{%endtrans%}</th>
+                            <th>{%trans%}adresse{%endtrans%}</th>                          
+                        </tr>
+                    </thead>  
+
+                    <tbody>
+                        {% for a in listerassocie %}
+                            <tr> 
+                                <td>
+                                    <a href="{{ path('associe_detailspole', { 'id': a.id }) }}" title="{%trans%}message_voir_details{%endtrans%}" class="btn btn-primary"><span class="glyphicon glyphicon-list-alt"></a>
+                                </td>					
+                                <td>{{ a.nom }}</td>
+                                <td>{{ a.prenom }}</td>
+                                <td>{{ a.dateNaissance|date('Y-m-d') }}</td>
+                                <td>{{ a.lieuNaissance }}</td>
+                                <td>{{ a.adresse }}</td>                              
+                            </tr>                    
+                        {% endfor %}
+                    </tbody>
+
+                </table>               
+            </div>
+            <div class="row pull-right">
+
+                {% if routeAvant %}<input class="btn btn-primary btn-goto" style="width: 100px" value="{{'precedent'|trans}}" type="button" data-url="{{path(routeAvant,{'idd':idd})}}" />{% endif %}
+                {% if rteSuivant %}<input class="btn btn-info btn-goto" style="width: 100px" value="{{'suivant'|trans}}" type="button" data-url="{{path(rteSuivant,{'idd':idd})}}" />{% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+        });
+
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+    </script>
+
+{% endblock %}

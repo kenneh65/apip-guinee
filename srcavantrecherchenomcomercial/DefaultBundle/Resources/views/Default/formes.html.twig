@@ -1,0 +1,106 @@
+{% extends '::base-office.html.twig' %}
+{%block title%} {%trans%}simulateur{%endtrans%} - {{parent()}}{% endblock%}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':10})) }}
+{%endblock%}
+{% block body %}
+    <div class="clearfix width-100" style="height:100%">
+
+        <div class="fusion-row"  style="height:100%">
+            <div id="content" class="full-width">
+                <div class="fusion-row" style="border-color:#e2e2e2;border-bottom-width: 1px;border-top-width: 1px;border-bottom-style: solid;border-top-style: solid;padding-bottom:0px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:#ffffff;margin-bo">           
+                    <h3 style="margin:auto">{%trans%}titre_page_simulateur{%endtrans%}</h3>
+                    <hr>
+                    <div>
+                        <form method="POST" {{ form_enctype(form) }}>
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <label>{%trans%}forme_juridique{%endtrans %}</label>                        
+                                    {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+
+                                <div class="form-group col-sm-2">
+                                    <label>{%trans%}type_dossier{%endtrans %}</label>                        
+                                    {{ form_widget(form.typeDossier, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+
+                                <div style="margin-top:25px">
+                                    <button type="submit" class="btn btn-info" >{%trans%}simuler{%endtrans %}</button>
+                                </div>
+                            </div>
+                            {{ form_rest(form) }} 
+                        </form>
+                    </div> 
+                    {% if simulation%}
+                        {% set compte = 0%}
+                        <div class="table-responsive" >		
+                            <table id="dossiers" class="table-responsive table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>{%trans%}ordre{%endtrans %}</th>
+                                        <th>{%trans%}acteurs{%endtrans %}</th>
+                                        <th>{%trans%}documents_delivres{%endtrans %}</th>         
+                                        <th>{%trans%}frais_constitution{%endtrans %}</th>
+                                        <th>{%trans%}montant{%endtrans %}</th>
+                                        <th>{%trans%}documents_a_fournir{%endtrans %}</th>
+                                    </tr>
+                                </thead>
+                                
+                                {% for sim in simulation %}
+                                    <tr>
+                                        <td style="white-space:nowrap">{%trans%} etape {%endtrans%} {{ sim.ordre }}</td>
+                                        <td>{{ sim.nomPole|trans }}</td>
+                                        <td>
+                                            {% for formul in sim.formulaire %}
+                                                - {{ formul.libelle }} <br/>
+                                            {% endfor %}
+                                        </td>        
+                                        <td>
+                                            
+                                            {% for tarif in sim.tarification %}
+                                                {{ tarif.libelleTarification.libelle }} <br/>                                              
+                                            {% endfor %}
+
+                                        </td>
+                                        <td >
+                                            
+                                            {% for tarif in sim.tarification %}                                               
+                                                {{ tarif.montant|number_format(0, '.', '  ') }} <br/>
+                                            {% endfor %}
+                                        </td>
+                                        {% if compte == 0%}
+                                            <td rowspan="{{delimitation}}"> 
+                                                {% for piece in listePiece %}
+                                                    - {{ piece.libelle }} <br/>
+                                                {% endfor %}
+                                            </td>
+                                        {% endif %}						
+                                        {% set compte = compte+1%}  
+                                    </tr>
+                                {% endfor %}
+                                {%if fraisApip%}
+                                    <tr>
+                                        <td style="white-space:nowrap"></td>
+                                        <td>AGENCE DE PROMOTION DES INVESTISSEMENTS PRIVES</td>
+                                        <td></td>
+                                        <td>
+                                            {%for tarif in fraisApip%}
+                                                {{ tarif.libelleTarification.libelle|trans }} <br/>
+                                            {%endfor%}
+                                        </td>
+                                        <td>
+                                            {%for tarif in fraisApip%}
+                                                {{ tarif.montant|number_format(0, '.', '  ') }} <br/>
+                                            {%endfor%}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                {%endif%}
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{%endblock%}

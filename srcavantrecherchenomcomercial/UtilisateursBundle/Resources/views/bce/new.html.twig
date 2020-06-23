@@ -1,0 +1,299 @@
+{% extends 'base.html.twig' %}
+{% block title %} {%trans%}nouvel_createur_titre{%endtrans%}{% endblock%}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':5})) }}
+
+{% endblock %}
+{%block body%}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('error') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}nouvel_createur_titre{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <a href="{{path('bce_index')}}">{%trans%}createur_dentreprise{%endtrans%}</a>
+                            </li>
+                            <li>{{'ajout'|trans}}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">  
+
+                <div class="panel-body">
+                    <div class="panel-body">
+                        <div class="container">
+                            <div class="row col-lg-10">
+                                <section>
+                                    <div class="wizard">
+
+                                        <ul class="nav nav-wizard">
+
+                                            <li class="active">
+                                                <a href="#step1" data-toggle="tab">{%trans%}informations_personnelles_titre{%endtrans%}</a>
+                                            </li>
+
+                                            <li class="disabled">
+                                                <a href="#step2" data-toggle="tab">{%trans%}
+                                                    identifiants_utilisateur_titre{%endtrans%}</a>
+                                            </li>
+
+
+
+                                        </ul>
+
+
+                                        {{form_start(form, {'method': 'POST', 'action': path('bce_new'), 'attr': {'class': 'fos_user_registration_register'}}) }}
+
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="step1">
+                                                <h3>{{'informations_personnelles_titre'|trans}}</h3>
+                                                <div class="form-group">
+                                                    {{ form_label(form.genre) }} 
+                                                    {{ form_errors(form.genre,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.genre, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>
+                                                <div class="form-group">
+                                                    {{ form_label(form.nom) }} 
+                                                    {{ form_errors(form.nom,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>	
+                                                <div class="form-group">
+                                                    {{ form_label(form.prenom) }} 
+                                                    {{ form_errors(form.prenom,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.prenom, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>	
+                                                <div class="form-group ">
+                                                    {{ form_label(form.dateNaissance) }} 
+                                                    {{ form_errors(form.dateNaissance) }} 
+                                                    <div class='input-group date' id='datetimepicker1'>
+                                                        {{ form_widget(form.dateNaissance,{'attr': {'class': 'form-control'}}) }}
+                                                        <span class="input-group-addon">
+                                                            <span class="glyphicon glyphicon-calendar"></span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    {{ form_label(form.lieuNaissance) }} 
+                                                    {{ form_errors(form.lieuNaissance,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.lieuNaissance, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>	
+                                                <div class="form-group">
+                                                    {{ form_label(form.adresse) }} 
+                                                    {{ form_errors(form.adresse,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>
+                                                <div class="form-group">
+                                                    {{ form_label(form.typeIdentification) }} 
+                                                    {{ form_errors(form.typeIdentification,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.typeIdentification, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>
+                                                <div class="form-group">
+                                                    {{ form_label(form.cni) }} 
+                                                    {{ form_errors(form.cni,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.cni, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>
+                                                <div class="form-group">
+                                                    {{ form_label(form.telephone) }} 
+                                                    {{ form_errors(form.telephone,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>
+
+                                                <div class="form-group">
+                                                    {{ form_label(form.paysResidence) }} 
+                                                    {{ form_errors(form.paysResidence,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.paysResidence, {'attr': {'class': 'form-control','id':'pays'}}) }}	
+                                                </div>	
+                                                <div class="form-group">
+                                                    {{ form_label(form.regionResidence) }} 
+                                                    {{ form_errors(form.regionResidence,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.regionResidence, {'attr': {'class': 'form-control','id':'regions'}}) }}
+                                                </div>	
+                                                <div class="form-group">
+                                                    {{ form_label(form.departement) }} 
+                                                    {{ form_errors(form.departement,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.departement, {'attr': {'class': 'form-control','id':'departements'}}) }}
+
+                                                </div>	
+                                                <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+
+
+
+                                                <ul class="list-inline pull-right">
+                                                    <li><button type="button" class="btn btn-success next">{%trans%}suivant{%endtrans%}</button></li>
+                                                </ul>
+                                            </div>
+                                            <div class="tab-pane" id="step2">
+                                                <div class="form-group">
+                                                    {{ form_label(form.email) }} 
+                                                    {{ form_errors(form.email,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>	
+                                                <div style="" class="form-group">
+                                                    {{ form_label(form.username) }} 
+                                                    {{ form_errors(form.username,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>
+                                               
+
+                                                <div class="form-group">
+                                                    {{ form_label(form.enabled) }} 
+                                                    {{ form_errors(form.enabled,{'attr':{'class':'alert alert-danger'}}) }} 											
+                                                    {{ form_widget(form.enabled, {'attr': {'class': 'form-control'}}) }}			
+                                                </div>	
+                                                <div class="clearfix"></div>
+                                                <div class="form-group">
+                                                    <input class="btn btn-success btn-block" type="submit" id="_submit" name="_submit" value="{{ 'enregistrer'|trans }}" />
+                                                </div>
+                                                <div class="clearfix"></div>
+                                                {{ form_end(form) }}
+
+                                            </div>
+
+
+                                            <div class="clearfix"></div>
+                                        </div>
+
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+
+                        <hr/>
+                        <a href="{{ path('bce_index') }}">
+                            <i class="fa fa-arrow-left"></i>&nbsp;&nbsp; {%trans%}retour{%endtrans%}
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+        {% block javascripts %}
+            {{parent()}}
+            <script type="text/javaScript">
+                var da = "{{'now'|date('Y') -18 }}";
+
+                $(function(){	
+                $('#utilisateurs_paysResidence').prepend("<option value='-1'></option>");
+                $('#utilisateurs_paysResidence').val(-1);
+                $('#utilisateurs_regionResidence').prepend("<option value='-1'></option>");
+                $('#utilisateurs_regionResidence').val(-1);
+                $('#utilisateurs_departement').prepend("<option value='-1'></option>");
+                $('#utilisateurs_departement').val(-1);
+                //Wizard
+                $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY',maxDate:da});
+
+
+                $("#_submit").click(function () {
+                            if (!$("#utilisateurs_email").val().match(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i))
+                {
+                toastr.warning('{{"aide.email_invalide"|trans}}');
+                return false;
+                }
+
+                }
+                );
+				
+                $('#utilisateurs_paysResidence').change(function () {
+                $('.loading').show();
+
+                $.ajax({
+                url: "{{ path('charge_region') }}",
+                type: 'POST',
+                data: {idpays: $(this).val()},
+                success: function (data) {
+
+
+                $('#utilisateurs_regionResidence').empty();
+                $('#utilisateurs_regionResidence').val(null);
+                for (var i in data.retour)
+                {
+                $('#utilisateurs_regionResidence').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                }
+
+
+                $.ajax({
+                url: '{{ path("charge_departement") }}',
+                data: {region: $('#utilisateurs_regionResidence').val()}, // on envoie $_GET['id_region']	
+                dataType: 'json',
+                type: 'POST',
+                success: function (donnee) {
+                $('#utilisateurs_departement').empty();
+                $('#utilisateurs_departement').val(null);
+                for (var i in donnee.retour)
+                {
+                $('#utilisateurs_departement').append("<option value=" + donnee.retourId[i] + ">" + donnee.retour[i] + "</option>");
+                }
+                $('.loading').hide();
+
+                }
+                });
+                },
+                error: function () {
+                }
+                });
+                });
+				
+				
+				$('#utilisateurs_regionResidence').change(function () {
+                $('.loading').show();
+				
+				$.ajax({
+                url: '{{ path("charge_departement") }}',
+                data: {region: $('#utilisateurs_regionResidence').val()}, // on envoie $_GET['id_region']	
+                dataType: 'json',
+                type: 'POST',
+                success: function (donnee) {
+                $('#utilisateurs_departement').empty();
+                $('#utilisateurs_departement').val(null);
+                for (var i in donnee.retour)
+                {
+                $('#utilisateurs_departement').append("<option value=" + donnee.retourId[i] + ">" + donnee.retour[i] + "</option>");
+                }
+                $('.loading').hide();
+
+                },
+                error: function () {
+                }
+                });
+				});
+				
+
+
+                $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+
+                var $target = $(e.target);
+
+                if ($target.parent().hasClass('disabled')) {
+                return false;
+                }
+                });
+
+                $(".next").click(function (e) {
+
+                var $active = $('.wizard .nav-wizard li.active');
+                $active.next().removeClass('disabled');
+                nextTab($active);
+
+                });
+                });
+
+                function nextTab(elem) {
+                $(elem).next().find('a[data-toggle="tab"]').click();
+                }
+                
+            </script>
+        {% endblock%}

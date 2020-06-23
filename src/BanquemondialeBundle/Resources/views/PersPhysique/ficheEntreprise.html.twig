@@ -1,0 +1,70 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}fiche_entreprise{%endtrans%} {% endblock %}
+
+{% block body %}
+
+    <div class="hpanel">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        {%trans%}fiche_entreprise{%endtrans%} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{dd.numeroDossier}}</label>
+                    </h1>
+                    {% block sousMenu %}
+                        {{ render(controller("BanquemondialeBundle:Shared:etapeCreationPole",{'idd':dd.id})) }}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="panel-body table-bordered">
+
+            {% if aguipe%}
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}en_activite{%endtrans%}</label>
+                        <br/> {{aguipe.enActivite}}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}date_debut_activite{%endtrans%}</label> 
+                        <br/>{%if aguipe.dateDebutActivite%} {{aguipe.dateDebutActivite|date('d-m-Y')}} {%endif%}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}nombre_employe_actuel{%endtrans%} </label>                                                    								 
+                        <br/> {{aguipe.nombreEmployeActuel}}
+                    </div>
+                </div>
+                <div class="row">                                                   
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}nombre_employe_guinneen{%endtrans%} </label>                                                 								 
+                        <br/> {{aguipe.nombreEmployeGuineen}}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}nombre_employe_etranger{%endtrans%} </label>                                                  								 
+                        <br/> {{aguipe.nombreEmployeEtranger}}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}nombre_employe_previsionnel{%endtrans%}</label> 
+                        <br/>{{aguipe.nombreEmployePrevisionnel}}
+                    </div>                  
+                </div>
+            {%endif%}
+            <div class="row pull-right">
+                <br/>
+                {% if routeAvant %}<input class="btn btn-primary btn-goto" style="width: 100px" value="{{'precedent'|trans}}" type="button" data-url="{{path(routeAvant,{'idd':idd})}}" />{% endif %}
+                {% if rteSuivant %}<input class="btn btn-info btn-goto" style="width: 100px" value="{{'suivant'|trans}}" type="button" data-url="{{path(rteSuivant,{'idd':idd})}}" />{% endif %}
+            </div>
+        </div>        
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+    </script>
+{% endblock %}

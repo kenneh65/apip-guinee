@@ -1,0 +1,14 @@
+{% extends "FOSUserBundle::layout.html.twig" %}
+
+{% trans_default_domain 'FOSUserBundle' %}
+
+{% block fos_user_content %}
+     <div class="fusion-row">
+        <div class=" news fusion-content-boxes content-boxes columns fusion-columns-4 fusion-columns-total-4 fusion-content-boxes-1 content-boxes-icon-on-top row content-left" data-animationoffset="100%" style="margin-top:0px;margin-bottom:60px;">
+
+   
+<p>
+{{ 'resetting.check_email'|trans({'%email%': email}) }}
+</p>
+        </div></div>
+{% endblock %}

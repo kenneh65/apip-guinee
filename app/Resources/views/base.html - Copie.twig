@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-108493575-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-108493575-1');
+  
+  
+</script>
+
+        <meta charset="UTF-8" />
+        <title>{% block title %}{%trans%}nom_application{%endtrans%}{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Bootstrap Core CSS -->
+    <link href="{{asset('css/bootstrap.min.css')}}" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{asset('css/sb-admin.css')}}" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="{{asset('css/plugins/morris.css')}}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{{asset('font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{{ asset('js/sweetalert/lib/sweet-alert.css') }}" />
+    <link rel="stylesheet" href="{{asset('/datepicker/css/bootstrap-datetimepicker.min.css')}}" />
+    <link rel="stylesheet" href="{{asset('js/toastr/build/toastr.min.css') }}" />
+    <link rel="stylesheet" href="{{asset('css/dataTables.bootstrap.min.css') }}" />
+
+    <link rel="stylesheet" href="{{ asset('bundles/lexiktranslation/ng-table/ng-table.min.css') }}">
+
+</head>
+<body>
+    <div id="wrapper">
+
+        {%block menu%}
+            <!-- Navigation -->
+            <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" style="position:absolute;z-index:-1" href="{{path('administration')}}">{%trans%}nom_application{%endtrans%}</a>
+                </div>
+                <!-- Top Menu Items -->
+                <ul class="nav navbar-right top-nav">
+
+                    {%if app.user%}
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" data-toggle="dropdown">
+                                &nbsp;<span class="badge pull-right"> {{ app.user.getEmailNonLus | length }}</span>
+                                                                <i class="fa fa-envelope"></i>
+
+                            </a>
+                            <ul class="dropdown-menu hdropdown animated flipInX notif-email">
+                                <div class="title">
+                                    {%trans%}vous_avez_recu{%endtrans%} <span class="nombreMess2">{{ app.user.getEmailNonLus | length }}</span>  {%trans%}message{%endtrans%}
+                                </div>
+                                {% set compteur=0 %}	
+                                {% for message in app.user.getEmailNonLus %}
+                                    {% if compteur < 10 %}
+                                        {% set compteur=compteur+1 %}	
+                                        <li>	
+                                            <span class = "id" style="display:none;">{{ message.id }}</span><b>{{ message.auteur.prenom }} {{ message.auteur.nom }}</b> : {{ message.discussion.objet }}
+                                        </li>
+                                        <hr/>
+                                    {% endif %}	
+                                {% endfor %}
+                                <li class="summary"><a href="{{ path('mes-messages') }}">{{'voir_boite_reception'|trans}}</a></li>
+                            </ul>
+                        {% endif %}
+                    </li>                   
+                    <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown">&nbsp;<span class="badge pull-right"> {{ app.user.getMessagesNonLus | length }}</span><i class="fa fa-bell"></i></a>
+                        <ul class="dropdown-menu message-dropdown">
+                            {%if app.user.getMessagesNonLus |length >0%}
+                                {% for message in app.user.getMessagesNonLus%}
+                                    <li class="message-preview">
+                                        <a href="#info{{ message.id }}" onclick="javascript:readMessage({{message.id}})" data-toggle=modal data-backdrop=false >
+                                            <div class="media">
+
+                                                <div class="media-body">
+                                                    <h6 class="media-heading"><strong>{{message.objet}}</strong>
+                                                    </h6>
+                                                    <p class="small text-muted"><i class="fa fa-clock-o"></i> {{message.dateEnvoie |date('d-m-Y H:i')}}</p>
+                                                    <p>{{message.message}}</p>
+                                                </div>
+                                            </div>
+
+                                        </a>
+
+
+                                        <hr/>
+                                    </li>
+                                {%endfor%}
+                            {%else%}
+                                <li class="message-preview"> <div class="media">
+
+                                        <div class="media-body">{{'pas_de_message'|trans}}</div></div></li>
+                                    {%endif%}
+
+
+                        </ul>
+                    </li>
+                    
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{app.user.username}} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a  href="{{path('utilisateurs_profil')}}"><i class="fa fa-fw fa-user"></i>{%trans%}profil{%endtrans%}</a>
+                            </li>
+
+                            <li>
+                                <a href="{{path('administration')}}"><i class="fa fa-fw fa-gear"></i> {%trans%}administration{%endtrans%}</a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="{{path('fos_user_security_logout')}}"><i class="fa fa-fw fa-sign-out"></i> {%trans%}deconnexion{%endtrans%}</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                {%for message in app.user.messages%}
+                    <div class="modal fade hmodal-info" id="info{{ message.id }}" tabindex="-1" role="dialog"  aria-hidden="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">x</button>
+                                    <h4 class="modal-title">{{ message.objet }}</h4>
+
+                                </div>
+                                <div class="modal-body">
+                                    <p>
+                                        {{ message.message }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {%endfor%}
+              
+                    <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+                    <div class="collapse navbar-collapse navbar-ex1-collapse">
+                        {%block active%}
+                            {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
+                        {%endblock%}
+                    </div>
+                    <!-- /.navbar-collapse -->
+                </nav>
+
+                {%endblock%}
+                    <div id="page-wrapper">
+                        <div class="container-fluid">
+                            {{render(controller("DefaultBundle:Default:messagerie")) }}
+                            {% block body %}
+                            {% endblock %}             
+                        </div>
+                    </div>
+                </div>
+                {% block javascripts %}
+                  
+                    <script src="{{asset('js/jquery.js')}}"></script>
+					<script src="{{asset('js/script.js')}}"></script>
+
+                    <!-- Bootstrap Core JavaScript -->
+                    <script src="{{asset('js/bootstrap.min.js')}}"></script>
+                    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+                    <!-- Morris Charts JavaScript -->
+                    <!--script src="{{asset('bundles/default/ckeditor/ckeditor.js')}}"></script-->
+
+                    <script type="text/javascript" src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+                    <script src="{{asset('js/sweetalert/lib/sweet-alert.min.js') }}"></script>
+                    <script src="{{asset('js/toastr/build/toastr.min.js') }}"></script>
+                    <script src="{{asset('js/jquery.dataTables.min.js') }}"></script>
+                    <script src="{{asset('js/dataTables.bootstrap.min.js') }}"></script>
+
+                    <script>
+						var route = "{{path('message_show')}}";
+						
+						 $(function () {
+						 		$.fn.dataTable.moment = function ( format, locale ) {
+								var types = $.fn.dataTable.ext.type;
+							 
+								// Add type detection
+								types.detect.unshift( function ( d ) {
+									return moment( d, format, locale, true ).isValid() ?
+										'moment-'+format :
+										null;
+								} );
+							 
+								// Add sorting method - use an integer for the sorting
+								types.order[ 'moment-'+format+'-pre' ] = function ( d ) {
+									return moment( d, format, locale, true ).unix();
+								};
+							};
+
+							$.fn.dataTable.moment( 'D-MM-YYYY HH:mm:ss' );
+						 
+						 });
+                    </script>
+
+					
+                {% endblock %}
+            </body>
+        </html>

@@ -1,0 +1,568 @@
+<page backtop="24mm" backbottom="6mm" backleft="10mm" backright="10mm">
+    <style>
+        body{
+            padding:24mm 10mm 4mm 10mm;
+            width:672px;
+            font-family: Arial;
+            font-size: 10pt;
+        } 
+
+    </style>
+    <div style="padding: 20px">
+        <table align="center" style="width: 600px;font-weight: bold;">
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">REPUBLIQUE DE GUINEE</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;font-weight: bold">      
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">TRAVAIL – JUSTICE – Solidarité</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;font-weight: bold">      
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">---------------</font></i></td>
+            </tr>
+        </table>  
+        <table align="center" style="width: 600px;font-weight: bold;padding-bottom: 10px">      
+            <tr>
+                <td style="font-size: 21pt;"><i><font style="text-align: center">MINISTERE DE LA JUSTICE</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;font-weight: bold">      
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">---------------</font></i></td>
+            </tr>
+        </table> 
+        <table align="center" style="width: 600px;font-weight: bold">      
+            <tr>
+                <td style="font-size: 19pt;"><i><font style="text-align: center">COUR D’APPEL DE CONAKRY</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;font-weight: bold">      
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">---------------</font></i></td>
+            </tr>
+        </table> 
+        <table align="center" style="width: 600px;font-weight: bold;">      
+            <tr>
+                <td style="font-size: 19pt;"><i><font style="text-align: center">TRIBUNAL  DE  PREMIERE INSTANCE DE KALOUM <br/>CONAKRY</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;padding-bottom: 15px">      
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">---------------</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;font-weight: bold;padding-bottom: 15px">      
+            <tr>
+                <td style="font-size: 19pt;"><i><font style="text-align: center">REGISTRE DE COMMERCE ET DU  CREDIT MOBILIER<br/>( R   C  C  M  )</font></i></td>
+            </tr>
+        </table>
+
+        <table align="center" style="width: 600px;">      
+            <tr>
+                <td style="font-size: 10pt;"><i><font style="text-align: center">---------------</font></i></td>
+            </tr>
+        </table>
+        <br/>
+        <table align="center" style="font-weight: bold;padding-bottom: 15px">      
+            <tr>
+                <td style="font-size: 19pt;width: 500px;"><i><font style="text-align: center">{{dossier.denominationSociale|upper}} - <font style="font-size: 16pt">{{formeJ.Libelle|upper}}</font></font></i></td>
+            </tr>
+        </table>
+        <br>
+        <table align="center" style="width: 600px;font-weight: bold;padding-bottom: 20px">      
+            <tr>
+                <td style="font-size: 21pt;"><i><font style="text-align: center">«{{dossier.denominationSociale|upper}} - {{dossier.formeJuridique}}»</font></i></td>
+            </tr>
+        </table> 
+        <br>
+        <table align="center" style="width: 600px;font-weight: bold">      
+            <tr>
+                <td style="font-size: 18pt;"><i><font style="text-align: center">( PERSONNE MORALE )</font></i></td>
+            </tr>
+        </table>
+        <table align="center" style="width: 600px;font-weight: bold;">  
+            <tr>
+                <td><i><font style="text-align: center;text-decoration: underline"><h1>C  R  E  A  T  I  O  N </h1></font></i></td>
+            </tr>
+            <tr>
+                <td><i><font style="text-align: center"><h2>N°FORMALITE/RCCM/ {%if rccm%}{{rccm.numRccmFormalite}}{%endif%}</h2></font></i></td>
+            </tr>
+            <tr>
+                <td><i><font style="text-align: center"><h2>N°ENTREPRISE/RCCM/{%if rccm%} {{rccm.numRccmEntreprise}}{%endif%}</h2></font></i></td>
+            </tr>
+        </table>       
+        <br>
+        <table align="center" style="width: 600px;font-weight: bold;">      
+            <tr>
+                <td><i><font style="text-align: center;"><h1 style="word-spacing: 20px">DATE : {%if rccm%}{{ rccm.date | localizeddate('long', 'none','fr') |upper}}{%else%} {{ 'now' | localizeddate('long', 'none','fr') |upper}}{%endif%}</h1></font></i></td>
+            </tr>
+        </table>
+    </div>
+</page>
+<page  BGCOLOR="FFFFFF" LEFTMARGIN="31" TOPMARGIN="31">
+<style>
+    div.crystalstyle div {position:absolute;}
+    div.crystalstyle a {text-decoration:none}
+    div.crystalstyle a img {border-style:none; border-width:0}
+    div.crystalstyle div.tbg {background: url("js/dhtmllib/images/transp.gif") repeat-x repeat-y;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-0 {font-size:12pt;color:#000000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1 {font-size:8pt;color:#000000;font-family:Arial;font-weight:bold;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-2 {font-size:8pt;color:#FF0000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3 {font-size:8pt;color:#000000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-4 {font-size:7pt;color:#000000;font-family:Arial;font-weight:bold;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-5 {font-size:7pt;color:#000000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6 {font-size:9pt;color:#000000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-7 {font-size:7pt;color:#FF0000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-8 {font-size:9pt;color:#000000;font-family:Arial;font-weight:bold;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-9 {font-size:11pt;color:#000000;font-family:Arial;font-weight:bold;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-10 {font-size:9pt;color:#000000;font-family:Arial;font-weight:normal;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-11 {font-size:10pt;color:#000000;font-family:Arial;font-weight:bold;font-style:italic;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-12 {font-size:7pt;color:#000000;font-family:Arial;font-weight:bold;font-style:italic;}
+	.fc9e98f154-b208-4a9f-bedb-6e5cb124691e-13 {font-size:10pt;color:#000000;font-family:Arial;font-weight:normal;}
+	.adb727fc10-be47-43c2-a4da-1f34912c7915-0 {border-color:#FFFFFF;border-left-width:0px;border-right-width:0px;border-top-width:0px;border-bottom-width:0px;}
+	.adb727fc10-be47-43c2-a4da-1f34912c7915-1 {border-color:#000000;border-left-width:0px;border-right-width:0px;border-top-width:0px;border-bottom-width:0px;}
+	.adb727fc10-be47-43c2-a4da-1f34912c7915-2 {border-color:#000000;border-style:solid;border-width:0px;border-left-style:solid;border-left-width:1px;border-right-style:solid;border-right-width:1px;border-top-style:solid;border-top-width:1px;border-bottom-style:solid;border-bottom-width:1px;}
+	.adb727fc10-be47-43c2-a4da-1f34912c7915-3 {border-color:#000000;border-style:solid;border-width:0px;border-left-style:solid;border-left-width:1px;border-right-style:solid;border-right-width:1px;border-top-style:solid;border-top-width:1px;border-bottom-style:solid;border-bottom-width:1px;}
+</style>
+<Div class="crystalstyle" style="top:70px;">
+<div class="crystalstyle" style="margin-top:19px;margin-bottom:19px;margin-left:4px;margin-right:4px;top:0px;left:0px;width:784px;height:1018px;overflow:hidden;">
+    <div id="Box1" class="adb727fc10-be47-43c2-a4da-1f34912c7915-3" style="z-index:10;top:672px;left:16px;width:743px;height:76px;">
+
+    </div>
+    <div id="Box2" class="adb727fc10-be47-43c2-a4da-1f34912c7915-3" style="z-index:10;top:672px;left:528px;width:231px;height:76px;">
+
+    </div>
+    <div id="Box3" class="adb727fc10-be47-43c2-a4da-1f34912c7915-3" style="z-index:10;top:752px;left:16px;width:743px;height:167px;">
+
+    </div>
+    <div id="Box4" class="adb727fc10-be47-43c2-a4da-1f34912c7915-3" style="z-index:10;top:872px;left:568px;width:191px;height:47px;">
+
+    </div>
+    <div id="Box5" class="adb727fc10-be47-43c2-a4da-1f34912c7915-3" style="z-index:10;top:928px;left:16px;width:742px;height:48px;">
+
+    </div>
+    <div id="Line5" style="z-index:15;top:59px;left:16px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:118px;">
+
+    </div>
+    <div id="Line6" style="z-index:15;top:171px;left:16px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:744px;">
+
+    </div>
+    <div id="Line8" style="z-index:15;top:59px;left:760px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:112px;">
+
+    </div>
+    <div id="Line1" style="z-index:15;top:59px;left:610px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:150px;">
+
+    </div>
+    <div id="Line2" style="z-index:15;top:184px;left:16px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:117px;">
+
+    </div>
+    <div id="Line4" style="z-index:15;top:184px;left:610px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:150px;">
+
+    </div>
+    <div id="Line9" style="z-index:15;top:184px;left:760px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:112px;">
+
+    </div>
+    <div id="Line10" style="z-index:15;top:296px;left:16px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:744px;">
+
+    </div>
+    <div id="Line3" style="z-index:15;top:184px;left:16px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:112px;">
+
+    </div>
+    <div id="Line7" style="z-index:15;top:59px;left:16px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:112px;">
+
+    </div>
+    <div id="DetailSection2" style="z-index:3;top:0px;left:0px;width:784px;height:990px;">
+
+    </div>
+    <div id="Subreport1" class="adb727fc10-be47-43c2-a4da-1f34912c7915-0" style="top:304px;left:16px;width:744px;height:176px;">
+
+    </div>
+	<div class="crystalstyle" style="margin-top:0px;margin-bottom:0px;margin-left:0px;margin-right:0px;top:304px;left:16px;width:744px;height:176px;overflow:hidden;">
+        <div id="Line1" style="z-index:15;top:8px;left:743px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:166px;">
+
+        </div>
+        <div id="Line2" style="z-index:15;top:8px;left:0px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:166px;">
+
+        </div>
+        <div id="Line3" style="z-index:15;top:8px;left:1px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:117px;">
+
+        </div>
+        <div id="Line5" style="z-index:15;top:8px;left:594px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:149px;">
+
+        </div>
+        <div id="Line6" style="z-index:15;top:72px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:720px;">
+
+        </div>
+        <div id="Line7" style="z-index:15;top:72px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:96px;">
+
+        </div>
+        <div id="Line8" style="z-index:15;top:72px;left:264px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:96px;">
+
+        </div>
+        <div id="Line9" style="z-index:15;top:72px;left:480px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:96px;">
+
+        </div>
+        <div id="Line10" style="z-index:15;top:72px;left:728px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:96px;">
+
+        </div>
+        <div id="Line12" style="z-index:15;top:104px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:720px;">
+
+        </div>
+        <div id="Line11" style="z-index:15;top:126px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:720px;">
+
+        </div>
+        <div id="Line11" style="z-index:15;top:147px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:720px;">
+
+        </div>
+        <div id="Line11" style="z-index:15;top:169px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:720px;">
+
+        </div>
+        <div id="Line4" style="z-index:15;top:174px;left:1px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:743px;">
+
+        </div>
+        <div style="z-index:3;top:0px;left:0px;width:744px;height:106px;">
+
+        </div>
+        <div id="Text47" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:56px;left:8px;width:208px;height:15px;">
+            <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">RESUME&nbsp;DES&nbsp;INFORMATIONS&nbsp;:</span></span></p>
+        </div>
+        <div id="Text46" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:24px;left:8px;width:720px;height:24px;">
+            <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-2">(*)&nbsp;La&nbsp;totalité&nbsp;des&nbsp;renseignements&nbsp;informations&nbsp;relatives&nbsp;à&nbsp;ces&nbsp;membres&nbsp;doit&nbsp;IMPERATIVEMENT&nbsp;figurer&nbsp;sur&nbsp;le&nbsp;&nbsp;formulaire&nbsp;complémentaires&nbsp;G1&nbsp;Bis&nbsp;</span></span><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-2">annexé.</span></span></p>
+        </div>
+        <div id="Text59" class="adb727fc10-be47-43c2-a4da-1f34912c7915-2" style="top:0px;left:117px;width:475px;height:17px;">
+            <p align="center" nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">MEMBRES&nbsp;TENUS&nbsp;INDEFINIMENT&nbsp;ET&nbsp;PERSONNELLEMENT&nbsp;(*)</span></span></p>
+        </div>
+        
+        <div style="z-index:15;top:72px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:720px;">
+			<table style="width:99%;">
+				<tr>
+					<th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:250px;height:30px;font-size: 8pt;font-family: Arial;font-weight: normal;">NOM ET PRENOM /<br /> DENOMINATION</th>										
+                                        <th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:232px;height:30px;font-size: 8pt;font-family: Arial;font-weight: normal;">DATE&nbsp;ET&nbsp;LIEU&nbsp;DE&nbsp;NAISSANCE<br />OU&nbsp;DATE&nbsp;ET&nbsp;N°RCCM</th>
+                                        <th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:220px;height:30px;font-size: 8pt;font-family: Arial;font-weight: normal;">ADRESSE</th>
+				</tr>
+				{% for ass in associe %}
+				<tr>
+                                    <td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{{ ass.Nom | upper }} {%if ass.prenom%}{{ ass.Prenom|upper }}{%endif%}</td>					
+                                    <td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{{ ass.DateNaissance | date('d/m/Y') }}{%if ass.lieuNaissance%} à {{ass.lieuNaissane|upper}}{%endif%} </td>
+                                    <td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{%if ass.adresse%}{{ ass.Adresse|upper }}{%endif%}</td>
+				</tr>
+				{% endfor %}
+				
+			</table>			
+        </div>
+
+    </div>
+    <div id="Subreport2" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:496px;left:16px;width:744px;height:168px;">
+
+    </div>
+	<div class="crystalstyle" style="margin-top:0px;margin-bottom:0px;margin-left:0px;margin-right:0px;top:496px;left:16px;width:744px;height:168px;overflow:hidden;">
+        <div id="Line43" style="z-index:15;top:8px;left:0px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:149px;">
+
+        </div>
+        <div id="Line3" style="z-index:15;top:8px;left:743px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:149px;">
+
+        </div>
+        <div id="Line1" style="z-index:15;top:48px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:728px;">
+
+        </div>
+        <div id="Line9" style="z-index:15;top:67px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:728px;">
+
+        </div>
+        <div id="Line5" style="z-index:15;top:48px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:92px;">
+
+        </div>
+        <div id="Line6" style="z-index:15;top:48px;left:736px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:92px;">
+
+        </div>
+        <div id="Line7" style="z-index:15;top:48px;left:132px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:92px;">
+
+        </div>
+        <div id="Line8" style="z-index:15;top:48px;left:237px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:92px;">
+
+        </div>
+        <div id="Line12" style="z-index:15;top:48px;left:415px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:92px;">
+
+        </div>
+        <div id="Line13" style="z-index:15;top:48px;left:599px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:92px;">
+
+        </div>
+        <div id="Line14" style="z-index:15;top:8px;left:0px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:119px;">
+
+        </div>
+        <div id="Line15" style="z-index:15;top:8px;left:594px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:149px;">
+
+        </div>
+        <div id="Line11" style="z-index:15;top:92px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:728px;">
+
+        </div>
+        <div id="Line11" style="z-index:15;top:116px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:728px;">
+
+        </div>
+        <div id="Line11" style="z-index:15;top:140px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:728px;">
+
+        </div>
+        <!--div id="Line20" style="z-index:15;top:85px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line20" style="z-index:15;top:109px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line20" style="z-index:15;top:133px;left:8px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line18" style="z-index:15;top:85px;left:137px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line18" style="z-index:15;top:109px;left:137px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line18" style="z-index:15;top:133px;left:137px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line21" style="z-index:15;top:85px;left:272px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line21" style="z-index:15;top:109px;left:272px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line21" style="z-index:15;top:133px;left:272px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line22" style="z-index:15;top:85px;left:440px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line22" style="z-index:15;top:109px;left:440px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line22" style="z-index:15;top:133px;left:440px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line23" style="z-index:15;top:85px;left:624px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line23" style="z-index:15;top:109px;left:624px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div>
+        <div id="Line23" style="z-index:15;top:133px;left:624px;border-color:#000000;border-style:solid;border-width:0px;border-left-width:1px;height:8px;">
+
+        </div-->
+        <div id="Line10" style="z-index:15;top:157px;left:0px;border-color:#000000;border-style:solid;border-width:0px;border-top-width:1px;width:743px;">
+
+        </div>
+        <div style="z-index:3;top:0px;left:0px;width:744px;height:69px;">
+
+        </div>
+        <div id="Text59" class="adb727fc10-be47-43c2-a4da-1f34912c7915-2" style="top:0px;left:117px;width:475px;height:17px;">
+            <p align="center" nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6">RENSEIGNEMENTS&nbsp;RELATIFS&nbsp;AUX&nbsp;ADMINISTRATEURS&nbsp;(*)(**)</span></span></p>
+        </div>
+        <div id="Text60" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:20px;left:8px;width:704px;height:24px;">
+            <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-7">(*)&nbsp;Concerne&nbsp;les&nbsp;Administrateurs&nbsp;ou&nbsp;membres&nbsp;ayant&nbsp;le&nbsp;pouvoir&nbsp;d'engager&nbsp;le&nbsp;groupement</span></span></p><p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-7">(**)&nbsp;Les&nbsp;renseignements&nbsp;ne&nbsp;pouvant&nbsp;digurer&nbsp;ci-dessous&nbsp;doivent&nbsp;IMPERATIVEMENT&nbsp;être&nbsp;reportés&nbsp;sur&nbsp;le&nbsp;&nbsp;formulaire&nbsp;G1&nbsp;Bis&nbsp;annexé.</span></span></p>
+        </div>
+       
+        <div style="top:49px;left:5px;width:112px;height:15px;">
+			<table style="width:99%;">
+				<tr>
+					<th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:120px;height:25px;font-size: 8pt;font-family: Arial;font-weight: normal;">NOM</th>
+					<th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:120px;height:25px;font-size: 8pt;font-family: Arial;font-weight: normal;">PRENOM</th>
+					<th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:163px;height:25px;font-size: 8pt;font-family: Arial;font-weight: normal;">DATE&nbsp;ET&nbsp;LIEU&nbsp;DE&nbsp;NAISSANCE</th>
+					<th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:178px;height:25px;font-size: 8pt;font-family: Arial;font-weight: normal;">ADRESSE</th>
+					<th class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="text-align:center;width:118px;height:25px;font-size: 8pt;font-family: Arial;font-weight: normal;">FONCTION(***)</th>
+				</tr>				
+				{% for rep in representant %}
+				<tr>
+					<td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{{ rep.nom | upper }}</td>
+					<td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{{ rep.prenom }}</td>
+					<td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{{ rep.dateDeNaissance | date('d/m/Y') }}{%if rep.LieuNaissance%} à {{ rep.LieuNaissance|upper }} {%endif%}</td>
+                                        <td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{%if rep.adresse%}{{ rep.adresse|upper }}{%endif%}</td>
+					<td style="height:17px;font-size: 7pt;color: #000000;font-family: Arial;font-weight: bold;padding-left:10px;">{% if rep.libelleFonction %}{{ rep.libelleFonction|upper }}{% endif %}</td>
+				</tr>
+				{% endfor %}
+				
+			</table>
+        </div>
+        <div id="Text6" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:142px;left:13px;width:704px;height:13px;">
+            <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-7">(***)&nbsp;Préciser&nbsp;:&nbsp;Administrateur&nbsp;ou&nbsp;membre&nbsp;</span></span></p>
+        </div>
+
+    </div>
+    <div id="Text83" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:672px;left:24px;width:496px;height:32px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-5">LE&nbsp;SOUSSIGNE&nbsp;(préciser&nbsp;si&nbsp;mandataire)&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-4">{{ leRepresentant.Nom | upper }}&nbsp;{{ leRepresentant.Prenom | upper }}&nbsp;PRESIDENT</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-5">&nbsp;</span></span></p>
+    </div>
+    <div id="Text85" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:712px;left:24px;width:200px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">demande&nbsp;à&nbsp;ce&nbsp;que&nbsp;la&nbsp;présente&nbsp;constitue</span></span></p>
+    </div>
+    <div id="Text86" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:712px;left:240px;width:280px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">UNE&nbsp;DEMANDE&nbsp;D'IMMATRICULATION&nbsp;AU&nbsp;R.C.C.M</span></span></p>
+    </div>
+    <div id="Text87" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:680px;left:536px;width:104px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6">Fait&nbsp;à&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-8">Conackry</span></span></p>
+    </div>
+    <div id="Text88" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:696px;left:536px;width:192px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6">Le&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-8">{{ 'now'|date('d/m/Y') }}</span></span></p>
+    </div>
+    <div id="Text89" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:712px;left:536px;width:152px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6">Signature&nbsp;:</span></span></p>
+    </div>
+    <div id="Text72" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:728px;left:240px;width:272px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">UNE&nbsp;DEMANDE&nbsp;DE&nbsp;REPRISE&nbsp;D'ACTIVITE</span></span></p>
+    </div>
+    <div id="Picture8" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:712px;left:224px;width:12px;height:12px;">
+        <img src="{{asset('img/checked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_e28156c3-5b9e-43d2-a43b-dfdaa3c74262.png" style="width:12px;height:12px;" /-->
+    </div>
+    <div id="Picture9" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:728px;left:224px;width:12px;height:12px;">
+        <img src="{{asset('img/unchecked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_9e4e2cbd-d083-4c2d-bed1-92e44756c349.png" style="width:12px;height:12px;" /-->
+    </div>
+    <div id="Text24" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:756px;left:20px;width:737px;height:60px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-4">Le&nbsp;greffier&nbsp;ou&nbsp;le&nbsp;responsable&nbsp;de&nbsp;l'organe&nbsp;compétent&nbsp;soussigné&nbsp;a&nbsp;reçu&nbsp;le&nbsp;formulaire&nbsp;sous&nbsp;le&nbsp;numero&nbsp;d'ordre&nbsp;{%if rccm%}{{numSequentiel}}{%endif%}&nbsp;&nbsp;du&nbsp;registre&nbsp;d'arrivée.</span></span></p><p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-4">La&nbsp;régularité&nbsp;de&nbsp;la&nbsp;demande&nbsp;a&nbsp;été&nbsp;vérifiée&nbsp;en&nbsp;application&nbsp;de&nbsp;l'article&nbsp;44&nbsp;de&nbsp;l'acte&nbsp;uniforme&nbsp;portant&nbsp;sur&nbsp;le&nbsp;droit&nbsp;commercial&nbsp;général&nbsp;par&nbsp;le&nbsp;Greffier&nbsp;ou&nbsp;le&nbsp;reponsable&nbsp;de&nbsp;</span></span><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-4">l'organe&nbsp;compétent&nbsp;qui&nbsp;a&nbsp;:</span></span></p>
+    </div>
+    <div id="Picture1" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:816px;left:104px;width:12px;height:12px;">
+        <img src="{{asset('img/checked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_88ce4dab-5eef-4f98-8699-64ef21794fb4.png" style="width:12px;height:12px;" /-->
+    </div>
+    <div id="Picture2" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:832px;left:104px;width:12px;height:12px;">
+        <img src="{{asset('img/unchecked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_4e2f3f39-bd51-4710-8545-033e9473e23a.png" style="width:12px;height:12px;" /-->
+    </div>
+    <div id="Text25" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:816px;left:120px;width:616px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:18px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Immatriculé&nbsp;au&nbsp;RCCM&nbsp;sous&nbsp;le&nbsp;numéro&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-9">{%if rccm%}{{ rccm.numRccmEntreprise }}{%endif%}</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">&nbsp;et&nbsp;délivré&nbsp;un&nbsp;accusé&nbsp;d'enregistrement</span></span></p>
+    </div>
+    <div id="Text26" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:832px;left:120px;width:616px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Rejeté&nbsp;la&nbsp;demande&nbsp;au(x)&nbsp;motif(s)&nbsp;que&nbsp;:</span></span></p>
+    </div>
+    <div id="Text27" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:856px;left:40px;width:376px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Intercalaire(s)&nbsp;complétant&nbsp;la&nbsp;ou&nbsp;les&nbsp;rubrique(s)&nbsp;n°(s)&nbsp;</span></span></p>
+    </div>
+    <div id="Picture4" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:856px;left:424px;width:12px;height:12px;">
+        <img src="{{asset('img/unchecked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_45ae7724-81f7-4afe-9471-413d32da38f1.png" style="width:12px;height:12px;" /-->
+    </div>
+    <div id="Picture5" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:856px;left:480px;width:12px;height:12px;">
+        <img src="{{asset('img/checked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_f739107f-e50a-4bc2-ac15-50979354f5df.png" style="width:12px;height:12px;" /-->
+    </div>
+    <div id="Text28" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:856px;left:496px;width:256px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">NON&nbsp;(si&nbsp;OUI,&nbsp;nombre&nbsp;de&nbsp;pages&nbsp;intercalaires&nbsp;:&nbsp;)</span></span></p>
+    </div>
+    <div id="Text29" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:856px;left:440px;width:24px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">OUI</span></span></p>
+    </div>
+    <div id="Text30" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:880px;left:576px;width:125px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Signature</span></span></p>
+    </div>
+    <div id="Text31" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:872px;left:40px;width:200px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Fait,&nbsp;à&nbsp;Conakry</span></span></p>
+    </div>
+    <div id="Text32" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:872px;left:248px;width:312px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Le&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{{ 'now'|date('d/m/Y') }}</span></span></p>
+    </div>
+    <div id="Text33" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:888px;left:40px;width:520px;height:28px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Signature&nbsp;du&nbsp;Greffier&nbsp;(Nom,&nbsp;prénoms,&nbsp;titre&nbsp;et&nbsp;juridiction)&nbsp;ou&nbsp;du&nbsp;responsable&nbsp;de&nbsp;l'organe&nbsp;compétent:</span></span></p>
+    </div>
+    <div id="Text46" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:933px;left:24px;width:728px;height:40px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-5">(En&nbsp;cas&nbsp;de&nbsp;rejet&nbsp;de&nbsp;la&nbsp;demande&nbsp;par&nbsp;le&nbsp;greffier&nbsp;ou&nbsp;le&nbsp;responsable&nbsp;de&nbsp;l'organe&nbsp;compétent)&nbsp;Le&nbsp;demandeur&nbsp;atteste&nbsp;que&nbsp;le&nbsp;présent&nbsp;formulaire&nbsp;y&nbsp;&nbsp;compris&nbsp;le(s)&nbsp;intercailaire(s)&nbsp;y&nbsp;relatifs&nbsp;</span></span><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-5">(s'il&nbsp;y&nbsp;a&nbsp;lieu)&nbsp;comportant&nbsp;les&nbsp;motifs&nbsp;du&nbsp;rejet&nbsp;de&nbsp;sa&nbsp;demande&nbsp;lui&nbsp;a&nbsp;été&nbsp;remis&nbsp;le&nbsp;{{ 'now'|date('d/m/Y') }}&nbsp;(JJ/MM/AAAA)&nbsp;et&nbsp;reconnait&nbsp;que&nbsp;cette&nbsp;remise&nbsp;vaut&nbsp;notification&nbsp;de&nbsp;ce&nbsp;rejet.&nbsp;(Signature&nbsp;du&nbsp;</span></span><span style="position:relative;display:block;line-height:11px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-5">Demandeur)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span></p>
+    </div>
+    <div id="Objet12" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:712px;left:224px;width:12px;height:12px;">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td nowrap="true"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-10"></span></td>
+                    </tr>
+                </table></td>
+            </tr>
+        </table>
+    </div>
+    <div id="Text1" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:0px;left:134px;width:232px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-8">DECLARATION&nbsp;DE&nbsp;CONSTITUTION</span></span></p>
+    </div>
+    <div id="Text4" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:16px;left:272px;width:288px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6">D'UN&nbsp;GROUPEMENT&nbsp;D'INTERET&nbsp;ECONOMIQUE</span></span></p>
+    </div>
+    <div id="Text6" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:32px;left:272px;width:440px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">AUTRE&nbsp;GROUPEMENT&nbsp;DOTE&nbsp;DE&nbsp;LA&nbsp;PERSONNALITE&nbsp;JURIDIQUE</span></span></p>
+    </div>
+    <div id="Text10" class="adb727fc10-be47-43c2-a4da-1f34912c7915-2" style="top:49px;left:133px;width:475px;height:18px;">
+        <p align="center" nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">RENSEIGNEMENTS&nbsp;RELATIFS&nbsp;AU&nbsp;GROUPEMENT</span></span></p>
+    </div>
+    <div id="Text11" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:75px;left:24px;width:728px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">DENOMINATION&nbsp;:&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{{ dossier.DenominationSociale | upper }}</span></span></p>
+    </div>
+    <div id="Text23" class="adb727fc10-be47-43c2-a4da-1f34912c7915-2" style="top:173px;left:133px;width:475px;height:18px;">
+        <p align="center" nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:14px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-6">RENSEIGNEMENTS&nbsp;RELATIFS&nbsp;A&nbsp;L'ACTIVITE</span></span></p>
+    </div>
+    <div id="Picture3" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:32px;left:256px;width:12px;height:12px;">
+        {% if(typeF and typeF.Libelle == "AUTRE GROUPEMENT DOTE DE LA PERSONNALITE JURIDIQUE") %}
+			<img src="{{asset('img/checked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_7d3c77be-5f04-4e01-ac3d-956697c99206.png" style="width:12px;height:12px;" /-->
+		{%  else  %}
+			<img src="{{asset('img/unchecked.png')}}" width="10" height="10" />
+		{% endif %}		
+    </div>
+    <div id="Text52" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:16px;left:24px;width:64px;height:32px;">
+        <p align="center" nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:16px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-11">RCCM</span></span></p><p align="center" nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:16px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-11">2010&nbsp;-&nbsp;G</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-12">1</span></span></p>
+    </div>
+    <div id="Picture6" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:16px;left:256px;width:12px;height:12px;">
+        {% if(typeF and typeF.Libelle == "D'UN GROUPEMENT D'INTERET ECONOMIQUE") %}
+			<img src="{{asset('img/checked.png')}}" width="10" height="10" /><!--img alt="Image" border="0" src="images/cr_export_dae3efe1-e1d1-4489-bc0f-4b4222d98184_7d3c77be-5f04-4e01-ac3d-956697c99206.png" style="width:12px;height:12px;" /-->
+		{%  else  %}
+			<img src="{{asset('img/unchecked.png')}}" width="10" height="10" />
+		{% endif %}
+	</div>
+    <div id="Objet11" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:16px;left:256px;width:16px;height:15px;">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td nowrap="true"><!--input type="checkbox" checked="checked" /><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-13">P</span--></td>
+                    </tr>
+                </table></td>
+            </tr>
+        </table>
+    </div>
+    <div id="Text2" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:32px;left:232px;width:16px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Ou</span></span></p>
+    </div>
+    <div id="Text3" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:91px;left:24px;width:728px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">SIGLE&nbsp;:&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{{ dossier.Sigle | upper }}</span></span></p>
+    </div>
+    <div id="Text5" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:107px;left:24px;width:728px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">ADRESSE&nbsp;DU&nbsp;SIEGE&nbsp;:&nbsp;</span>
+                <span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{%if dossier.adresseSiege%}{{ dossier.AdresseSiege|upper }}{%endif%}</span></span></p>
+    </div>
+    <div id="Text7" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:123px;left:24px;width:408px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;">
+                <span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">FORME&nbsp;JURIDIQUE&nbsp;:&nbsp;</span>
+                <span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{%if formeJ.libelle%}{{ formeJ.Libelle|upper }}{%endif%}</span></span></p>
+    </div>
+    <div id="Text8" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:139px;left:24px;width:728px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">CAPITAL&nbsp;SOCIAL&nbsp;:</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">&nbsp;{{ dossier.CapitalSocial | number_format(0) }}&nbsp;&nbsp;GNF</span></span></p>
+    </div>
+    <div id="Text9" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:155px;left:24px;width:728px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">DUREE&nbsp;:&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{{ dossier.Duree }}</span></span></p>
+    </div>
+    <div id="Text12" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:196px;left:24px;width:728px;height:76px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">ACTIVITE&nbsp;PRINCIPALE&nbsp;:&nbsp;</span><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-1">{{dossier.secteurActivite.code}};{{dossier.activiteSecondaire}};{%if dossier.activiteSecondaire2%}{{dossier.activiteSecondaire2}};{%endif%}{{dossier.ActiviteSociale}}</span></span></p>
+    </div>
+    <div id="Text13" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:279px;left:24px;width:344px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Date&nbsp;de&nbsp;début&nbsp;:&nbsp;{{ dossier.DateDebut | date('d/m/Y') }}</span></span></p>
+    </div>
+    <div id="Text14" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:279px;left:392px;width:360px;height:15px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:12px;"><span class="fc9e98f154-b208-4a9f-bedb-6e5cb124691e-3">Nombre&nbsp;de&nbsp;salariés&nbsp;prévu&nbsp;:{{ dossier.NombreSalariePrevu }}</span></span></p>
+    </div>
+    <div id="Text15" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:816px;left:104px;width:12px;height:12px;">
+        <p nowrap style="position:relative;padding-left:1px;margin:0px;"><span style="position:relative;display:block;line-height:13px;"></span></p>
+    </div>
+    <div id="SectionMembreBis" style="z-index:3;top:990px;left:0px;width:784px;height:16px;">
+
+    </div>
+
+</div>
+<div class="crystalstyle" style="margin-top:19px;margin-bottom:19px;margin-left:16px;margin-right:16px;top:1056px;left:0px;width:784px;height:1018px;overflow:hidden;">
+    <div id="SectionMembreBis" style="z-index:3;top:0px;left:0px;width:784px;height:144px;">
+
+    </div>
+    <div id="Subreport3" class="adb727fc10-be47-43c2-a4da-1f34912c7915-1" style="top:0px;left:16px;width:744px;height:136px;">
+
+    </div>
+
+</div>
+</Div>
+</page>

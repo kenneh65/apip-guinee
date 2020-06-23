@@ -1,0 +1,288 @@
+<body>
+<style type="text/css">
+.fieldset {
+  border: 2px groove threedface;
+  border-top: none;
+  padding: 0.5em;
+  margin: 1em 2px;
+}
+
+.fieldset>h1 {
+  font: 1em normal;
+  margin: -1em -0.5em 0;
+}
+
+.fieldset>h1>span {
+  float: left;
+}
+
+.fieldset>h1:before {
+  border-top: 2px groove threedface;
+  content: ' ';
+  float: left;
+  margin: 0.5em 2px 0 -1px;
+  width: 0.75em;
+}
+
+.fieldset>h1:after {
+  border-top: 2px groove threedface;
+  content: ' ';
+  display: block;
+  height: 1.5em;
+  left: 2px;
+  margin: 0 1px 0 0;
+  overflow: hidden;
+  position: relative;
+  top: 0.5em;
+}
+.pagebreak { page-break-before: always; }
+table {
+  border-collapse:collapse;
+  width:600px;
+}
+h4 {
+	font-size: 15px;
+	font-style: normal;
+	font-variant: normal;
+}
+p {
+	font-size: 14px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: normal;
+	line-height: 18px;
+	margin:30px;
+}
+th, td {
+  border:0px solid black;
+}
+
+td {
+  text-align:left;
+  font-size:14px;
+  word-wrap: break-word;
+  float: left;
+  position: relative;
+  min-height: 1px;
+  padding-right: 10px;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+fieldset
+{
+  width: 700px;
+  padding:2px;	
+}
+.legend1
+{
+  margin-bottom:0px;
+  margin-left:2px;
+}
+caption {
+  font-weight:normal
+}
+h3 { font-weight:normal;
+	 font-size:17px;}
+</style>
+
+<table style="width: 750px;" border="0"
+ cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td style="width:100px;text-align:left;vertical-align:top;" >
+		<img src="{{asset('img/cnss.jpg')}}" width="85" height="82" />			
+	  </td>	  
+      <td style="text-align:center;vertical-align:top;">
+		<h3>REPUBLIQUE DE GUINEE<br />
+		Travail-Justice-Solidarité<br />
+		CAISSE NATIONALE DE SECURITE SOCIALE<br />
+		B.P:138 Conakry<br />
+		----------------------------------------</h3>
+	  </td>
+	  <td style="width:100px;text-align:left;" >			
+	  </td>
+    </tr>
+	<tr>
+		<td colspan="3" style="text-align:center;vertical-align:top;">
+			<h3>DIVISION IMMATRICULATION, RECOUVREMENT ET GESTION DES ASSURES<br />
+			SERVICE IMMATRICULATION</h3>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3" style="">
+			<div  style="margin-left:205px;margin-top:10px;border:1px solid black;border-radius: 12px;text-align:center;padding:5px 30px 5px 30px;width:300px">NOTIFICATION D'IMMATRICULATION</div>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">
+			<p>RAISON SOCIALE: {{dd.denominationSociale}}<br /><br />
+			   ADRESSE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{dd.adresseSiege}}/{{dd.telephone}}<br /><br />
+			J'ai l'honneur de vous informer que suite &agrave; votre demande d'immatriculation en date du {%if cnss%}{{ cnss.dateImmatriculation | localizeddate('long','none') }}{%endif%} 
+			votre entreprise {{dd.denominationSociale}} est inscrite &agrave; la C.N.S.S en qualité d'employeur sous le
+			N° {%if cnss%}{{cnss.numeroemployeur}}{%endif%} avec pour effet le {%if cnss%}{{ cnss.dateEffet | localizeddate('long','none') }}{%endif%}.<br /><br />
+			Désormais, votre compte sera tenu par le service des Cotisations sous le numéroque je vous 
+				demande de rappeler &agrave; chaque fois que vous vous adressez &agrave; la C.N.S.S.<br /><br />
+			Je tiens &agrave; vous préciser que compte tenu du nombre de salariés que vous employez,vous êtes
+			actuellement classés &agrave; la catégorie {%if cnss%}{{cnss.categorie}}{%endif%} .<br /><br />
+			Ainsi, &agrave; la fin de chaque trimestre, vous êtes invités &agrave; verser les cotisations patronales et travailleurs
+			sur le salaire individuel plafonné &agrave; {%if cnss%}{{ cnss.plafonne | number_format(0) }}{%endif%} GNF et dont le plancher est fixé &agrave; {%if cnss%}{{ cnss.plancher | number_format(0) }}{%endif%} GNF.<br /><br />
+			Le taux de cotisation est de 23% ainsi réparti:<br /><br />
+			- Prestation familiales....................................................................................................6.0 %<br />
+			- Accidents de travail et maladies professionnelles.......................................................4.0 %<br />
+			- Assurance maladie......................................................................................................6.5 %<br />
+			- Pensions......................................................................................................................6.5 %<br /><br />
+			Soit   18% la part employeur et 5% la part travailleur.<br />
+			Ce, conformément &agrave; l'arrêté N° 3863/MASPFE/CAN/2010 du 10 AOUT 2010.</p>
+		</td>
+	</tr>
+  </tbody>
+</table>
+<table>
+	<tr>
+		<td style="width:400px;"></td>
+		<td style="width:300px;text-align:center;height:160px;vertical-align:bottom;">
+			<p style="text-align:center;">Conakry {{ 'now'|date('d/m/Y') }}<br />
+			POUR LE PREPOSE <!--DIRECTEUR GENERAL--><br />
+			LE DELEGATAIRE</p>
+		</td>
+	</tr>			
+	<tr>
+		<td colspan="2" style="text-align:center; vertical-align:bottom;height:135px;">
+			========================================================================================
+		</td>
+	</tr>
+</table>
+<div class="pagebreak"> </div>
+<table style="width: 700px;" border="0"
+ cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td style="width:100px;text-align:left;vertical-align:top;" >
+		<img src="{{asset('img/cnss.jpg')}}" width="85" height="82" />			
+	  </td>	  
+      <td style="text-align:center;vertical-align:top;">
+		<h3>REPUBLIQUE DE GUINEE<br />
+		Travail-Justice-Solidarité<br />
+		CAISSE NATIONALE DE SECURITE SOCIALE<br />
+		B.P:138 Conakry<br />
+		----------------------------------------<br />
+		Fiche Employeur</h3>
+	  </td>
+	  <td style="width:100px;text-align:left;" >			
+	  </td>
+    </tr>
+	<tr>
+		<td colspan="3">
+		<fieldset>
+		<table style="width:700px;">
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}cnss_employeur{%endtrans%} : <br /><b>{%if cnss%}{{cnss.numeroEmployeur|upper}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_dateImmatriculation{%endtrans%} : <br /><b>{{dateComplementCnss|date('d-m-Y')}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_dateEffet{%endtrans%} : <br /><b>{{cnss.dateEffet|date('d-m-Y')}}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}cnss_categorie{%endtrans%} : <br /><b>{%if cnss%}{{cnss.categorie|upper}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_plafonne{%endtrans%} : <br /><b>{%if cnss%}{{cnss.plafonne|upper}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_plancher{%endtrans%} : <br /><b>{%if cnss%}{{cnss.plancher|upper}}{%endif%}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}cnss_personnel{%endtrans%} : <br /><b>{%if leCnss is not null%}{%if leCnss.personnel%}{%trans%}Oui{%endtrans%}{%else%}{%trans%}Non{%endtrans%}{%endif%}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_datePremierEmbauche{%endtrans%} : <br /><b>{%if leCnss is not null%}{{leCnss.datePremierEmbauche|date('d-m-Y')}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_effectifHomme{%endtrans%} : <br /><b>{%if leCnss is not null%}{{leCnss.effectifHomme}}{%endif%}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}cnss_effectifFemme{%endtrans%} : <br /><b>{%if leCnss is not null%}{{leCnss.effectifFemme}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_effectifApprentis{%endtrans%} : <br /><b>{%if leCnss is not null%}{{leCnss.effectifApprentis}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}cnss_effectfTotal{%endtrans%} : <br /><b>{%if leCnss is not null%}{{leCnss.effectifTotal}}{%endif%}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}cnss_personnelDomestique{%endtrans%} : <br /><b>{%if leCnss is not null%}{%if leCnss.personnelDomestique%}{%trans%}Oui{%endtrans%}{%else%}{%trans%}Non{%endtrans%}{%endif%}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;"></td>
+				<td style="width:205px;"></td>
+			</tr>
+			<tr>
+				<td style="width:205px;"></td>
+				<td style="width:205px;"></td>
+				<td style="width:205px;"></td>
+			</tr>
+		</table>
+		</fieldset>
+		<br /><br /><br />
+		<div class="legend1">RENSEIGNEMENTS RELATIFS A L'ENTREPRISE</div>
+		<fieldset>
+		<!--legend></legend-->
+		<table style="width:700px;">
+			<tr>
+				<td style="width:205px;"></td>
+				<td style="width:205px;"></td>
+				<td style="width:205px;"></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}denomination{%endtrans%} : <br /><b>{{dd.denominationSociale}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}sigle{%endtrans%} : <br /><b>{{dd.sigle}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}forme_juridique{%endtrans%} : <br /><b>{{dd.formeJuridique.sigle}}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}capital_social{%endtrans%} : <br /><b>{{dd.capitalSocial}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}no_agrement{%endtrans%} : <br /><b>{%if rccm is not null%}{{rccm.numRccmFormalite}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}rccm_siege{%endtrans%} : <br /><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}apport_numeraire{%endtrans%} : <br /><b>{{dd.apportNumeraire}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}apport_nature{%endtrans%} : <br /><b>{{dd.apportNature}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}duree{%endtrans%} : <br /><b>{{dd.duree}}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}activite_principale{%endtrans%} : <br /><b>{{activitePrincipale}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}activite_secondaire{%endtrans%} : <br /><b>{%if activiteSecondaire%}{{activiteSecondaire}}{%endif%}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}activite_secondaire{%endtrans%}2 : <br /><b>{%if activiteSecondaire2%}{{activiteSecondaire2}}{%endif%}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}prefecture{%endtrans%} : <br /><b>{{dd.prefecture.libelle}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}commune{%endtrans%} : <br /><b>{{dd.sousPrefecture.libelle}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}quartier{%endtrans%} : <br /><b>{{dd.adresseSiege}}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}ville{%endtrans%} : <br /><b>{{dd.ville}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}boite_postale{%endtrans%} : <br /><b>{{dd.boitePostale}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}email{%endtrans%} : <br /><b>{{dd.email}}</b><br /><br /></td>
+			</tr>
+			<tr>
+				<td style="width:205px;">{%trans%}phone{%endtrans%} : <br /><b>{{dd.telephone}}</b><br /><br /></td>
+				<td style="width:205px;">{%trans%}utilisateur.etat{%endtrans%} : <br /><b>En activité</b><br /><br /></td>
+				<td style="width:205px;">{%if rep%}{%if dd.formeJuridique.sigle=="EI" %} {{rep.typeIdentification|capitalize}} : <br /><b>{{rep.numeroIdentiteNational}}</b>{%endif%}{%endif%}</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+		</fieldset>
+		<br /><br /><br />
+		<fieldset>
+		<!--legend></legend--><br /><br />
+		<table style="width:700px;">
+			<tr>
+				<td style="width:696px;">Dernier utilisateur connecté: <b>{{user.prenom}} {{user.nom}} </b></td>				
+			</tr>
+		</table>
+		</fieldset>
+		</td>
+	</tr>
+ </tbody>
+</table>
+<!--div class="row">
+	<div  class="col-sm-4" style="text-align:center;">
+		<img src="{{asset('img/embleme.jpg')}}" width="85" height="82" />
+	</div>
+	<div  class="col-sm-4" style="text-align:center;">
+		<img src="{{asset('img/apip.png')}}" width="166" height="94" />		
+	</div>
+</div-->
+</body>

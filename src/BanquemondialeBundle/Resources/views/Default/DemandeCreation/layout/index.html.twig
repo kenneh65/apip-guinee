@@ -1,0 +1,520 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}identification_page_title{%endtrans%}{% endblock %}
+
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':4})) }}
+{% endblock %}
+
+
+{% block body %}
+    <style>
+        .notifications
+        {
+            display:none;
+            padding-left:0;
+            padding-right:0;
+        }
+    </style>
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}identification_page_title{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <i>{%trans%}ajouter_dossier{%endtrans%}</i>
+                            </li>
+
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="panel-body">
+                    {% if message %}
+                        <p class="alert alert-success">{{ message }}</p>
+                    {% endif %}
+                    {{ form_start(form,{'attr':{'name':'simpleForm','id':'simpleForm'}}) }}
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_operation{%endtrans%} (*)</label>
+                            {{ form_errors(form.typeOperation,{'attr':{'class':'alert alert-danger'}}) }}
+                            <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+                            {{ form_widget(form.typeOperation, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_dossier{%endtrans%} (*)</label>
+                            {{ form_errors(form.typeDossier,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.typeDossier, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}forme_juridique{% endtrans %} (*)</label>
+                            {{ form_errors(form.formeJuridique,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}denomination{% endtrans %} (*)</label>
+                            {{ form_errors(form.denominationSociale,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}nom_commercial{% endtrans %} (*)</label>
+                            {{ form_errors(form.nomCommercial,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.nomCommercial, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}categorie_activite{% endtrans %} (*)</label>
+                            {{ form_errors(form.categorie,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.categorie, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}activite_principale{% endtrans %} (*)</label>
+                            {{ form_errors(form.secteurActivite,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.secteurActivite, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}activite_secondaire{% endtrans %}</label>
+                            {{ form_errors(form.activiteSecondaire,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.activiteSecondaire, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}activite_secondaire{% endtrans %} 2</label>
+                            {{ form_errors(form.activiteSecondaire2,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.activiteSecondaire2, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}date_debut_creation{% endtrans %} (*)</label>
+                            {{ form_errors(form.dateDebut,{'attr':{'class':'alert alert-danger'}}) }}
+                            <div class="input-group">
+                                {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control'}}) }}
+                                {#                                <span class="input-group-addon">#}
+                                {#                                    <span class="glyphicon glyphicon-calendar"></span>#}
+                                {#                                </span>#}
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}en_activite{% endtrans %} (*)</label>
+                            {{ form_errors(form.enActivite,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.enActivite, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}pays{%endtrans%} (*)</label>
+                            {{ form_errors(form.pays,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.pays, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}region{% endtrans %} (*)</label>
+                            {{ form_errors(form.region,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.region, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            {{ form_label(form.prefecture,'prefecture'|trans~'(*)') }}
+                            {{ form_errors(form.prefecture,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.prefecture, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            {{ form_label(form.sousPrefecture,'sousPrefecture'|trans~'(*)') }}
+                            {{ form_errors(form.sousPrefecture,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.sousPrefecture, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}ville{% endtrans %} (*)</label>
+                            {{ form_errors(form.ville,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.ville, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}quartier{% endtrans %} (*)</label>
+                            {{ form_errors(form.quartierCodifie,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.quartierCodifie, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}boitepostale{% endtrans %}</label>
+                            {{ form_errors(form.boitePostale,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.boitePostale, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}enseigne{%endtrans%}</label>
+                            {{ form_errors(form.enseigne,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.enseigne, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}sigle{% endtrans %}</label>
+                            {{ form_errors(form.sigle,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.sigle, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}duree{% endtrans %} (*)</label>
+                            {{ form_errors(form.duree,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.duree, {'attr': {'class': 'form-control','value':99}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}nombre_salarie_prevu{% endtrans %} (*)</label>
+                            {{ form_errors(form.nombreSalariePrevu,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.nombreSalariePrevu, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}phone{% endtrans %} notaire (*)</label>
+                            {{ form_errors(form.telephone,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}phone{% endtrans %} promoteur</label>
+                            {{ form_errors(form.telephone2,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.telephone2, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}email{% endtrans %} (*)</label>
+                            {{ form_errors(form.email,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                        </div>
+
+                        <div class="form-group col-sm-4">
+                            <label style="color:white">.</label>
+                            <br/>
+                            <input disabled checked type="checkbox" id="notification" name="notification"/>
+                            <b>{%trans%}notification{%endtrans%}</b>
+                        </div>
+
+                        <div hidden class=" form-group col-sm-12" id="blockNotifications">
+                            <div hidden class="form-group col-sm-4">
+                                <label>{% trans %}notification_sms{% endtrans %}</label>
+                                {{ form_widget(form.telephonePromoteur, {'attr': {'class': 'form-control', 'id':'telephonePromoteur'}}) }}
+                            </div>
+                            <div hidden class="form-group col-sm-4">
+                                <label>{% trans %}notification_email{% endtrans %}</label>
+                                {{ form_widget(form.emailPromoteur, {'attr': {'class': 'form-control', 'id':'emailPromoteur'}}) }}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-4 etab" style="display: none">
+                            <label>{% trans %}adresse_etablissement_cree{% endtrans %} (*)</label>
+                            {{ form_errors(form.adresseEtablissement,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.adresseEtablissement, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4 etab" style="display: none">
+                            <label>{% trans %}rccm_siege{% endtrans %} (*)</label>
+                            {{ form_errors(form.rccmSiege,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.rccmSiege, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label>{% trans %}activite_sociale{% endtrans %}</label>
+                            {{ form_errors(form.activiteSociale,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.activiteSociale, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="form-group col-sm-6">
+                            <label>{% trans %}activite_bis{% endtrans %}</label>
+                            {{ form_errors(form.activiteComplementaire,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.activiteComplementaire, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label>{% trans %}adresse_siege{% endtrans %} (*)</label>
+                            {{ form_errors(form.adresseSiege,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.adresseSiege, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <p class="text-info pull-left">(*) :  {%trans%}message_obligatoire{%endtrans%}</p><br/>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <div class="row">
+                            <input  style = "width:100px;"class = "btn btn-success col-md-2" id="btnSubmit" type = "submit" value = "{{'enregistrer'|trans}}"/>
+                            <a href = "{{path('dossierEncours')}}" style = "width:100px;" class = "btn btn-default col-md-offset-7 col-md-2">{%trans%}annuler{%endtrans%}</a></div>
+
+                    </div>
+                    {% do form.soussigne.setRendered %}
+                    {% do form.fonctionSoussigne.setRendered %}
+                    {{ form_end(form) }}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+
+    <script>
+        // $(function () {
+        //     $('#datetimepicker').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+        //
+        //     $('#simpleForm input').on('change', function () {
+        //         if (document.getElementById("notification").checked == true)
+        //         {
+        //             $("#blockNotifications").css('display', 'block');
+        //         }
+        //         else {
+        //             $("#blockNotifications").css('display', 'none');
+        //             $("#banquemondialebundle_dossierDemande_telephonePromoteur").val("");
+        //             $("#banquemondialebundle_dossierDemande_emailPromoteur").val("");
+        //         }
+        //     });
+        //
+        //
+        // });
+
+        $(document).ready(function () {
+            $("#banquemondialebundle_dossierDemande_prefecture").children().remove();
+            $("#banquemondialebundle_dossierDemande_sousPrefecture").children().remove();
+            $("#banquemondialebundle_dossierDemande_secteurActivite").children().remove();
+            $("#banquemondialebundle_dossierDemande_quartierCodifie").children().remove();
+            //$("#banquemondialebundle_dossierDemande_activiteSecondaire").children().remove();
+            $("#banquemondialebundle_dossierDemande_telephone").removeAttr('pattern');
+
+
+
+        });
+        $("#banquemondialebundle_dossierDemande_pays").change(function () {
+            $('.loading').show();
+            var idp = $(this).val();
+            $("#banquemondialebundle_dossierDemande_region").children().remove();
+            $("#banquemondialebundle_dossierDemande_prefecture").children().remove();
+            if (idp !== "") {
+                $.ajax({
+                    url: "{{path('charge_region')}}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {idpays: $(this).val()},
+                    success: function (data) {
+                        $('#banquemondialebundle_dossierDemande_region').prepend("<option value=''>{{'select'|trans}}</option>");
+                        for (var i in data.retour) {
+                            $('#banquemondialebundle_dossierDemande_region').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                        }
+                        $('.loading').hide();
+                    },
+                    error: function () {
+                        alert('erreur');
+                    }
+                });
+            } else {
+                $('.loading').hide();
+                return;
+            }
+        });
+
+        $("#banquemondialebundle_dossierDemande_region").change(function () {
+            $('.loading').show();
+            var idregion = $(this).val();
+            $("#banquemondialebundle_dossierDemande_prefecture").children().remove();
+            if (idregion !== "") {
+                $.ajax({
+                    url: "{{path('charger_prefecture')}}",
+                    type: "POST",
+                    data: {idR: idregion},
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#banquemondialebundle_dossierDemande_prefecture').prepend("<option value=''>{{'select'|trans}}</option>");
+                        for (var i in data.retour) {
+                            $('#banquemondialebundle_dossierDemande_prefecture').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                        }
+                        $('.loading').hide();
+                    },
+                    error: function () {
+                        alert('erreur');
+                    }
+                });
+            } else {
+                $('.loading').hide();
+            }
+
+        });
+
+        $("#banquemondialebundle_dossierDemande_prefecture").change(function () {
+            $('.loading').show();
+            var idP = $(this).val();
+            $("#banquemondialebundle_dossierDemande_sousPrefecture").children().remove();
+            if (idP !== "") {
+                $.ajax({
+                    url: "{{path('charger_sousPrefecture')}}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {idP: $(this).val()},
+                    success: function (data) {
+                        $('#banquemondialebundle_dossierDemande_sousPrefecture').prepend("<option value=''>{{'select'|trans}}</option>");
+                        for (var i in data.retour) {
+                            $('#banquemondialebundle_dossierDemande_sousPrefecture').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                        }
+                        $('.loading').hide();
+                    },
+                    error: function () {
+                        alert('erreur');
+                    }
+                });
+            } else {
+                $('.loading').hide();
+                return;
+            }
+        });
+
+        $("#banquemondialebundle_dossierDemande_sousPrefecture").change(function () {
+            $('.loading').show();
+            var idP = $(this).val();
+            $("#banquemondialebundle_dossierDemande_quartierCodifie").children().remove();
+            if (idP !== "") {
+                $.ajax({
+                    url: "{{path('charger_quartier')}}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {idSP: $(this).val()},
+                    success: function (data) {
+                        $('#banquemondialebundle_dossierDemande_quartierCodifie').prepend("<option value=''>{{'select'|trans}}</option>");
+                        for (var i in data.retour) {
+                            $('#banquemondialebundle_dossierDemande_quartierCodifie').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                        }
+                        $('.loading').hide();
+                    },
+                    error: function () {
+                        alert('erreur');
+                    }
+                });
+            } else {
+                $('.loading').hide();
+                return;
+            }
+        });
+        $("#banquemondialebundle_dossierDemande_categorie").change(function () {
+            $('.loading').show();
+            var idC = $(this).val();
+            if (idC !== "") {
+                $.ajax({
+                    url: "{{path('charger_secteur_activite_creation')}}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {idC: idC},
+                    success: function (data) {
+                        $("#banquemondialebundle_dossierDemande_secteurActivite").children().remove();
+                        $('#banquemondialebundle_dossierDemande_secteurActivite').prepend("<option value=''>{{'select'|trans}}</option>");
+                        //$("#banquemondialebundle_dossierDemande_activiteSecondaire").children().remove();
+                        //$('#banquemondialebundle_dossierDemande_activiteSecondaire').prepend("<option value=''>{{'select'|trans}}</option>");
+                        for (var i in data.retour) {
+                            $('#banquemondialebundle_dossierDemande_secteurActivite').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                            //$('#banquemondialebundle_dossierDemande_activiteSecondaire').append("<option value=" + data.retourId[i] + ">" + data.retour[i] + "</option>");
+                        }
+
+                        $('.loading').hide();
+                    },
+                    error: function (erreur) {
+                        $('.loading').hide();
+                        alert('erreur1 ' + erreur.error);
+                    }
+                });
+            } else {
+                $('.loading').hide();
+                return;
+            }
+
+
+        });
+
+        $("#banquemondialebundle_dossierDemande_formeJuridique").change(function () {
+            //var idFormeJ = $(this).val();//sera utiliser plutard
+            var selectedTex = $("#banquemondialebundle_dossierDemande_formeJuridique option:selected").text();
+            $(".etab").hide();
+            if (selectedTex.indexOf("cursale") > 0) {
+                $(".etab").show();
+            }
+        });
+        $("#btnSubmit").click(function () {
+            var secta=$("#banquemondialebundle_dossierDemande_secteurActivite").val();
+            //alert(secta);
+            var selectedTex = $("#banquemondialebundle_dossierDemande_formeJuridique option:selected").text();
+
+            if (selectedTex.indexOf("cursale") === -1) {
+                $("#banquemondialebundle_dossierDemande_adresseEtablissement").removeAttr("required");
+                $("#banquemondialebundle_dossierDemande_rccmSiege").removeAttr("required");
+            }
+        });
+    </script>
+    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>
+    <script type="application/javascript">
+
+        const isNumericInput = (event) => {
+            const key = event.keyCode;
+            return ((key >= 48 && key <= 57) || // Allow number line
+                (key >= 96 && key <= 105) // Allow number pad
+            );
+        };
+
+        const isModifierKey = (event) => {
+            const key = event.keyCode;
+            return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+                (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+                (key > 36 && key < 41) || // Allow left, up, right, down
+                (
+                    // Allow Ctrl/Command + A,C,V,X,Z
+                    (event.ctrlKey === true || event.metaKey === true) &&
+                    (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+                )
+        };
+
+        const enforceFormat = (event) => {
+            // Input must be of a valid number format or a modifier key, and not longer than ten digits
+            if (!isNumericInput(event) && !isModifierKey(event)) {
+                event.preventDefault();
+            }
+        };
+
+        const formatToPhone = (event) => {
+            if (isModifierKey(event)) {
+                return;
+            }
+
+            // I am lazy and don't like to type things more than once
+            const target = event.target;
+            const input = event.target.value.replace(/\D/g, '').substring(0, 12); // First ten digits of input only
+            const zip = '224';
+            const middle = input.substring(3, 6);
+            const middle1 = input.substring(6, 8);
+            const middle2 = input.substring(8, 10);
+            const middle3 = input.substring(10, 12);
+
+
+            if (input.length > 10) {
+                target.value = `(+${zip}) ${middle}-${middle1}-${middle2}-${middle3}`;
+            } else if (input.length > 7) {
+                target.value = `(+${zip}) ${middle}-${middle1}-${middle2}`;
+            } else if (input.length > 5) {
+                target.value = `(+${zip}) ${middle}-${middle1}`;
+            } else if (input.length > 0) {
+                target.value = `(+${zip}) ${middle}`;
+            }
+        };
+
+        const inputElement = document.getElementById('banquemondialebundle_dossierDemande_telephone');
+        inputElement.addEventListener('keydown', enforceFormat);
+        inputElement.addEventListener('keyup', formatToPhone);
+
+
+        const inputElement2 = document.getElementById('banquemondialebundle_dossierDemande_telephone2');
+        inputElement2.addEventListener('keydown', enforceFormat);
+        inputElement2.addEventListener('keyup', formatToPhone);
+    </script>
+
+
+{%endblock %}

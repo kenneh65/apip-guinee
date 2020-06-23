@@ -1,0 +1,91 @@
+{% extends '::base-office.html.twig' %}
+{%block title%}{%trans%}titre_resultat_rechercher_nom_commercial{%endtrans%} | {{parent()}}{%endblock%}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':1})) }}
+{%endblock%}
+{% block body %}
+    <div id="main" class="clearfix width-100" style="min-height: 250px; position: relative; z-index: 2; margin-top:120px;margin-bottom:10px">
+        <div class="fusion-row" style="max-width:100%;">
+            <div id="content" class="full-width">
+                <div class="fusion-fullwidth  fusion-fullwidth-1  fusion-parallax-none row" 
+                     style="background-color:#ffffff;border:1px solid #e2e2e2;padding:40px 20px 60px;">
+
+                    <h3 style="margin:auto">{%trans%}titre_resultat_rechercher_nom_commercial{%endtrans%} {{nomCommercial}} </h3>
+                    <hr>
+                   
+                <div>
+
+                    {%if entreprises |length==0%}
+                        <div class="alert alert-info">{%trans%}nom_commercial_vides{%endtrans%}</div>
+                    {%else%}
+                        <table class="table table-hover" id="annonces"> 
+                            <thead>
+                            <th>{%trans%}societe{%endtrans%}</th>
+                            <th>Date</th>
+                            <th>{%trans%}departement{%endtrans%}</th>
+                            <th>{%trans%}forme_juridique{%endtrans%}</th>
+                            <th>{{'telecharger'|trans}}</th>
+                            </thead>
+                            <tbody>
+                                {%for entreprise in entreprises%}
+                                    <tr>
+                                        <td>{{entreprise.nomCommercial}}</td>
+                                        <td>{{entreprise.dateCreation | date("d/m/Y")}}</td>
+                                        <td>{{entreprise.departement.libelle}}</td>
+                                        {%if entreprise.formeJuridique.formeJuridiqueTraduction | length >0%}
+                                        {%for trad in entreprise.formeJuridique.formeJuridiqueTraduction %}
+                                            {%if trad.langue.code == app.request.locale %}
+                                                <td>{{trad.libelle}}</td>
+                                            {%endif%}
+                                        {%endfor%}
+                                        {%else%}
+                                            <td>-</td>
+                                         {%endif%}
+                                        <td><a href="{{path('ReportAnnonceLegale',{'idd':entreprise.id})}}" ><i class="fa fa-file-pdf-o "></i></a></td>
+                                    </tr>
+                                {%endfor%}
+                            </tbody>
+                        </table>
+                    {%endif%}
+                </div>
+
+                </form>
+            </div>
+        </div></div></div>
+    {%endblock%}
+    {%block javascripts%}
+        {{parent()}}
+         <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+   
+<script type="text/javaScript">
+    $(document).ready(function() {
+          $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+      $('#annonces').DataTable({"language": {
+                "sProcessing": "{{'traitement_en_cours'|trans}}",
+                "sSearch": "{{'rechercher'|trans}} :",
+                "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                "sInfoPostFix": "",
+                "sLoadingRecords": "Chargement en cours...",
+                "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                "oPaginate": {
+                    "sFirst": "{{'premier'|trans}}",
+                    "sPrevious": "{{'precedent'|trans}}",
+                    "sNext": "{{'suivant'|trans}}",
+                    "sLast": "{{'dernier'|trans}}"
+                },
+                "oAria": {
+                    "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                    "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                }
+            }});
+         
+   
+
+    } );
+</script>
+{%endblock%}

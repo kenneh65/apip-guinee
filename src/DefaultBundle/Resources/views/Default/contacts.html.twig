@@ -1,0 +1,115 @@
+
+{% extends '::base-office.html.twig' %}
+{%block title%}{%trans%}Contact{%endtrans%}- {{parent()}}{%endblock%}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':7})) }}
+{%endblock%}
+{% block body -%}
+      <div  class="clearfix width-100" >
+        <div class="fusion-row" style="max-width:100%;">
+            <div id="content" class="full-width">
+               <div class="fusion-row" style="border-color:#e2e2e2;border-bottom-width: 1px;border-top-width: 1px;border-bottom-style: solid;border-top-style: solid;padding-bottom:0px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:#ffffff;margin-bo"> 
+
+                <div class="panel panel-default">
+                    <div class="panel-heading c-list">
+                        <span class="title">{%trans%}menu_contacts{%endtrans%}</span>
+                        <ul class="pull-right c-controls">
+                            <li><a href="#" class="hide-search" data-command="toggle-search" data-toggle="tooltip" data-placement="top" title="{{'Recherche'}}"><i class="fa fa-ellipsis-v"></i></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="row" style="display: none;">
+                        <div class="col-xs-12">
+                            <div class="input-group c-search">
+                                <input type="text" class="form-control" id="contact-list-search">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search text-muted"></span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="list-group" id="contact-list">
+                        {%for contact in contacts%}
+                            <li class="list-group-item">
+                                <div class="col-xs-12 col-sm-3">
+                                    {{contact.fonction}}
+                                </div>
+                                <div class="col-xs-12 col-sm-9">
+                                    <span class="name">{{contact.nom}}</span><br/>
+									
+                                    {%if contact.adresse%}<span class="glyphicon glyphicon-map-marker text-muted c-info" data-toggle="tooltip" title="{{contact.adresse}}"></span>
+                                    <span > <span class="text-muted">{{contact.adresse}}</span><br/></span>{%endif%}
+                                    
+									{%if contact.telephone%}<span class="glyphicon glyphicon-earphone text-muted c-info" data-toggle="tooltip" title="{{contact.telephone}}"></span>
+                                    <span > <span class="text-muted">{{contact.telephone}}</span><br/></span>{%endif%}
+									
+									{%if contact.telephone2 %}<span class="glyphicon glyphicon-earphone text-muted c-info" data-toggle="tooltip" title="{{contact.telephone}}"></span>
+									<span > <span class="text-muted">{{contact.telephone2}}</span><br/></span>{% endif %}
+									
+                                    {%if contact.email %}<span class="fa fa-comments text-muted c-info" data-toggle="tooltip" title="{{contact.email}}"></span>
+                                    <span > <span class="text-muted">{{contact.email}}</span><br/></span>{%endif%}
+									
+                                    {%if contact.siteWeb %}<span class="fa fa-comments text-muted c-info" data-toggle="tooltip" title="{{contact.siteWeb}}"></span>
+                                    <span > <span class="text-muted">{{contact.siteWeb}}</span><br/></span>{%endif%}
+                                </div>
+                                <div class="clearfix"></div>
+                            </li>
+                        {%endfor%}
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        </div></div>
+        {% endblock %}
+        {%block javascripts%}
+            {{parent()}}
+    <script src="//rawgithub.com/stidges/jquery-searchable/master/dist/jquery.searchable-1.0.0.min.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+            /* BOOTSNIPP FULLSCREEN FIX */
+            if (window.location == window.parent.location) {
+                $('#back-to-bootsnipp').removeClass('hide');
+            }
+
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $('#fullscreen').on('click', function (event) {
+                event.preventDefault();
+                window.parent.location = "http://bootsnipp.com/iframe/4l0k2";
+            });
+            $('a[href="#cant-do-all-the-work-for-you"]').on('click', function (event) {
+                event.preventDefault();
+                $('#cant-do-all-the-work-for-you').modal('show');
+            })
+
+            $('[data-command="toggle-search"]').on('click', function (event) {
+                event.preventDefault();
+                $(this).toggleClass('hide-search');
+
+                if ($(this).hasClass('hide-search')) {
+                    $('.c-search').closest('.row').slideUp(100);
+                } else {
+                    $('.c-search').closest('.row').slideDown(100);
+                }
+            })
+
+            $('#contact-list').searchable({
+                searchField: '#contact-list-search',
+                selector: 'li',
+                childSelector: '.col-xs-12',
+                show: function (elem) {
+                    elem.slideDown(100);
+                },
+                hide: function (elem) {
+                    elem.slideUp(100);
+                }
+            })
+        });
+
+    </script>
+{%endblock%}

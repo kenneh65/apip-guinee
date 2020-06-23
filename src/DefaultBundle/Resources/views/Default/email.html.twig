@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<p>
+<div>
+    <img controls controlsList="nodownload" style="width: 100%" src="https://synergui.apipguinee.com/banniereemail.jpg"
+         alt=" GUICHET UNIQUE  DE LINVESTISSEUR">
+</div>
+</p>
+<p style="font-size: 28px">
+    {% if temoin=='depot' %}
+
+        {{ ('Bonjour Monsieur/Madame <b>' ~ representant.nom ~' '~ representant.prenom~'</b> la création de votre entreprise '~ '<b> ' ~representant.DossierDemande.denominationSociale~' </b>'~ ' est en cours. Vous serez informé dès que votre dossier sera disponible.' )|raw }}
+        <br>Merci de patienter.
+
+    {% else %}
+        {{ ('Bonjour Monsieur/Madame <b>'~ representant.nom ~' '~ representant.prenom~'</b> votre entreprise <b>' ~representant.DossierDemande.denominationSociale~'</b>  est disponible. Veuillez recuperer le dossier à <b>l\'APIP  entre 11H et 16H.</b>')|raw }}
+    {% endif %}
+</p>
+</body>
+</html>

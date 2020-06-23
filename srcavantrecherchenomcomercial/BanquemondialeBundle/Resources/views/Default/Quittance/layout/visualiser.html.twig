@@ -1,0 +1,74 @@
+<body>
+<style type="text/css">
+table {
+  border-collapse:collapse;
+  width:98%;
+}
+
+th, td {
+  border:1px solid black;
+}
+
+td {
+  text-align:left;
+  padding: 0 0 20px 0;
+  font-size:14px;
+  word-wrap: break-word;
+  float: left;
+  position: relative;
+  min-height: 1px;
+  padding-right: 10px;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+
+caption {
+  font-weight:bold
+}
+</style>
+<div class="" style="width:100%;text-align:center;margin:0 auto 0 auto">
+<table style="text-align: left; width: 750px;" border="1"
+ cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td width="150px;">
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{%trans%}message_quittance_numero{%endtrans%}</b> : {{ quittance.numeroQuittance }}
+		  </div>
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{% trans %}date_paiement{% endtrans %}</b> : {% if quittance.datePaiement %}{{ quittance.datePaiement|date('d-m-Y') }}{% endif %}
+		  </div>
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{%trans%}message_serie{%endtrans%}</b> : {{ quittance.serie }}
+		  </div>
+      </td>
+      <td colspan="1" rowspan="2" width="330px;" valign="top">
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{% trans %}message_RecuDe{% endtrans %}</b> {{ quittance.denominationSociale}}
+		  </div>
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>La somme de</b> : {{ quittance.montantTotalFacture|localizednumber('spellout')}}
+		  </div>
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{% trans %}message_natureRecette{% endtrans %}</b> {{ definedNatureRecette }}
+		  </div>
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{% trans %}message_RefTitreRecette{% endtrans %}</b> {{ quittance.refTitreRecette }}
+		  </div>
+		  <div  class="form-group col-sm-4" style="height: 45px;">
+			<b>{% trans %}mode_reglement{% endtrans %}</b> {{ definedModePaiementTraduction }}
+		  </div>
+      </td>
+      <td style="vertical-align:middle;" colspan="1" rowspan="2" width="150px;">{{ quittance.montantTotalFacture|number_format(0, '.', '  ') }} GNF</td>
+    </tr>
+    <tr>
+      <td>
+		  <div  class="form-group col-sm-4" style="height: 45px;" width="150px;">
+			<b>{% trans %}Nom_signature{% endtrans %}</b> : {{ user }}
+		  </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</body>

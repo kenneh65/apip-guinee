@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+{%block title%}details_associe{%endblock%}
+
+{% block body %}
+<h1>{%trans%}message_details_associe{%endtrans%}</h1>
+<br/>
+<div class="row">
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_nom{%endtrans%}</label>
+		<br/>
+		{{ associe.nom }}
+	</div>
+
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_prenom{%endtrans%}</label>
+		<br/>
+		{{ associe.prenom }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_date_naissance{%endtrans%}</label>
+		<br/>
+		 {% if associe.dateNaissance %}{{ associe.dateNaissance|date('Y-m-d') }}{% endif %} 
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_lieu_naissance{%endtrans%}</label>
+		<br/>
+		{{ associe.lieuNaissance }}
+	</div>
+
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_adresse{%endtrans%}</label>
+		<br/>
+		{{ associe.adresse }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_type_entreprises{%endtrans%}</label>
+		<br/>
+		{{ definedTypeEntrepriseTraduction }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_nationalite{%endtrans%}</label>
+		<br/>
+		{{ definedPaysTraduction }}
+	</div>
+	
+	
+</div>
+
+	
+	
+
+            <a href="{{ path('Associe_listerassocie', { 'id':0 , 'idd':associe.dossierDemande.id }) }}" class="btn btn-default">{%trans%}message_retour_liste{%endtrans%}</a>
+ 
+
+{% endblock %}

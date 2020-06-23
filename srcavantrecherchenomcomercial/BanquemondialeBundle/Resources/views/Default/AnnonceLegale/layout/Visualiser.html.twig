@@ -1,0 +1,162 @@
+{% extends '::base-office.html.twig' %}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':5})) }}
+{%endblock%}
+
+
+{% block body %}
+<style type="text/css">	
+	.form-control {
+		height:34px !important;
+	}	
+	
+	.bootstrap-datetimepicker-widget {
+		
+	}
+
+	.bootstrap-datetimepicker-widget table td {
+		border: 0px solid black !important;
+	}
+	
+	.bootstrap-datetimepicker-widget table th {
+		border: 0px solid black !important;
+	}
+</style>
+<div class="container" style="width:100%">
+<div class="fusion-fullwidth  fusion-fullwidth-1  fusion-parallax-none row" style="background-color:#ffffff;border:1px solid #e2e2e2;padding:40px 20px 60px;margin:15px 0px 15px;">
+
+    <h3>{%trans%}titre_page_annonce_legale{%endtrans%}</h3>
+	<hr></hr>
+	
+	<div class="col-md-12" style="margin:0 0 20px 0">
+			<form method="POST" {{ form_enctype(form) }}>
+					
+					 <div class="row">
+							<div class="form-group col-sm-2 hidden">
+                                {{ form_label(form.denominationSociale,'denomination_sociale'|trans)}}      
+                                {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control'}}) }}
+                            </div>			
+
+							<div class="form-group col-sm-2">
+                                {{ form_label(form.dateCreationDebut,'date_debut_creation'|trans) }}                                
+								<div class="input-group date" id="datetimepicker1">
+                                   {{ form_widget(form.dateCreationDebut, {'attr': {'class': 'datepicker form-control'}}) }}
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+									   </div>
+                            </div>													
+							
+							<div class="form-group col-sm-2">
+                                {{ form_label(form.dateCreationFin,'date_fin_creation'|trans) }} 
+									<div class="input-group date" id="datetimepicker2">
+                                   {{ form_widget(form.dateCreationFin, {'attr': {'class': 'datepicker form-control'}}) }}
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+                                </div>
+							</div>
+							
+							<div class="form-group col-sm-2">
+                                {{ form_label(form.numRccmEntreprise,'numero_rccm'|trans) }}								
+                                {{ form_widget(form.numRccmEntreprise, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							
+							
+							<div class="form-group col-sm-3">
+                                {{ form_label(form.formeJuridique,'forme_juridique'|trans) }}  
+                                {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+
+							
+							<div class="form-group col-sm-4 hidden">
+                                {{ form_label(form.id,'numero_dossier'|trans) }}  								
+                                {{ form_widget(form.id, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+							<div class="form-group col-sm-2">
+							<button type="submit"  class="wpcf7-form-control wpcf7-submit btn-sm" style="margin-top: 25px;padding: 9px 12px 8px;"  title="{%trans%}message_infobulle_recherche_nom_commercial{%endtrans%}">{%trans%}rechercher{%endtrans%}</button>
+							</div>
+							
+					</div>
+								
+			{{ form_end(form, {'render_rest': false}) }}
+		
+		</form>
+	</div>
+	
+				
+	
+<div class="table-responsive container" style="width:100%">		
+    <table id="dossiers" class="table table-hover">
+        <thead>
+             <th>{%trans%}denomination_sociale{%endtrans%} </th>           
+			<th>{%trans%}forme_juridique{%endtrans%}</th>
+			<th>{%trans%}numero_rccm{%endtrans%}</th> 			
+            <th>{%trans%}date_rccm{%endtrans%}</th>
+			<th>{{'telecharger'|trans}}</th>  
+        </thead>
+        {% for a in listerdemande %}
+     <tr>	
+		 <td>{{ a.denominationSociale|upper }}</td>      
+        <td>{{ a.libelleFormeJuridique }}</td>
+		<td>{{ a.numRccmEntreprise }}</td>		
+		<td>{% if a.dateRccm %}{{ a.dateRccm|date('d-m-Y') }}{% endif %}</td>
+        <td>
+            <a href="{{ path('ReportAnnonceLegale', { 'idd':a.id }) }}" target="_blank" title="{%trans%}telecharger{%endtrans%}">
+                <i class="fa fa-file-pdf-o "></i>
+            </a>
+        </td>
+     </tr>        
+        {% endfor %}
+    </table>
+</div>
+</div>
+</div>
+{% endblock %}
+
+
+
+{%block javascripts %}
+{{parent()}}
+<script type="text/javascript">
+    $(function () {
+        $('#datetimepicker1').datetimepicker({ locale: 'fr',format: 'DD-MM-YYYY', widgetPositioning: {
+            horizontal: 'left',
+            vertical: 'bottom'
+        } });
+		
+		$('#datetimepicker2').datetimepicker({ locale: 'fr',format: 'DD-MM-YYYY', widgetPositioning: {
+            horizontal: 'left',
+            vertical: 'bottom'
+        } });
+    
+
+    $('#dossiers').DataTable( {  "order": [[ 3, "desc" ]],"bInfo" : false, "lengthMenu": [[5,10, 25, 50, 100, -1], [5,10, 25, 50,100, "All"]], bFilter: false,"language": {
+		"sProcessing":     "{{'traitement_en_cours'|trans}}",
+		"sSearch":         "{{'rechercher'|trans}} :",
+		"sLengthMenu":     "{{'Afficher _MENU_ éléments'|trans}}",
+		"sInfo":           "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+		"sInfoEmpty":      "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+		"sInfoFiltered":   "({{'filtré de _MAX_ éléments au total'|trans}})",
+		"sInfoPostFix":    "",
+		"sLoadingRecords": "Chargement en cours...",
+		"sZeroRecords":    "{{'Aucun élément à afficher'|trans}}",
+		"sEmptyTable":     "{{'Aucune donnée disponible dans le tableau'|trans}}",
+		"oPaginate": {
+			"sFirst":      "{{'premier'|trans}}",
+			"sPrevious":   "{{'precedent'|trans}}",
+			"sNext":       "{{'suivant'|trans}}",
+			"sLast":       "{{'dernier'|trans}}"
+		},
+		"oAria": {
+			"sSortAscending":  ": activer pour trier la colonne par ordre croissant",
+			"sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+		}
+	}});
+	
+    });
+ 
+
+  </script>
+
+{% endblock %}

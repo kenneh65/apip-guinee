@@ -1,0 +1,30 @@
+
+{% extends '::FrontOffice.html.twig' %}
+{% block body -%}
+    <h1> Documentation </h1>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entity in entity %}
+            <tr>
+                <td>{{ entity.titre }}</td>
+                 <td>{{ entity.description }}</td>
+                <td>
+                    <a href="{{  path('documentation_download', { 'guideName': entity.getFichier().path })  }} " target='_blank'><img src="{{ asset('pdf.jpeg') }}" with='20px' height='20px'/></a>
+                    
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+     <div class="navigation">
+                      {{ knp_pagination_render(entity) }}
+         </div>
+    {% endblock %}

@@ -1,0 +1,212 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}message_creation_entreprise{% endblock %}
+
+{% block body %}
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}capital_social{%endtrans%} {% if numeroDossier %} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier_numero{%endtrans%} {{numeroDossier}}</label>{%endif%}
+                        </h1>
+                        {% block sousMenu %}
+                            {{ render(controller("BanquemondialeBundle:Shared:etapeBrouillon",{'idd':demande.id})) }}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="panel-body">
+                    {% if message %}
+                        <p class="alert alert-success">{{ message }}</p>
+                    {% endif %}
+
+                    {{ form_start(form,{'attr':{'name':'simpleForm','id':'simpleForm'}}) }}
+                    <div class="row">                       
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}forme_juridique{%endtrans%} : </label> 
+                            {{ form_errors(form.formeJuridique,{'attr':{'class':'alert alert-danger'}}) }}                           								 
+                            <span>{{formeJTraduit}}</span>
+                        </div>                         
+                                                                  
+                         <div class="form-group col-sm-4">
+                            <label>{%trans%}denomination{%endtrans%} : </label> 
+                            {{ form_errors(form.denominationSociale,{'attr':{'class':'alert alert-danger'}}) }}
+							<span>{{demande.denominationSociale}}</span>
+                        </div>
+                    </div>
+					<br/><br/>
+                    <div class="row">        
+						<div class="form-group col-sm-4">
+                            <label>{%trans%}capital_social{%endtrans%}</label> 
+                            {{ form_errors(form.capitalSocial,{'attr':{'class':'alert alert-danger'}}) }}                                   
+							<input type="text" id="capitalSocial" class="form-control capitalSocial" >
+                            {{ form_widget(form.capitalSocial, {'attr': {'class': 'form-control capitalSocial1 hidden'}}) }}
+                        </div>
+						<div class="form-group col-sm-4">
+                            <label>{%trans%}apport_numeraire{%endtrans%}</label> 
+                            {{ form_errors(form.apportNumeraire,{'attr':{'class':'alert alert-danger'}}) }}                                   
+							<input type="text" id="apportNumeraire" class="form-control apportNumeraire" >
+                            {{ form_widget(form.apportNumeraire, {'attr': {'class': 'form-control apportNumeraire1 hidden'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}apport_nature{%endtrans%}</label> 
+                            {{ form_errors(form.apportNature,{'attr':{'class':'alert alert-danger'}}) }}                                            
+							<input type="text" id="apportNature" class="form-control apportNature" >
+                            {{ form_widget(form.apportNature, {'attr': {'class': 'form-control apportNature1 hidden'}}) }}
+                        </div>
+                    </div>           
+                        <div class="row">        
+
+						</div>      
+                    <div class="form-group col-sm-4 hidden">                                            
+                        {{ form_widget(form.id, {'attr': {'class': 'form-control', 'Style':''}}) }}
+                        {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control', 'Style':''}}) }}
+                        {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control', 'Style':''}}) }}
+                    </div> 
+
+                    <div class="form-group col-sm-12">
+                        <p class="text-info pull-left">(*) : {%trans%}message_obligatoire{%endtrans%}</p><br/>
+                        <br />
+                        <br />
+                        <br />
+                        <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" type = "submit" id="_submit" value = "{% trans %}message_enregistrer{% endtrans%}"/>
+                        <a href = "{{ path('capitalSocial', { 'idd':demande.id }) }}" style = "width:100px;" class = "btn btn-default form-control col-md-offset-7 col-sm-1">{%trans%}message_annuler{%endtrans%}</a>                 
+
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{%block javascripts %}
+{{parent()}}
+<script type="text/javascript">
+    $(function () {
+        
+		$( document ).ready()
+		{			
+			document.getElementById('capitalSocial').value = addCommas(document.getElementById('banquemondialebundle_dossierDemande_capitalSocial').value);
+			document.getElementById('apportNumeraire').value = addCommas(document.getElementById('banquemondialebundle_dossierDemande_apportNumeraire').value);
+			document.getElementById('apportNature').value = addCommas(document.getElementById('banquemondialebundle_dossierDemande_apportNature').value);
+		}
+	
+		$(".apportNumeraire").keyup(function(){
+			delay(function(){
+				var apportNumeraire = document.getElementById('apportNumeraire').value;
+				apportNumeraire = apportNumeraire.replace(/,/g, "");
+			
+				apportNumeraire = Number(apportNumeraire);
+				if(!myIsNaN(apportNumeraire))
+				{				
+					apportNumeraire = apportNumeraire.toLocaleString("en");
+					document.getElementById('apportNumeraire').value = apportNumeraire;			
+				}	
+			}, 500 );
+			});
+		
+		$(".apportNature").keyup(function(){
+			delay(function(){
+				var apportNature = document.getElementById('apportNature').value;
+				apportNature = apportNature.replace(/,/g, "");
+			
+				apportNature = Number(apportNature);
+				if(!myIsNaN(apportNature))
+				{				
+					apportNature = apportNature.toLocaleString("en");
+					document.getElementById('apportNature').value = apportNature;				
+				}	
+			}, 500 );
+			});
+			
+			$(".capitalSocial").keyup(function(){
+			delay(function(){
+				var capitalSocial = document.getElementById('capitalSocial').value;
+				capitalSocial = capitalSocial.replace(/,/g, "");
+			
+				capitalSocial = Number(capitalSocial);
+				if(!myIsNaN(capitalSocial))
+				{				
+					capitalSocial = capitalSocial.toLocaleString("en");
+					document.getElementById('capitalSocial').value = capitalSocial;				
+				}	
+			}, 500 );
+			});
+		
+			$("#_submit").click(function () { 
+			var capitalSoce = 0;
+			var numeraire = 0;
+			var nature = 0;
+			
+			
+			capitalSoce += Number(document.getElementById('capitalSocial').value.replace(/,/g, ""));
+			document.getElementById('banquemondialebundle_dossierDemande_capitalSocial').value = capitalSoce;
+			
+			numeraire += Number(document.getElementById('apportNumeraire').value.replace(/,/g, ""));
+			document.getElementById('banquemondialebundle_dossierDemande_apportNumeraire').value = numeraire;
+			
+			nature += Number(document.getElementById('apportNature').value.replace(/,/g, ""));
+			document.getElementById('banquemondialebundle_dossierDemande_apportNature').value = nature;
+			
+			if( myIsNaN(numeraire) || myIsNaN(nature) || myIsNaN(capitalSoce))
+			{
+				toastr.warning('{{"message_capital_numeraire_nature_non_numerique"|trans}}');
+				return false;  
+			}
+			else if(Number(capitalSoce) < 0 || Number(numeraire) < 0 || Number(nature) < 0)
+			{
+				toastr.warning('{{"message_capital_numeraire_nature_negatif"|trans}}');
+				return false;  
+			}
+			
+			else if(Number(numeraire + nature) != Number(capitalSoce))
+			{
+				toastr.warning('{{"message_capital_different_numeraire_nature"|trans}}');
+				return false;               
+			}
+			
+        });
+		
+		
+		
+		function addCommas(nStr)
+		{
+			nStr += '';
+			x = nStr.split('.');
+			x1 = x[0];
+			x2 = x.length > 1 ? '.' + x[1] : '';
+			var rgx = /(\d+)(\d{3})/;
+			while (rgx.test(x1)) {
+				x1 = x1.replace(rgx, '$1' + ',' + '$2');
+			}
+			return x1 + x2;
+		}
+
+		var delay = (function(){
+			var timer = 0;
+			return function(callback, ms){
+				clearTimeout (timer);
+				timer = setTimeout(callback, ms);
+			};
+		})();
+		
+		
+		function myIsNaN(o) {
+		console.log(o !== o);
+			return o !== o;
+		}
+
+});
+
+
+
+</script>
+
+{%endblock%}

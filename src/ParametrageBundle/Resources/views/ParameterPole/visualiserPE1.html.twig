@@ -1,0 +1,71 @@
+
+<page backtop="14mm" backbottom="14mm" backleft="10mm" backright="10mm">
+    <style type="text/css">
+        body {			
+            font-size:12px;			
+        }
+           
+
+    </style>
+    <table style="">
+        <tr>
+            <td>
+                RCCM			
+            </td>
+        </tr>
+        <tr>
+            <td>2010-PE1</td>
+        </tr>
+    </table>
+    <br>
+    <table align="center" style="">
+        <tr>
+            <td><b>FORMULAIRE D'ACCUSE D'ENREGISTREMENT</b></td>
+        </tr>
+    </table>
+	
+	<div style="width:760px;margin:0 0 0 35px;font-size:12px">
+    <br/><br/><br/>
+	1 - Je soussign&eacute;  <b>{%trans%}soussigne_rccm{%endtrans%}</b>, atteste avoir reçu la demande de 
+	<br/><br/>
+	<img src="{{asset('img/checked.png')}}"/>&nbsp;Immatriculation&nbsp;&nbsp;&nbsp;&nbsp;
+    <img src="{{asset('img/unchecked.png')}}"/>&nbsp;Modification&nbsp;&nbsp;&nbsp;&nbsp;
+	<img src="{{asset('img/unchecked.png')}}"/>&nbsp;Dissolution&nbsp;&nbsp;&nbsp;&nbsp;
+	<img src="{{asset('img/unchecked.png')}}"/>&nbsp;Radiation&nbsp;&nbsp;&nbsp;&nbsp;
+	<img src="{{asset('img/unchecked.png')}}"/>&nbsp;D&eacute;claration d'activit&eacute;&nbsp;&nbsp;&nbsp;&nbsp;
+	<img src="{{asset('img/unchecked.png')}}"/>&nbsp;Autres
+                
+	<br/><br/><br/>
+	
+	2 - Concernant(D&eacute;nomination): <b>{{rep.prenom|upper}} {{rep.nom|upper}} n&eacute;(e) le {{rep.dateDeNaissance|date('d/m/Y')}} &agrave; {{rep.LieuNaissance|upper}} domicili&eacute;(e) &agrave; {{rep.ville|capitalize}}, {{rep.adresse|upper}}</b>
+	
+	<br/><br/><br/>
+	
+	3 - Num&eacute;ro d'imatriculation : <b>{%if rccm%}{{rccm.numRccmEntreprise}}{%endif%}</b>
+	
+	<br/><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Num&eacute;ro de la d&eacute;claration d'activit&eacute;:
+	<br/><br/>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Num&eacute;ro de la formalit&eacute; au registre d'arriv&eacute;:{%if rccm%}{{rccm.numRccmFormalite}}{%endif%}
+	<br/><br/><br/><br/>
+	 </div>
+	
+	<div style="margin:0 0 0 460px;font-size:12px">
+        Fait &agrave; : Conakry
+		<br/><br/>
+		Le : {{dateRccm|date('d/m/Y')}}
+		<br/><br/>
+		Signature de l'autorit&eacute; comp&eacute;tente
+		
+    </div>
+	
+	
+	<br/><br/>
+	
+	
+	
+	
+	
+</page>
+
+

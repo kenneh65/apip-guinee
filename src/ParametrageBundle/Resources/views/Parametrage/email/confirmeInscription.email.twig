@@ -1,0 +1,28 @@
+{% block subject %}{% endblock %}
+{% block body_text %}
+{% endblock %}
+{% block body_html %}
+	<div style="background-color:rgb(239, 239, 239);">
+		
+		<div style="width:60%;margin:auto;background-color:white;padding:25px;">			
+                    {%trans%}notification.bonjour{%endtrans%}<br/>
+                 		<p>
+				{%trans%}notification.confirmation_inscription{%endtrans%}
+				<br />
+				{%trans%}utilisateur.password{%endtrans%}: {{ password }}<br/>
+                 <br />
+				 {%trans%}utilisateur.username{%endtrans%}: {{ user.username }}
+				<br />
+				{%trans%}notification.confirmer{%endtrans%} <a href="{{ confirmationUrl }}" class="btn btn-primary">{%trans%}confirmer{%endtrans%}</a>
+			</p>
+			<br />
+			
+			{%trans%}notification.cordialement{%endtrans%},<br/>
+			{%trans%}notification.auteur{%endtrans%}			
+		</div>	
+		<br />
+		<br />
+		<br />
+		<br />
+	</div>		
+{% endblock %}

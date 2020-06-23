@@ -1,0 +1,231 @@
+<page backtop="4mm" backleft="4mm" backright="4mm">
+
+   <style type="text/css">
+		
+        body{
+            width:950px;
+            font-family: times;
+			/*height: 100%;*/
+        }
+        .titre {			
+            text-align:center;
+            position:relative;
+            /*height: 30px;*/
+            font-size:15pt;
+            font-family: Arial;
+            font-weight: bold;           
+            left: 25px;
+            text-shadow: 2px 2px;
+        }
+        div.soustitre {	
+            text-align:left;
+            font-size:10pt;	
+            /*left:50%;*/
+        }
+		div.entete {	
+            text-align:left;
+            font-size:7pt;
+			font-weight:bold;			
+            /*left:50%;*/
+        }
+		div.pied {	
+            text-align:left;
+            font-size:6pt;
+			font-weight:bold;			
+            /*left:50%;*/
+        }
+        div.case{
+            border: 1px solid red;
+            width: 5px;
+            /*height: 5px;*/
+        }       
+
+        .divLegende
+        {
+            border: 1px black solid;
+            width: 950px;
+            position: absolute;
+            /*margin: -10px 30% 0 30%;*/
+            margin-left:150px;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+
+        }
+		#tabEmloye table {
+			border-collapse: collapse;
+		}
+        #tabEmloye td ,th{
+            padding: 2px 8px 0px 8px;
+            border: 1px solid black;
+			height:15px;
+        }
+		
+
+		.petiteEntete
+		{
+			text-align:center;
+
+		}
+
+    </style>
+    <div class="entete">
+        <table>
+            <tr>
+                <td style="width:340px;">MINISTERE DE L'EMPLOI, ENSEIGNEMENT TECHNIQUE <br />ET FORMATION PROFESSIONNELLE(MEE-FP)</td>
+                <td style="width:340px; text-align:center;">REPUBLIQUE DE GUINEE</td>
+                <td style="width:340px;"></td>
+            </tr>
+			<tr>
+                <td style="width:340px;vertical-align"></td>
+                <td style="width:340px; text-align:center;font-style: italic;vertical-align">Département Observatoire de l'emploi et des métiers (D.O.E.M)</td>
+                <td style="width:340px;"></td>
+            </tr>
+			<tr>
+                <td style="width:340px;vertical-align"></td>
+                <td style="width:340px; text-align:center;font-weight: bold;font-size:11pt;vertical-align">FICHE ENTREPRISE</td>
+                <td style="width:340px;"></td>
+            </tr>
+        </table>
+ 
+        <table style="font-size: 10px;font-family: times;">
+			<tr>
+				<td style="width:255px;" colspan="4"><b>Nom ou Raison sociale: </b>{{dd.denominationSociale}}</td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>Total employé:</b> {{dd.nombreSalariePrevu}}</td>
+				<td style="width:255px;"><b>Guinéens:</b> {{aguipe.nombreEmployeGuineen}}</td>
+				<td style="width:255px;"><b>Etrangers:</b> {{aguipe.nombreEmployeEtranger}}</td>
+				<td style="width:255px;"><b></b></td>
+			</tr>
+			<tr>
+				<td style="width:255px;" colspan="4"><b>N° d'immatriculation de l'entreprise à l'AGUIPE: </b> {%if aguipe%}{{aguipe.numeroImmatriculation}}/AGUIPE/{{dateImmatriculation|date('y')}}{%endif%}</td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>N° RCCM/Aggrement: </b>{%if rccm%}{{rccm.numRccmFormalite}}{%endif%}</td>
+				<td style="width:255px;"><b>Sigle: </b>{{dd.sigle}}</td>
+				<td style="width:255px;"></td>
+				<td style="width:255px;"></td>
+			</tr>
+			<tr>
+				<td style="width:255px;" colspan="4"><b>Activité principale de: </b>{{activitePrincipale}}</td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>Date de création: </b>{%if rccm%}{{rccm.date|date('d/m/Y')}}{%endif%}</td>
+				<td style="width:255px;" colspan="2"><b>Type de structure: </b> {%for typeStructure in lesTypeStructures%}
+                                            {% if aguipe and aguipe.typeStructure and (aguipe.typeStructure.id==typeStructure.id)%}
+                                                {{typeStructure.libelle}}
+                                            {%endif%}
+                                {%endfor%}</td>
+				<td style="width:255px;"><b>Forme juridique: </b> {{dd.formeJuridique.sigle}}</td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>Nom du Centrale syndicale affiliée:</b></td>
+				<td style="width:255px;"><b>Nom du Patronat affilié:</b></td>
+				<td style="width:255px;"><b>Immatriculation CNSS: </b>{%if aguipe%}{{aguipe.numeroCNSS}}{%endif%}</td>
+				<td style="width:255px;"><b>Nbre d'établissement: </b>{%if aguipe%}{{aguipe.nombreEtablissement}}{%endif%}</td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>Siége: </b>{{dd.adresseSiege}}</td>
+				<td style="width:255px;"><b>Localisation: </b>{{dd.sousPrefecture.libelle}} {{dd.sousPrefecture.libelle}}</td>
+				<td style="width:255px;"><b>Tel1: </b>{{rep.telephone}}</td>
+				<td style="width:255px;"><b>Tel2:</b></td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>Email: </b>{{dd.email}}</td>
+				<td style="width:255px;"><b>Site web:</b></td>
+				<td style="width:255px;"><b>Fax:</b></td>
+				<td style="width:255px;"><b>BP:</b></td>
+			</tr>
+			<tr>
+				<td style="width:255px;"><b>Nom du chef d'entreprise/DG: </b>{{rep.prenom}} {{rep.nom|upper}}</td>
+				<td style="width:255px;"><b>Sexe: </b>{{rep.genre}}</td>
+				<td style="width:255px;"><b>Date de naissance: </b>{{rep.dateDeNaissance|date('d/m/Y')}}</td>
+				<td style="width:255px;"><b>Nationalité: </b>{{rep.nationalite}}</td>
+			</tr>
+		</table>
+		<table id="tabEmloye" style="border-collapse:collapse">
+			<tr>
+				<th style="width:2px;text-align:center" class="petiteEntete">N°</th>
+				<th style="width:100px;text-align:center">Prénom et Nom</th>
+				<th style="width:20px;text-align:center">Sexe</th>
+				<th style="width:30px;text-align:center">Date de naissance</th>
+				<th style="width:20px;text-align:center">Matricule</th>
+				<th style="width:30px;text-align:center">Date d'embauche</th>
+				<th style="width:60px;text-align:center">Nationalité</th>
+				<th style="width:90px;text-align:center">Formation</th>
+				<th style="width:30px;text-align:center">Dernier salaire</th>
+				<th style="width:80px;text-align:center">Dernier diplome</th>
+				<th style="width:80px;text-align:center">Emploi Occupé</th>
+				<th style="width:80px;text-align:center">Catégorie socio professionnelle</th>
+			</tr>
+			 {% set loop1 = 0 %}
+			 {% for e in listeEmployes%}
+				{% set loop1 = loop.index %}
+			<tr>
+				<td style="width:2px;text-align:center">{{loop.index}}</td>
+				<td style="width:100px;">{{e.prenom}} {{e.nom}}</td>
+				<td style="width:20px;">{{e.sexe}}</td>
+				<td style="width:30px;">{% if e.dateNaissance %}{{ e.dateNaissance|date('d/m/Y') }}{% endif %}</td>
+				<td style="width:20px;">{{e.matricule}}</td>
+				<td style="width:30px;">{% if e.dateEmbauche %}{{ e.dateEmbauche|date('d/m/Y') }}{% endif %}</td>
+				<td style="width:60px;">{{e.nationalite|upper}}</td>
+				<td style="width:90px;">{{e.formation}}</td>
+				<td style="width:30px;">{{e.dernierSalaire|number_format(0, '.', '  ')}}</td>
+				<td style="width:80px;">{{e.dernierDiplome}}</td>
+				<td style="width:80px;">{{e.emploiOccupe}}</td>
+				<td style="width:80px;">{{e.categorieProfessionnel}}</td>
+			</tr>
+			{%endfor%}
+		
+
+		{%if loop1 < 12 %}
+
+			{% for i in loop1+1..12 %}
+				<tr>
+					<td style="width:2px;text-align:center">{{i}}</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			{% endfor %}
+		{%endif%}
+		</table>
+		
+			<div class="pied">
+        <table>
+            <tr>
+                <td style="width:226px;">LEGENDE:dernier diplôme le plus élevé</td>
+                <td style="width:440px; text-align:left;" >Catègorie socio professionnelle:C sup=Cadre supérieur; C moy=Cadre moyen; PL=profession libérale; Autr=Autre</td> 
+				<td style="width:354px;vertical-align"></td>
+            </tr>
+			<tr>
+                <td style="width:221px; height:15px;vertical-align"></td>
+                <td style="width:228px; text-align:right;font-weight:bold;">Signature / Nom et Prénom <br />{%if aguipe%}{{aguipe.nomSignataire}}{%endif%}</td>
+                <td style="width:222px; text-align:right;">Date: {{ dateEffet|date('d-m-Y') }}</td>
+            </tr>
+			<tr>
+                <td style="width:221px; height:40px;vertical-align"></td>
+                <td style="width:228px; height:40px; text-align:right;font-weight: bold;font-size:11pt;vertical-align"></td>
+                <td style="width:222px;"></td>
+            </tr>
+        </table>
+    </div>
+	
+	
+    </div>
+
+<!--page_footer> 
+      
+</page_footer--> 
+</page>        
+
+

@@ -1,0 +1,66 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}importation_dossiers_demande{%endtrans%}{% endblock %}
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':3})) }}
+
+{%endblock%}
+{% block body %}
+    <div class="col-lg-12">       
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}importation_dossiers_demande{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+
+                            <li><i class="fa fa fa-file-text"></i>&nbsp;&nbsp;{%trans%}importation_dossiers_demande{%endtrans%}</li>
+                        </ol>
+                    </div>
+					
+                </div>	
+ {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 				
+           
+			
+			<div style="box-shadow: 1px 3px 12px 1px grey;margin: 17px 0 50px 0;padding: 34px 0 21px 25px;min-width:194px" class="text-center container col-sm-6 col-md-4 col-xs-6">
+    <form action="{{path('upload_fichier')}}" method="POST" enctype="multipart/form-data" name="uploadexcel">
+        <label class="btn btn-default btn-file" style="overflow:hidden"><input type="file" name="fichierexcel" /></label>
+        <div class="form-group col-sm-12">
+		<br/>	
+        <input style = "width:100px;" class = "btn btn-success form-control " type = "submit"
+				accept=" application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" 
+				value = "{%trans%}charger{%endtrans%}" />				
+		
+		<a href = "" style = "width:100px;" class = "btn btn-default form-control  ">
+				{%trans%}annuler{%endtrans%}</a>
+		</div>		
+    </form>
+<br/><br/>
+	<label>{%trans%}Importer les dossiers demandes du fichier excel chargé en base de données{%endtrans%}</label>
+	<div>
+		 <a  class="btn btn-danger" style="width: 100px"  href="{{path('importer_dossier')}}">{%trans%}importer{%endtrans%}</a>
+	</div>
+
+
+	<br/><br/>
+</div>
+</div>
+</div>
+
+
+
+
+	
+</div>		
+
+{% endblock %}

@@ -1,0 +1,165 @@
+div.wpcf7 {
+	margin: 0;
+	padding: 0;
+}
+
+div.wpcf7-response-output {
+	margin: 2em 0.5em 1em;
+	padding: 0.2em 1em;
+}
+
+div.wpcf7 .screen-reader-response {
+	position: absolute;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
+	height: 1px;
+	width: 1px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+div.wpcf7-mail-sent-ok {
+	border: 2px solid #398f14;
+}
+
+div.wpcf7-mail-sent-ng {
+	border: 2px solid #ff0000;
+}
+
+div.wpcf7-spam-blocked {
+	border: 2px solid #ffa500;
+}
+
+div.wpcf7-validation-errors {
+	border: 2px solid #f7e700;
+}
+
+.wpcf7-form-control-wrap {
+	position: relative;
+}
+
+span.wpcf7-not-valid-tip {
+	color: #f00;
+	font-size: 1em;
+	display: block;
+}
+
+.use-floating-validation-tip span.wpcf7-not-valid-tip {
+	position: absolute;
+	top: 20%;
+	left: 20%;
+	z-index: 100;
+	border: 1px solid #ff0000;
+	background: #fff;
+	padding: .2em .8em;
+}
+
+span.wpcf7-list-item {
+	margin-left: 0.5em;
+}
+
+.wpcf7-display-none {
+	display: none;
+}
+
+div.wpcf7 img.ajax-loader {
+	border: none;
+	vertical-align: middle;
+	margin-left: 4px;
+}
+
+div.wpcf7 div.ajax-error {
+	display: none;
+}
+
+div.wpcf7 .placeheld {
+	color: #888;
+}
+
+#pageDiaspora {
+    width: 80%;
+    margin: 0 auto 0 auto;
+	padding:20px;
+}
+
+.divTitreDiaspora
+{
+	border: 2px black solid;
+    width: 500px;
+    margin: 0 auto 0 auto;
+    text-align: center;
+    background-color: #ddd;
+    font-weight: bold;
+	font-size:22px;
+}
+
+.titreBlocDiaspora {
+    font-weight: bold;
+    font-size: 22px;
+    margin: 35px 0px 35px 65px;
+}
+
+.divTableDiaspora
+{
+
+}
+
+.tableDiaspora
+{
+	margin: 0 auto 0 auto;
+}
+
+.tableDiaspora th
+{
+	background-color: #ddd;
+}
+
+.tableDiaspora table,th,td
+{
+	border: 1px solid black !important;
+}
+
+
+.colonne1TableauDiaspora
+{
+	text-align:center;
+}
+
+.colonne2TableauDiaspora
+{
+	padding-left:20px;
+	font-size: 14px;
+	padding-right:5px;
+}
+
+.bigBull
+{
+	font-size:20px;
+	margin-right:10px;
+}
+
+.divTelechargement
+{
+	border: 2px black solid;
+    margin: 5px auto 10px auto;
+    background-color: #dddddd;
+    color: green;
+    width: 268px;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+@media (max-width: 668px) {
+  .divTitreDiaspora {
+		width: auto;
+}
+
+@media (max-width: 412px) {
+  #pageDiaspora {
+		overflow-x: auto;
+}
+
+

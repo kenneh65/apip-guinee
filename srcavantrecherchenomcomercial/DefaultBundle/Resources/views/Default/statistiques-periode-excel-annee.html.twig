@@ -1,0 +1,197 @@
+{% extends '::base.html.twig' %}
+{%block title%}{%trans%}titre_statistique{%endtrans%}{% endblock%}
+				
+{% block body %}
+<link rel="stylesheet" href="{{asset('js/exportdatatable/buttons.dataTables.min.css') }}" />
+<link rel="stylesheet" href="{{asset('js/exportdatatable/jquery.dataTables.min.css') }}" />
+<style>
+        .divFieldSet
+        {
+            border:1px #dddddd solid;                         
+            position:relative;
+            padding: 5px ;                
+            font-size: 9pt;
+			margin-top:5px;
+        }
+        .divLegende
+        {
+            border: 1px #dddddd solid;
+            width: 50%;
+            position: absolute;
+            margin: -10px 30% 0 30%;
+            margin-left:25%;
+            background: white;
+            font-weight: bold;
+            text-align: center;
+        }
+		.boutonMoyen
+		{
+			width:120px;
+		}
+        
+    </style>
+	
+	<div class="row"> 
+        <div class="col-lg-12">
+            <h3 class="page-header">
+               <div>
+					{{"nbr_entreprise_crees_annee"|trans}} 
+				</div>
+            </h3>
+        </div>
+    </div>
+	
+    <div class="container" style="width:100%">   
+
+        <div class="col-md-12">
+            <form method="POST" {{ form_enctype(form) }}>
+
+
+			<div class="row divFieldSet text-center">	
+ <div class="divLegende">{%trans%}choix_periode_repartition{%endtrans%}</div>	
+<br/><br/> 
+				<div class="col-sm-4 text-center">                                 
+					<a href="{{path('statistiques-periode-excel-jours')}}"  class="btn btn-default boutonMoyen">{%trans%}jours{%endtrans%}</a>
+                </div>
+				
+				<div class="col-sm-4 text-center">                               
+                    <a href="{{path('statistiques-periode-excel-mois')}}" class="btn btn-default boutonMoyen">{%trans%}mois{%endtrans%}</a>
+                </div>
+				
+				<div class="col-sm-4 text-center">                               
+                    <a class="btn btn-default boutonMoyen" disabled="true">{%trans%}annee{%endtrans%}</a>
+                </div>                   
+			</div>
+
+			<br>
+
+                <div class="row text-center">
+				<div class="form-group col-sm-4"></div>
+                    <div class="form-group col-sm-2" style="min-width:135px">
+                        <label>{%trans%}date_debut_creation{%endtrans %}</label>                                
+                        <div class="input-group date" id="datetimepicker1">
+                            {{ form_widget(form.dateCreationDebut, {'attr': {'class': 'datepicker1 form-control','placeholder': "placeholder.annee"|trans}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2" style="min-width:135px">
+                        <label>{%trans%}date_fin_creation{%endtrans %}</label> 
+                        <div class="input-group date" id="datetimepicker2">
+                            {{ form_widget(form.dateCreationFin, {'attr': {'class': 'datepicker2 form-control','placeholder': "placeholder.annee"|trans }}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:25px" class="text-left">
+                        <button type="submit"  class="btn btn-info" >{%trans%}valider{%endtrans %}</button>
+                    </div>
+
+                </div>
+                {{ form_rest(form) }} 
+            </form>
+
+        </div>  
+		<br/>
+
+		<div class="panel-body table-responsive">
+		
+            <table id="entreprises" class=" table-striped table table-bordered" >
+                    <thead>
+                        <tr>
+                            <th>{%trans%}annee{%endtrans%}</th>
+                            <th>{%trans%}message_nombre_entreprise_cree{%endtrans%}</th>                                                    
+                        </tr>
+                    </thead>
+                    {% for tab in listerdemande %}
+                        <tr>
+                            <td>{{ tab[2] }}</td>                     
+                            <td class="text-right">{{ tab[3]}}</td>                               
+                        </tr>   
+                    {% endfor %}
+                </table> 		
+    </div>    
+   </div> 
+
+
+
+
+{% endblock %}
+
+{%block javascripts%}
+{{parent()}}        
+
+<script src="{{asset('js/exportdatatable/jquery-1.12.3.js')}}"></script>	 
+<script src="{{asset('js/exportdatatable/jquery.dataTables.min.js')}}"></script>		 
+<script src="{{asset('js/exportdatatable/jszip.min.js')}}"></script>
+<script src="{{asset('js/exportdatatable/vfs_fonts.js')}}"></script>		 
+<script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+<script type="text/javascript" src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>		
+<script src="{{asset('js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+<script src="{{asset('js/exportdatatable/buttons.html5.min.js')}}"></script>
+
+
+
+<script type="text/javascript">
+$(function () {
+
+	$('#datetimepicker1').datetimepicker({locale: '{{locale}}', format: 'YYYY', viewMode: 'years', maxDate : 'now'});
+
+    $('#datetimepicker2').datetimepicker({locale: '{{locale}}', format: 'YYYY', viewMode: 'years', maxDate : 'now'});
+	
+	$("#datetimepicker1").on("dp.change", function (e) {
+		$('#datetimepicker2').data("DateTimePicker").minDate(e.date);
+	});
+	
+	
+	var dateDebut = {{dateDebut|json_encode()|raw}}.substring(6,10);
+	
+	var dateFin = {{dateFin|json_encode()|raw}}.substring(6,10);
+
+
+	
+	$('#entreprises').prepend('<caption style="caption-side: bottom;text-align:center">{{"periode"|trans}} : '+dateDebut+' - '+dateFin+'</caption>');
+
+    $('#entreprises').DataTable( {  "language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                },
+				"bSort":false,
+				"bPaginate": true,
+				"bInfo" : true,
+				dom: 'Bfrtip',
+				buttons: [{
+						extend: 'excel',
+						text: '{{"generer_excel"|trans}}',
+						filename: "{{'nbr_entreprise_crees_annee'|trans|e('js')}}",
+						title: '{{"nbr_entreprise_crees_annee"|trans|e("js")}}',
+						messageTop: '{{"de"|trans}} '+dateDebut+' {{"a"|trans}} '+ dateFin
+					}
+				]
+		});
+		
+});
+</script>
+
+{% endblock %}	

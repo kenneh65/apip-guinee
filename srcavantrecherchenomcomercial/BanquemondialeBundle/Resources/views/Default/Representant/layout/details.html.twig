@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>{%trans%}message_details_representant{%endtrans%}</h1>
+<br/>
+<div class="row">
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_nom{%endtrans%}</label>
+		<br/>
+		{{ representant.nom }}
+	</div>
+
+    <div class="form-group col-sm-4">
+		<label>{%trans%}message_prenom{%endtrans%}</label>
+		<br/>
+		{{ representant.prenom }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_date_naissance{%endtrans%}</label>
+		<br/>
+		 {% if representant.dateDeNaissance %}{{ representant.dateDeNaissance|date('d-m-Y') }}{% endif %} 
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_lieu_naissance{%endtrans%}</label>
+		<br/>
+		{{ representant.lieuNaissance }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_adresse{%endtrans%}</label>
+		<br/>
+		{{ representant.adresse }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_fonction{%endtrans%}</label>
+		<br/>
+		{{ definedFonctionTraduction }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_pays{%endtrans%}</label>
+		<br/>
+		{{ definedPaysTraduction }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_genre{%endtrans%}</label>
+		<br/>
+		{{ definedGenreTraduction }}
+	</div>
+	
+	{% if representant.dossierDemande.formeJuridique.sigle == 'EI' %}
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}utilisateur.type_identification{%endtrans%}</label>
+		<br/>
+		{{ representant.typeIdentification }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_num_cni{%endtrans%}</label>
+		<br/>
+		{{ representant.numeroIdentiteNational }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_tel_fixe{%endtrans%}</label>
+		<br/>
+		{{ representant.telephone }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_tel_portable{%endtrans%}</label>
+		<br/>
+		{{ representant.portable }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_email{%endtrans%}</label>
+		<br/>
+		{{ representant.email }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}civilite{%endtrans%}</label>
+		<br/>
+		{{ representant.civilite }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}ville{%endtrans%}</label>
+		<br/>
+		{{ representant.ville }}
+	</div>
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}quartier{%endtrans%}</label>
+		<br/>
+		{{ representant.quartier }}
+	</div>
+	
+
+	
+	
+
+	
+	<div class="form-group col-sm-4">
+		<label>{%trans%}message_situation_matrimoniale{%endtrans%}</label>
+		<br/>
+		{{ definedSituationMatrimonialeTraduction }}
+	</div>
+	
+	
+	
+	{% endif %}
+</div>
+            <a href="{{ path('representant_listerrepresentant', { 'id':0 , 'idd':representant.dossierDemande.id }) }}" class="btn btn-default">{%trans%}message_retour_liste{%endtrans%}</a>
+ 
+
+{% endblock %}

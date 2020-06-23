@@ -1,0 +1,135 @@
+{% extends '::base.html.twig' %}
+
+{% block title %}{%trans%}titre_modification_documentation{%endtrans%}{% endblock %}
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':3})) }}
+
+{%endblock%}
+{% block body -%}
+
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}titre_modification_documentation{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>                            </li>
+
+                            <li><a href="{{path('adminDocumentation')}}">{%trans%}documentations{%endtrans%}</a></li>
+							<li>{%trans%}modifier{%endtrans%}</a></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="active" role="presentation"><a href="#principale" role="tab" data-toggle="tab">{{langue.libelle|trans}}</a></li>
+                        {%for traduction in entity.traduction%}
+                        <li  role="presentation"><a href="#{{traduction.langue.libelle}}" role="tab" data-toggle="tab">{{traduction.langue.libelle|trans}}</a></li>
+                        {%endfor%}
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="principale">
+
+                        
+                        <form action="{{ path('adminDocumentation_update',{ 'id': entity.id}) }}" method="POST" {{ form_enctype(edit_form)}}>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.titre,'guide.titre'|trans ~ ' (*)') }} 
+                                {{ form_errors(edit_form.titre,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.titre, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.description,'description'|trans) }} 
+                                {{ form_errors(edit_form.description,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.description, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                           
+                            <div class="form-group col-sm-12" style="border: 1px #ccc solid;max-width: 290px;border-radius: 5px;
+							padding: 5px; margin:20px 0 15px 15px;">			
+									<label class="btn btn-default btn-file" >{%trans%}parcourir{%endtrans%}
+										<input type="file" name="Banquemondialebundle_documentation[fichier][file]" 
+										class="glyphicon glyphicon-paperclip btn btn-default" 
+										onchange="document.getElementById('input_text_principal').value = this.files[0].name" 
+										style ="display:none"/>
+									</label>
+									<input type="text" id="input_text_principal" value="{%trans%}aucun_fichier_choisi{%endtrans%}" style="border:0"/>
+							</div>
+							
+							<div class="form-group col-sm-12">
+                                <p class="text-info pull-left">(*) : {{'obligatoire'|trans}}</p><br/>
+                                <br />
+                                <br />
+                                <br />
+                            </div>
+							
+							<br/>
+
+
+                        <br/>
+                    </div>
+                    {%for traduction in entity.traduction%}
+                        <div role="tabpanel" class="tab-pane" id="{{traduction.langue.libelle}}">
+                            <div class="form-group col-sm-12">
+                                <label for="titre">{%trans%}guide.titre{%endtrans%} </label>
+                                {%if erreur_titre !=''%}<div class="alert alert-danger">{{erreur_titre}}</div>{%endif%}
+                                <input type="text" name="titre{{loop.index}}" value="{{traduction.titre}}" class="form-control" id="titre"/>
+
+                            </div>
+
+                            <div class="form-group col-sm-12">
+                                <label for="description">{%trans%}guide.description{%endtrans%}</label>
+                                {%if erreur_description !=''%}<div class="alert alert-danger">{{erreur_description}}</div>{%endif%}
+                                <textarea  name="description{{loop.index}}" class="form-control"id="description">{{traduction.description}}</textarea>
+
+                            </div>
+                            <div class="form-group col-sm-12">						
+                                <label for="fichier">{%trans%} {%endtrans%} </label>
+                                {%if erreur_fichier !=''%}<div class="alert alert-danger">{{erreur_fichier}}</div>{%endif%}         
+								
+								<div style="border: 1px #ccc solid;max-width: 290px;border-radius: 5px;padding: 5px;">
+									<label class="btn btn-default btn-file" >{%trans%}parcourir{%endtrans%}
+										<input type="file" name="fichier{{loop.index}}" class="glyphicon glyphicon-paperclip btn btn-default" 
+										onchange="document.getElementById('input_text_{{loop.index}}').value = this.files[0].name" 
+										style ="display:none"/>
+									</label>
+									<input type="text" id="input_text_{{loop.index}}" value="{%trans%}aucun_fichier_choisi{%endtrans%}" 
+									style="border:0"/>
+								</div>						
+                            </div>
+
+                            <div class="form-group col-sm-12">
+                                <p class="text-info pull-left">(*) : {{'obligatoire'|trans}}</p><br/>
+                                <br />
+                                <br />
+                                <br />
+                            </div>
+                        </div>
+                        {%endfor%}
+
+                        <div class="row"> 
+                            <input type="submit"  class="btn btn-success col-md-1" value="{%trans%}modifier{%endtrans%}"/>
+							{% do edit_form.fichier.file.setRendered %}
+                            {{ form_end(edit_form) }}
+							</form>
+                            {{ form_start(delete_form) }}
+                            <input type="submit"  class="btn btn-danger col-md-1 col-md-offset-10" value="{%trans%}supprimer{%endtrans%}"/>
+							
+                            {{ form_end(delete_form) }}
+                        </div>
+                        <hr/>
+                        <a href="{{ path('adminDocumentation') }}">
+                            <i class="fa fa-arrow-left"></i>&nbsp;{{'retour'|trans}}
+                        </a>
+
+
+                    {% endblock %}

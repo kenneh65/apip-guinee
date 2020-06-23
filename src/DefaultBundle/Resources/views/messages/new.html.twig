@@ -1,0 +1,129 @@
+{% extends '::base.html.twig' %}
+{% block title %}{%trans%}nouveau_message{%endtrans%}{% endblock %}
+
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
+
+{%endblock%}
+{% block body%}
+
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('error') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}nouveau_message{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <a href="{{path('mes-messages')}}"><i class="fa  fa-envelope"></i>&nbsp;&nbsp;{%trans%}boite_reception{%endtrans%}</a>
+                            </li>
+                            <li><i></i>{%trans%}nouveau_message{%endtrans%}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="hpanel">
+                        <div class="panel-body">
+                            <ul class="mailbox-list" style="list-style-type: none;">
+                                {% block menu1 %}	
+                                    <li class="mactive">
+                                        <a href="{{path('message_new')}}"><i class="fa fa-pencil-square-o"></i>&nbsp;{%trans%}nouveau_message{%endtrans%}</a>
+                                    </li>
+                                    <hr/>
+                                    <li >
+                                        <a href="{{ path('mes-messages') }}">
+                                            <span class="pull-right">{{ app.user.getEmailNonLus | length }}</span>
+                                            <i class="fa fa-envelope"></i> {{'discussion'|trans}}
+                                        </a>
+                                    </li>
+                                    <hr/>
+                                    <li >
+                                        <a href="{{ path('mes_messages_envoyer') }}"><span class="pull-right">{{ app.user.getEmailsEnvoyesNonBloquer | length }}</span> <i class="fa fa-paper-plane"></i> {{'envoyes'|trans}}</a>
+
+                                    </li>
+                                {% endblock %}		
+                            </ul>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content">
+                        {{ form_start(form,{'attr':{'name':'simpleForm','id':'simpleForm'}}) }}
+						<div class="form-group col-sm-12">
+                            <label for="destinataire">{%trans%}numero_dossier{%endtrans%}(*)</label>                            
+                            {{ form_errors(form.numeroDossier,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.numeroDossier, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label for="destinataire">{%trans%}pole{%endtrans%}(*)</label>
+                            {{ form_errors(form.pole,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.pole, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-12">
+                            {{ form_label(form.objet,'discussion.objet'|trans~'(*)') }}
+                            {{ form_errors(form.objet,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.objet, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label for="contenu">{%trans%}message.contenu{%endtrans%} (*)</label>
+                            {%if erreur_contenu!=0%}
+                                <div class="alert alert-danger">
+                                    {%if erreur_contenu==1%}
+                                        {{'renseigner_contenu'|trans}} 
+                                    {%else%}
+
+                                    {%endif%}
+                                </div>
+                            {%endif%}
+                            <textarea name="contenu" required="required" id="contenu" class="form-control" value="">
+                            </textarea>
+                        </div>
+
+                        <div class="form-group col-sm-12">
+                            <p class="text-info pull-left">(*) : {{'obligatoire'|trans}}</p><br/>
+                            <br />
+                            <br />
+                            <input style = "width:100px;" class = "btn btn-success form-control col-md-offset-9 submit" type = "submit" value = "{{'envoyer'|trans}}"/>
+
+
+                        </div>
+
+                    </div>
+
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+        </div>
+
+
+
+    {% endblock %}
+
+    {%block javascripts%}
+        {{parent()}}
+        <script type="text/javascript">
+            $(function () {
+                $('#datetimepicker').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY HH:mm'});
+                $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY HH:mm'});
+            }
+            );
+
+        </script>
+
+    {%endblock%}

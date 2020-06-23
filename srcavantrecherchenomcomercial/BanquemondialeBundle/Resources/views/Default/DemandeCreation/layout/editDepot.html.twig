@@ -1,0 +1,261 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}depot_page_title{%endtrans%}{% endblock %}
+
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':4})) }}
+{% endblock %}                     
+
+
+{% block body %}
+    <style>
+        .notifications
+        {
+            display:none;
+            padding-left:0;
+            padding-right:0;
+        }
+    </style>
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}depot_page_title{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>                            
+                            <li>
+                                <i>{%trans%}depot_dossier{%endtrans%}</i>
+                            </li>
+
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            {% if dossierDemande.statut==-2 %}
+                <div class="row alert alert-warning">
+                    <h4>{{'dossier_retour_modification'|trans}}</h4>
+                    {{ dossierDemande.motif }}
+
+                </div>
+
+            {%endif%}
+
+            <div class="panel-body">
+                <div class="panel-body">
+                    {% if message %}
+                        <p class="alert alert-success">{{ message }}</p>
+                    {% endif %}
+                    {{ form_start(form,{'attr':{'name':'simpleForm','id':'simpleForm'}}) }}                    
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_operation{%endtrans%} (*)</label>
+                            {{ form_errors(form.typeOperation,{'attr':{'class':'alert alert-danger'}}) }}   
+                            <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+                            {{ form_widget(form.typeOperation, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_dossier{%endtrans%} (*)</label>
+                            {{ form_errors(form.typeDossier,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.typeDossier, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}forme_juridique{%endtrans%} (*)</label> 
+                            {{ form_errors(form.formeJuridique,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">        
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}denomination{%endtrans%} (*)</label> 
+                            {{ form_errors(form.denominationSociale,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}nom_commercial{%endtrans%}</label> 
+                            {{ form_errors(form.nomCommercial,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.nomCommercial, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}email{%endtrans%} (*)</label> 
+                            {{ form_errors(form.email,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label>{%trans%}adresse{%endtrans%} (*)</label> 
+                            {{ form_errors(form.adresseSiege,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.adresseSiege, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="checkbox col-sm-6">
+                            <label for="isAguipe  col-sm-4">
+                                <input type="checkbox" id="isAguipe" name="isAguipe" data-isaguipe="{{aguipeExit}}" />
+                                {%trans%}isAguipe{%endtrans%}
+                            </label>
+                        </div>
+                    </div>
+                    <fieldset>
+                        <legend>Renseignements relatifs au Promoteur</legend>
+                        <div class="row">
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}nom{%endtrans%} (*)</label> 
+                                <input type="text" id="nom" name="nom" class="form-control" value="{%if representant%}{{representant.nom}}{%endif%}" required="true">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}prenom{%endtrans%} (*)</label> 
+                                <input type="text" id="prenom" name="prenom" class="form-control" value="{%if representant%}{{representant.preNom}}{%endif%}" required="true">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}date_naissance{%endtrans%} (*)</label>
+                                <div class="input-group date" id="datetimepicker1"> 
+                                    <input type="text" id="dateNaissance" name="dateNaissance" class="datepicker form-control" value="{%if representant%}{{representant.dateDeNaissance|date('d-m-Y')}}{%endif%}" required="true">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}Adresse{%endtrans%} (*)</label> 
+                                <input type="text" id="adresse" name="adresse" class="form-control" value="{%if representant%}{{representant.adresse}}{%endif%}" required="true">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}Téléphone{%endtrans%} (*)</label> 
+                                <input type="text" id="telephone" name="telephone" class="form-control" value="{%if representant%}{{representant.telephone}}{%endif%}" required="true">
+                            </div>
+                        </div>
+                    </fieldset>
+					
+					
+					<div class="row" >					
+						<div class="checkbox col-sm-6">						
+							<label for="notification col-sm-4" style="margin-bottom:20px">
+								<input type="checkbox" id="notification" name="notification" />
+								<b>{%trans%}notification{%endtrans%}</b>
+							</label>
+						</div>
+					</div>
+					
+					<div class="notifications" id="blockNotifications">	
+						<fieldset>
+							<legend>{%trans%}notification{%endtrans%}</legend>
+							<div class="row">
+								<div class="form-group col-sm-4">
+									<label>{%trans%}notification_sms{%endtrans%}</label> 
+									{{ form_widget(form.telephonePromoteur, {'attr': {'class': 'form-control', 'id':'telephonePromoteur'}}) }}
+								</div>
+								<div class="form-group col-sm-4">
+									<label>{%trans%}notification_email{%endtrans%}</label> 
+									{{ form_widget(form.emailPromoteur, {'attr': {'class': 'form-control', 'id':'emailPromoteur'}}) }}
+								</div>
+							</div>
+						</fieldset>
+					</div>
+					
+					
+					
+
+                    <div>
+                        {% if dossierDemande.statut==-2%}
+                            <input  class = "btn btn-success" type = "submit" value = "{{'enregistrer'|trans}}"/>
+                        {%endif%}                       
+                    </div>
+
+
+                    {{ form_end(form) }}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        
+		$(function () {
+		
+		//$("#banquemondialebundle_dossierDemandeDepot_email").removeAttr("required");
+		
+		
+
+            var telPromoteur = $("#banquemondialebundle_dossierDemandeDepot_telephonePromoteur").val();
+            var mailPromoteur = $("#banquemondialebundle_dossierDemandeDepot_emailPromoteur").val();
+
+            if (telPromoteur != '' || mailPromoteur != '')
+            {
+                $("#blockNotifications").css('display', 'block');
+                document.getElementById("notification").checked = true;
+            }
+
+            $('#simpleForm input').on('change', function () {
+                if (document.getElementById("notification").checked == true)
+                {
+                    $("#blockNotifications").css('display', 'block');
+                }
+                else {
+                    $("#blockNotifications").css('display', 'none');
+                }
+            });
+
+       
+		
+		
+		
+		
+            var dt = new Date();
+             dt.setFullYear(new Date().getFullYear()-18);		
+             $('#datetimepicker1').datetimepicker({ 
+			 ignoreReadonly: true, 
+			 locale: 'fr',
+			 format: 'DD-MM-YYYY', 
+			 minDate : '1901-01-01',
+			 maxDate : dt, 
+			 useCurrent: false 
+			 }).on('dp.show', function() {
+		return $(this).data('DateTimePicker').defaultDate(dt);
+		});
+/*
+        var da = "{{'now'|date('Y') -18 }}";
+        $(function () {
+            var dt = new Date();
+             dt.setFullYear(new Date().getFullYear()-18);		
+             $('#datetimepicker1').datetimepicker({ ignoreReadonly: true, locale: 'fr',format: 'DD-MM-YYYY', minDate : '01-01-1901',maxDate : dt, useCurrent: false });
+*/
+			 /*
+            $('#datetimepicker1').datetimepicker({ignoreReadonly: true, locale: 'fr', format: 'DD-MM-YYYY', maxDate: da}).attr('readonly', 'true').
+                    keypress(function (event) {
+                        if (event.keyCode == 8 || event.keyCode == 7 || event.keyCode == 9) {
+                            event.preventDefault();
+                        }
+                    });
+					*/
+        });
+
+        /*$(function () {
+         $('#datetimepicker').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+         }
+         );*/
+        $(document).ready(function () {
+            var isAguipe = $("#isAguipe").attr('data-isaguipe');
+            if (isAguipe == 1) {
+                $("#isAguipe").attr('checked', true)
+            }
+        });
+        $("#btnValider").click(function () {
+            //
+            var urlAction = $(this).attr('data-action');
+            $("#simpleForm").attr('action', urlAction);
+            $("#simpleForm").submit();
+        });
+        //depot_valider
+    </script>
+{%endblock %}

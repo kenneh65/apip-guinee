@@ -1,0 +1,103 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}administration_messagerie_titre{%endtrans%}{% endblock %}
+
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':5})) }}
+{%endblock%}
+
+{% block body%}
+   <div class="col-lg-12">
+            {% for message in app.session.flashbag.get('info') %}            
+                <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>{{ message }}</strong>
+                </div>
+            {% endfor %} 
+                <div class="hpanel">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h1 class="page-header">
+                                   {%trans%}administration_messagerie_titre{%endtrans%}
+                                </h1>
+                                <ol class="breadcrumb">
+                                    <li>
+                                           <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                                    </li>
+								    <li>
+                                       &nbsp;&nbsp;{%trans%}administration_messagerie_titre{%endtrans%}
+                                    </li>	
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                     {{ form_start(edit_form,{'attr':{'name':'simpleForm','id':'simpleForm','class':'well col-sm-12'}}) }}
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.mailerHost) }} 
+                                {{ form_errors(edit_form.mailerHost,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.mailerHost, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.expediteurEmail) }} 
+                                {{ form_errors(edit_form.expediteurEmail,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.expediteurEmail, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.expediteurName) }} 
+                                {{ form_errors(edit_form.expediteurName,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.expediteurName, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.mailerPort) }} 
+                                {{ form_errors(edit_form.mailerPort,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.mailerPort, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.mailerUser) }} 
+                                {{ form_errors(edit_form.mailerUser,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.mailerUser, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="form-group col-sm-12">
+                                {{ form_label(edit_form.mailerPassword) }} 
+                                {{ form_errors(edit_form.mailerPassword,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                                {{ form_widget(edit_form.mailerPassword, {'attr': {'class': 'form-control','value':messagerie.mailerPassword}}) }}
+                            </div>
+                              <div class="form-group col-sm-12">
+                            <p class="text-info pull-left">(*) : {%trans%}obligatoire{%endtrans%}</p><br/>
+                            <br />
+                                <br />
+                                <br />
+                                <input style = "width:100px;" class = "btn btn-success form-control col-sm-3" type = "submit" id="enregistrer" value = "{%trans%}enregistrer{%endtrans%}"/>	              
+                            </div>
+							<div class = "col-sm-12">
+								<a href="{{ path('messagerie_teste') }}"  class = "pull-right">{%trans%}tester_messagerie{%endtrans%}</a>
+							</div>	
+                             {{ form_end(edit_form) }}
+                    </div>
+                </div>
+            </div>
+
+                       
+{% endblock %}
+{%block javascripts%}
+            {{parent()}}
+            <script>
+            $(function () {
+             $("#enregistrer").click(function () {
+                if (!$("#messagerie_expediteurEmail").val().match(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i))
+                {
+                    toastr.warning('{{"aide.email_invalide"|trans}}');
+                    return false;
+                }
+                 if (!$("#messagerie_mailerUser").val() and !$("#messagerie_mailerUser").val().match(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i))
+                {
+                    toastr.warning('{{"aide.email_invalide"|trans}}');
+                    return false;
+                }
+                
+            }
+            );
+            })
+            </script>
+            {%endblock%}

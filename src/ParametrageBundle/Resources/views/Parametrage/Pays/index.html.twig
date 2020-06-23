@@ -1,0 +1,182 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}titre_page_pays{%endtrans%}{% endblock %}
+
+{%block active%}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+
+{%endblock%}
+{% block body%}
+
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}liste_pays{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                &nbsp;&nbsp;{%trans%}pays{%endtrans%}
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>			
+            <div class="panel-body">
+                <div style="margin-left:15px"> <a href="{{path('pays_new')}}" class="btn btn-default"><i class="fa fa-plus"></i>&nbsp;&nbsp;{%trans%}ajouter_pays{%endtrans%}</a></div>
+			<hr/>
+                {%if pays | length!=0%}
+                    <table id="countries" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>{%trans%}pays.libelle{%endtrans%}</th>
+								<th>{%trans%}nationalite{%endtrans%}</th>
+								<th>{%trans%}code{%endtrans%}</th>
+                                <th>{%trans%}action{%endtrans%}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+							
+							 {% for item in pays %}
+                                <tr class="" id="{{ item.id }}">
+                                    <td>{{ item.libelle }}</td>
+									<td>{{ item.nationalite }}</td>
+									
+                                    <td class = "code" >
+                                        {{ item.pays.code }}
+                                    </td>
+                                    <td>
+                                        <a style = "margin-right:15px;" href = "{{path('pays_show',{'id':item.id})}}" title = "{{'modifier'|trans}}" ><i class="fa fa-pencil"></i></a>	
+                                        <!--a href="#" title="{{'supprimer'|trans}}" class="supprimer" data-id="{{item.id}}"><i class="fa fa-remove"></i></a-->
+										{%if item.pays.actif %}
+											<a href="#" title="{%trans%}desactiver{%endtrans%}"><i class="fa fa-remove desactiverPays"  data-id="{{item.pays.id}}"></i></a>
+										{% else %}	
+											<a href="#" title="{%trans%}activer{%endtrans%}"><i class="fa fa-check activerPays" data-id="{{item.pays.id}}"></i></a>
+										{% endif %}
+										
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {%else%}
+                    <div class="alert alert-info">{%trans%}aucun_pays{%endtrans%}</div>
+                {%endif%}
+
+               
+
+            </div></div></div>
+        {% endblock %}
+        {%block javascripts%}
+            {{parent()}}
+    <script type="text/javascript">
+
+        $(function () {
+		
+		 $('.supprimer').click(function(){
+				var entityId = '';
+				entityId = $(this).attr('data-id');
+				var url = '{{path("pays_delete",{"id":"entityId"})}}'; 
+				
+						
+				swal({
+					title: "{{'message_confirmation'|trans}}",
+					text: "{{'message_confirmer_suppression'|trans}}",
+               
+					showCancelButton: true,
+					confirmButtonColor: "#3f5872",                
+					cancelButtonText: "{{'annuler'|trans}}",
+					confirmButtonText: "{{'confirm_suppression'|trans}}",		
+					},
+					function () {
+					url = url.replace("entityId", entityId );
+					window.location.replace(url);
+					});
+			});
+			
+			$('.desactiverPays').click(function(){
+		var paysId = '';
+		paysId = $(this).attr('data-id');
+		var url = '{{ path("Pays_toggle",{"id":"paysId"} ) }}'; 
+		
+					swal({
+					title: "{{'message_confirmer_desactivation_titre'|trans}}",
+					text: "{{'message_confirmer_desactivation'|trans}}",
+               
+					showCancelButton: true,
+					confirmButtonColor: "#3f5872",                
+					cancelButtonText: "{{'annuler'|trans}}",
+					confirmButtonText: "{{'confirm_desactivation'|trans}}",		
+					},
+					function () {
+					url = url.replace("paysId", paysId );
+					window.location.replace(url);
+					});
+			});			
+			
+$('.activerPays').click(function(){
+		var paysId = '';
+		paysId = $(this).attr('data-id');
+		var url = '{{ path("Pays_toggle",{"id":"paysid"} ) }}'; 
+		
+					swal({
+					title: "{{'message_confirmation'|trans}}",
+					text: "{{'message_confirmer_activation'|trans}}",
+               
+					showCancelButton: true,
+					confirmButtonColor: "#3f5872",                
+					cancelButtonText: "{{'annuler'|trans}}",
+					confirmButtonText: "{{'confirm_activation'|trans}}",		
+					},
+					function () {
+					url = url.replace("paysid", paysId );
+					window.location.replace(url);
+					});
+			});
+
+			
+			
+			
+            $('#countries').DataTable({"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],"language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
+				
+           
+			
+			
+ 
+		
+        })
+    </script>
+{%endblock%}

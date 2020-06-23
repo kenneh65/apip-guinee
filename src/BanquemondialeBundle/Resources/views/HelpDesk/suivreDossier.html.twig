@@ -1,0 +1,217 @@
+{% extends '::base.html.twig' %}
+
+{% block body %}
+    <div class="container" style="width:100%">
+
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>{%trans%}suivre_dossier{%endtrans%}</h1>
+                    <ol class="breadcrumb">
+                        <li>
+                            <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                        </li>                              
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+
+        <div class="col-md-12" style="margin:0 0 20px 0">
+
+            <form method="POST" {{ form_enctype(form) }}>
+
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}numero_dossier{%endtrans %}</label> 								
+                        {{ form_widget(form.numeroDossier, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}denomination{%endtrans %}</label>
+                        {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}forme_juridique{%endtrans %}</label>  
+                        {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}statut_traitement{%endtrans %}</label>                         
+                        {{ form_widget(form.statut, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                     {%if isSiege%}
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}structure_appartenance{%endtrans %}</label>                         
+                        {{ form_widget(form.structure, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    {%endif%}
+                    <div class="form-group col-sm-4">
+                        <label>{%trans%}type_dossier{%endtrans %}</label>                         
+                        {{ form_widget(form.typeDossier, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    
+                    <div class="form-group col-sm-2">
+                        <label>{%trans%}date_debut_creation{%endtrans %}</label>                                
+                        <div class="input-group date" id="datetimepicker1">
+                            {{ form_widget(form.dateCreationDebut, {'attr': {'class': 'datepicker1 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label>{%trans%}date_fin_creation{%endtrans %}</label> 
+                        <div class="input-group date" id="datetimepicker2">
+                            {{ form_widget(form.dateCreationFin, {'attr': {'class': 'datepicker2 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>                  
+                    <div class="form-group col-sm-2">
+                        <label>{%trans%}date_debut_delivrance{%endtrans %}</label>                                
+                        <div class="input-group date" id="datetimepicker3">
+                            {{ form_widget(form.dateDelivranceDebut, {'attr': {'class': 'datepicker3 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2">
+                        <label>{%trans%}date_fin_delivrance{%endtrans %}</label> 
+                        <div class="input-group date" id="datetimepicker4">
+                            {{ form_widget(form.dateDelivranceFin, {'attr': {'class': 'datepicker4 form-control'}}) }}
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label>{{ 'Status retrait' }}</label>
+                        {{ form_widget(form.statusRetrait, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                </div>
+                            
+                {% do form.id.setRendered %}                
+                {%if not isSiege%}{% do form.structure.setRendered %}{%endif%}
+                <button type="submit"  class="btn btn-info pull-right" >{%trans%}search{%endtrans %} <span class="glyphicon glyphicon-search"></span></button>
+                <br/>
+                {{ form_rest(form) }} 
+            </form>
+        </div>
+
+
+
+        <div>		
+            <table id="dossiers" class="table table-bordered table-responsive">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{%trans%}numero_dossier{%endtrans %}</th>
+                        <th>{%trans%}forme_juridique{%endtrans %}</th>          
+                        <th>{%trans%}denomination{%endtrans %}</th>
+                        <th>{%trans%}message_statut{%endtrans %}</th>
+                        <th>{%trans%}date_creation{%endtrans %}</th>
+                        {%if isSiege%}
+                        <th>{%trans%}entreprise{%endtrans%}</th>                       
+                        {%endif%}
+                        <th>{%trans%}type_dossier{%endtrans%}</th>
+                        <th>{%trans%}date_delivrance{%endtrans %}</th>
+                        <th>Status retrait</th>
+                    </tr>
+                </thead>
+                {% for dd in listDossier %}
+                    <tr {%if dd.orange%} style="color:orange"{%elseif dd.red%}style="color:red"{%endif%}>
+                        <td>
+                            <a href="{{path('situationTraitementDossier',{'idd':dd.id})}}" title="dossier" class="">
+                                <span class='glyphicon glyphicon-folder-close'></span>
+                            </a>
+                        </td>
+                        <td>{{ dd.numeroDossier }}</td>
+                        <td>{{ dd.libelleFormeJ }}</td>          
+                        <td>{{ dd.denominationSociale }}</td>
+                        <td>
+                            {%if dd.statut==2%}{%trans%}message_delivre{%endtrans%}
+                            {%elseif dd.statut==1%}{%trans%}message_en_cours{%endtrans%}
+                            {%elseif dd.statut==3%}{%trans%}message_en_modification{%endtrans%}
+                        {%elseif dd.statut==4%}{%trans%}message_modifie{%endtrans%}{%endif%}
+                    </td>
+                    <td>{% if dd.dateCreation %}{{ dd.dateCreation|date('d-m-Y H:i:s') }}{% endif %}</td>
+                    {%if isSiege%}
+                        <td>{{dd.structure}}</td>
+                    {%endif%}
+                    <td>{{dd.typeDossier}}</td>
+                    <td>{% if dd.dateDelivrance %}{{ dd.dateDelivrance|date('d-m-Y H:i:s') }}{% endif %}</td>
+
+                        <td
+                                {% if dd.statusRetrait==true %}
+                            style="color: #00af5d;font-weight: bold"
+                        {% else %}
+                            style="color: red;font-weight: bold"
+                                {% endif %}>
+                            {% if dd.statusRetrait==true %}
+                                {{ 'Dossier retiré' }}
+                            {% else %}
+                                {{ 'Dossier non retiré' }}
+                            {% endif %}
+                        </td>
+                </tr>                
+            {% endfor %}
+
+        </table>
+        <div class="row">
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{%block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+        $(function () {
+            $('#dossiers').DataTable({"bInfo": false, "lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]], bFilter: false, "language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'aucun_resultat'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+            $('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+            $('#datetimepicker3').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+            $('#datetimepicker4').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+        }
+        );
+    </script>
+
+
+{% endblock %}

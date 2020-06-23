@@ -1,0 +1,286 @@
+{% extends "::base.html.twig" %}
+{% block title %}{%trans%}depot_page_title{%endtrans%}{% endblock %}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':4})) }}
+{% endblock %}                     
+
+{% block body %}
+    <style>
+        .notifications
+        {
+            display:none;
+        }
+    </style>
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}depot_page_title{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>                            
+                            <li>
+                                <i>{%trans%}depot_dossier{%endtrans%}</i>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <div class="panel-body">
+                    {% if message %}
+                        <p class="alert alert-success">{{ message }}</p>
+                    {% endif %}
+                    {{ form_start(form,{'attr':{'name':'simpleForm','id':'simpleForm'}}) }}                    
+                    <div class="row">
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_operation{%endtrans%} (*)</label>
+                            {{ form_errors(form.typeOperation,{'attr':{'class':'alert alert-danger'}}) }}   
+                            <img class='loading' style = "display:none;margin:auto;" src="{{ asset('loading.gif') }}" />
+                            {{ form_widget(form.typeOperation, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}type_dossier{%endtrans%} (*)</label>
+                            {{ form_errors(form.typeDossier,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.typeDossier, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}forme_juridique{%endtrans%} (*)</label> 
+                            {{ form_errors(form.formeJuridique,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">        
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}denomination{%endtrans%} (*)</label> 
+                            {{ form_errors(form.denominationSociale,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.denominationSociale, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{%trans%}nom_commercial{%endtrans%}</label> 
+                            {{ form_errors(form.nomCommercial,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.nomCommercial, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label>{% trans %}email{% endtrans %} (*)</label>
+                            {{ form_errors(form.email,{'attr':{'class':'alert alert-danger'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label>{%trans%}adresse{%endtrans%} (*)</label> 
+                            {{ form_errors(form.adresseSiege,{'attr':{'class':'alert alert-danger'}}) }}                                            
+                            {{ form_widget(form.adresseSiege, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="checkbox col-sm-6">
+                            <label for="isAguipe col-sm-4" style="margin-bottom:20px">
+                                <input type="checkbox" id="isAguipe" name="isAguipe" />
+                                <b>{%trans%}isAguipe{%endtrans%}</b>
+                            </label>
+                        </div>
+                    </div>
+                    <fieldset>
+                        <legend>{%trans%}renseignement_relatif_gerant{%endtrans%}</legend>
+                        <div class="row">
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}nom{%endtrans%} (*)</label> 
+                                <input type="text" id="nom" name="nom" class="form-control" value="" required="true">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}prenom{%endtrans%} (*)</label> 
+                                <input type="text" id="prenom" name="prenom" class="form-control" value="" required="true">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}date_naissance{%endtrans%} (*)</label>
+                                <div class="input-group date" id="datetimepicker1">
+                                    <input type="date" id="dateNaissance" name="dateNaissance" class="form-control"
+                                           value="" required="true">
+                                    {#                                    <span class="input-group-addon">#}
+                                    {#                                        <span class="glyphicon glyphicon-calendar"></span>#}
+                                    {#                                    </span>#}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-4">
+                                <label>{%trans%}Adresse{%endtrans%} (*)</label> 
+                                <input type="text" id="adresse" name="adresse" class="form-control" value="" required="true">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label>{% trans %}Téléphone{% endtrans %} (*)</label>
+                                <input type="text" id="telephone" name="telephone" class="form-control" value=""
+                                       placeholder="(+224) 999-99-99-99" required="true">
+                            </div>
+                            {#                            pattern="^(\((\+|00)[0-9]{2,5}\))([0-9 ]{1,20})$"#}
+                        </div>
+                    </fieldset>
+
+                    <div class="row" >					
+                        <div class="checkbox col-sm-6">						
+                            <label for="notification col-sm-4" style="margin-bottom:20px">
+                                <input checked disabled type="checkbox" id="notifications" name="notification"/>
+                                <b>{%trans%}notification{%endtrans%}</b>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display: none" class="notifications" id="blockNotifications">
+                        <fieldset>
+                            <legend>{%trans%}notification{%endtrans%}</legend>
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <label>{%trans%}notification_sms{%endtrans%}</label> 
+                                    {{ form_widget(form.telephonePromoteur, {'attr': {'class': 'form-control', 'id':'telephonePromoteur'}}) }}
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <label>{%trans%}notification_email{%endtrans%}</label> 
+                                    {{ form_widget(form.emailPromoteur, {'attr': {'class': 'form-control', 'id':'emailPromoteur'}}) }}
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <p class="text-info pull-left">(*) :  {%trans%}message_obligatoire{%endtrans%}</p><br/>
+                    </div>
+                    <div>                  
+                        <input class = "btn btn-info" type = "submit" value = "{{'enregistrer'|trans}}"/>            
+                        <a href = "{{path('administration')}}"  class = "btn btn-default">{%trans%}annuler{%endtrans%}</a>                      
+                    </div>
+                    {{ form_end(form) }}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+
+        {#    #}
+        {#        //var da = "{{'now'|date('Y') -18 }}";#}
+        {#        //var dt = new Date();#}
+        {#        //dt.setFullYear(new Date().getFullYear()-18);#}
+        {#        $(function () {#}
+
+        {#           // $("#banquemondialebundle_dossierDemandeDepot_email").removeAttr("required");#}
+
+
+
+
+        {#            $('#simpleForm input').on('change', function () {#}
+        {#                if (document.getElementById("notification").checked == true)#}
+        {#                {#}
+        {#                    $("#blockNotifications").css('display', 'block');#}
+        {#                }#}
+        {#                else {#}
+        {#                    $("#blockNotifications").css('display', 'none');#}
+        {#                    $("#banquemondialebundle_dossierDemandeDepot_telephonePromoteur").val("");#}
+        {#                    $("#banquemondialebundle_dossierDemandeDepot_emailPromoteur").val("");#}
+        {#                }#}
+
+        {#            });#}
+
+        {#            var dt = new Date();#}
+        {#            dt.setFullYear(new Date().getFullYear() - 18);#}
+        {#            // $('#datetimepicker1').datetimepicker({#}
+        {#            //     ignoreReadonly: true,#}
+        {#            //     locale: 'fr',#}
+        {#            //     format: 'DD-MM-YYYY',#}
+        {#            //     minDate: '1901-01-01',#}
+        {#            //     maxDate: dt,#}
+        {#            //     useCurrent: false#}
+        {#            // }).on('dp.show', function () {#}
+        {#            //     return $(this).data('DateTimePicker').defaultDate(dt);#}
+        {#            // });#}
+
+        {#        });#}
+
+        $('#simpleForm').submit(function (e) {
+            e.preventDefault();
+            swal({
+            title: "{{'message_confirmation'|trans}}    ",
+            text: "{{'message_confirmer_depot'|trans}}",
+                showCancelButton: true,
+                confirmButtonColor: "#3f5872    ",
+            cancelButtonText: "{{'annuler'|trans}}    ",
+            confirmButtonText: "{{'message_confirmer'|trans}}",
+            },
+                    function () {
+                        $('#simpleForm').submit();
+                        document.forms["simpleForm"].submit();
+                        return true;
+                    });
+        });
+
+    </script>
+
+
+    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>
+    <script type="application/javascript">
+
+        const isNumericInput = (event) => {
+            const key = event.keyCode;
+            return ((key >= 48 && key <= 57) || // Allow number line
+                (key >= 96 && key <= 105) // Allow number pad
+            );
+        };
+
+        const isModifierKey = (event) => {
+            const key = event.keyCode;
+            return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+                (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+                (key > 36 && key < 41) || // Allow left, up, right, down
+                (
+                    // Allow Ctrl/Command + A,C,V,X,Z
+                    (event.ctrlKey === true || event.metaKey === true) &&
+                    (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+                )
+        };
+
+        const enforceFormat = (event) => {
+            // Input must be of a valid number format or a modifier key, and not longer than ten digits
+            if (!isNumericInput(event) && !isModifierKey(event)) {
+                event.preventDefault();
+            }
+        };
+
+        const formatToPhone = (event) => {
+            if (isModifierKey(event)) {
+                return;
+            }
+
+            // I am lazy and don't like to type things more than once
+            const target = event.target;
+            const input = event.target.value.replace(/\D/g, '').substring(0, 12); // First ten digits of input only
+            const zip = '224';
+            const middle = input.substring(3, 6);
+            const middle1 = input.substring(6, 8);
+            const middle2 = input.substring(8, 10);
+            const middle3 = input.substring(10, 12);
+
+
+            if (input.length > 10) {
+                target.value = `(+${zip}) ${middle}-${middle1}-${middle2}-${middle3}`;
+            } else if (input.length > 7) {
+                target.value = `(+${zip}) ${middle}-${middle1}-${middle2}`;
+            } else if (input.length > 5) {
+                target.value = `(+${zip}) ${middle}-${middle1}`;
+            } else if (input.length > 0) {
+                target.value = `(+${zip}) ${middle}`;
+            }
+        };
+
+        const inputElement = document.getElementById('telephone');
+        inputElement.addEventListener('keydown', enforceFormat);
+        inputElement.addEventListener('keyup', formatToPhone);
+    </script>
+{%endblock %}

@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{%trans%}liste_utilisateurs_titre {%endtrans%} {% endblock %}
+{%block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':5})) }}
+{%endblock %}
+{%block body %}
+    <div class="col-lg-12">
+        {% for message in app.session.flashbag.get('info') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %} 
+		
+		{% for message in app.session.flashbag.get('error') %}            
+            <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}			
+        <div class="hpanel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">
+                            {%trans%}liste_utilisateurs_titre{%endtrans%}
+                        </h1>
+                        <ol class="breadcrumb">
+                            <li>
+                                <i class="fa fa-dashboard"></i>  <a href="{{path('administration')}}">{%trans%}dashboard{%endtrans%}</a>
+                            </li>
+                            <li>
+                                <i>{%trans%}utilisateurs{%endtrans%}</i>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left:15px"> 
+                <a href="{{ path('utilisateurs_new') }}" class="btn btn-default"><i class="fa fa-plus"></i>&nbsp;&nbsp;{{'nouvel_utilisateur_titre'|trans}}</a>
+                <hr/>
+            </div>
+            <div class="panel-body ">
+
+                <table class="table table-responsive table-bordered" id="users">
+                    <thead>
+                        <tr>
+                            <th>{%trans%}utilisateur.prenom{%endtrans%}</th>
+                            <th>{%trans%}utilisateur.nom{%endtrans%}</th>
+                            <th>{{"nom_utilisateur" |trans}}</th>
+                            <th>{{'email'|trans}}</th>
+                                {%if is_granted('ROLE_SUPER_ADMIN')%}
+                                <th>{%trans%}pole{%endtrans%} | {%trans%}entreprise{%endtrans%}</th>
+                                {%endif%}
+                            <th>{%trans%}profil{%endtrans%}</th>
+                            <th>{%trans%}Statut{%endtrans%}</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for utilisateur in utilisateurs %}
+                            {%if app.user != utilisateur%}
+                                <tr>
+                                    <td>{{utilisateur.prenom}}</td>
+                                    <td>{{utilisateur.nom}}</td>
+                                    <td>{{utilisateur.username}}</td>
+                                    <td>{{utilisateur.email}}</td>
+                                    {%if is_granted('ROLE_SUPER_ADMIN')%}
+                                        <td>
+                                            {%if utilisateur.entreprise %}
+                                                {{utilisateur.entreprise.denomination}}
+                                            {%elseif utilisateur.pole%}
+                                                {{utilisateur.pole.nom|trans}}                                           
+                                            {%endif%}
+                                        </td>
+                                    {%endif%}
+                                    <td>{% if utilisateur.profile%}{{utilisateur.profile.nom}}{%endif%}</td>
+                                    <td>
+                                        {%if utilisateur.enabled%}
+                                            {{'message_actif'|trans}}
+                                        {%else%}
+                                            {{'message_inactif'|trans}}
+                                        {%endif%}
+                                    </td>
+                                    <td>
+                                        <a title="{%trans%}details{%endtrans%}" href="{{ path('utilisateurs_show', { 'id': utilisateur.id }) }}"><i class="fa fa-eye"></i></a>&nbsp;&nbsp;
+                                        <a title="{%trans%}modifier{%endtrans%}" href="{{ path('utilisateurs_edit', { 'id': utilisateur.id }) }}"><i class="fa fa-pencil"></i></a>&nbsp;&nbsp;								
+                                            {%if utilisateur.enabled %}
+                                            <a href="#" title="{%trans%}desactiver{%endtrans%}"><i class="fa fa-remove desactiverUtilisateur"  data-id="{{utilisateur.id}}"></i></a>
+                                            {% else %}	
+                                            <a href="#" title="{%trans%}activer{%endtrans%}"><i class="fa fa-check activerUtilisateur" data-id="{{utilisateur.id}}"></i></a>
+                                            {% endif %}	                                   
+                                    </td>
+                                </tr>
+                            {%endif%}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{%endblock %}
+
+{%block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+
+        $(function () {
+
+
+            $('.desactiverUtilisateur').click(function () {
+                var utilisateurId = '';
+                utilisateurId = $(this).attr('data-id');
+                var url = '{{ path("utilisateur_toggle",{"id":"utilisateurid"} ) }}';
+
+                swal({
+                    title: "{{'message_confirmer_desactivation_titre'|trans}}",
+                    text: "{{'message_confirmer_desactivation'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_desactivation'|trans}}",
+                },
+                        function () {
+                            url = url.replace("utilisateurid", utilisateurId);
+                            window.location.replace(url);
+                        });
+            });
+
+            $('.activerUtilisateur').click(function () {
+                var utilisateurId = '';
+                utilisateurId = $(this).attr('data-id');
+                var url = '{{ path("utilisateur_toggle",{"id":"utilisateurid"} ) }}';
+
+                swal({
+                    title: "{{'message_confirmation'|trans}}",
+                    text: "{{'message_confirmer_activation'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_activation'|trans}}",
+                },
+                        function () {
+                            url = url.replace("utilisateurid", utilisateurId);
+                            window.location.replace(url);
+                        });
+            });
+
+
+            $('#users').DataTable({"language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+
+                }});
+        });
+    </script>
+{%endblock %}

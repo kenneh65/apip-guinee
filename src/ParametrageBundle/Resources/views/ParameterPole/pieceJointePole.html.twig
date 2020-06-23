@@ -1,0 +1,69 @@
+{% extends '::base.html.twig' %}
+
+
+{%block title%}liste_piece_jointe{%endblock%}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':2})) }}
+
+{% endblock %}
+{% block body %}
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    {%trans%}piece_jointe{%endtrans%} <label class="pull-right h4" style="color: #d44">{%trans%}message_dossier{%endtrans%} n° {{dd.numeroDossier}}</label>
+                </h1>
+                {% block sousMenu %}
+                    {{ render(controller("BanquemondialeBundle:Shared:etapeCreationPole",{'idd':idd})) }}
+                {% endblock %}                        
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">              
+
+        <fieldset style="padding: 20px; margin: 10px 0; border: 1px silver solid;" class="scheduler-border">
+            <legend class="scheduler-border" style="width: auto !important;
+                    border: none;font-size: 14px;font-weight:bold;border: solid 1px #DDD !important; padding: 5px 10px 5px 10px;
+                    border-bottom: none;">{%trans%}entreprise{%endtrans%}</legend>  
+
+            <table class="table-responsive table-striped table table-bordered" >
+                <thead>
+                    <tr>
+                        <th>{%trans%}document{%endtrans%}</th>                            
+                        <th style="width:50px"></th>                                
+                    </tr>
+                </thead>                
+                {% for a in listPieceEntreprise %}
+                    <tr>                                                   
+                        <td>{{ a.libelleDocument }}</td>
+                        <td>                                  								
+                            <a href = "{{ path('piecejointe_viewpdf', { 'idd': dd.id, 'pdfName': a.pieceName }) }} " target="_blank" class="btn btn-default btn-file glyphicon glyphicon-search"></a>								
+                        </td>																		
+                    </tr>   
+                {% endfor %}
+
+            </table> 
+
+        </fieldset>
+        <div class="row pull-right">
+                
+    {% if routeAvant %}<input class="btn btn-primary btn-goto" style="width: 100px" value="{{'precedent'|trans}}" type="button" data-url="{{path(routeAvant,{'idd':idd})}}" />{% endif %}
+    {% if rteSuivant %}<input class="btn btn-info btn-goto" style="width: 100px" value="{{'suivant'|trans}}" type="button" data-url="{{path(rteSuivant,{'idd':idd})}}" />{% endif %}
+            </div>
+    </div>
+
+
+{% endblock %}
+{% block javascripts %}
+    {{parent()}}
+    <script type="text/javascript">
+        $(".btn-goto").click(function () {
+            var url = $(this).attr('data-url');
+            window.location.href = url;
+        });
+    </script>
+
+{% endblock %}
+
+
+

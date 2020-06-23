@@ -1,0 +1,238 @@
+<page backtop="14mm" backbottom="14mm" backleft="14mm" backright="14mm">
+    <style>
+	body{
+		font-size:20px;
+	}
+	.blocHeader{
+		border:1px black solid;
+		font-weight:bold;
+		text-align:center;
+		width:100%;
+	}
+	
+	.blocHeaderNotaire{
+		border:4px black double;
+		font-weight:bold;
+		text-align:center;
+		width:400px;
+		margin:30px 0 0 120px;
+		padding:5px;		
+		background-color:#e8e8e8;
+	}
+	
+	.bandeGrise
+	{
+		background-color:#e8e8e8;
+		text-align:center;
+		padding:2px;
+		font-size:20px;
+		font-weight:bold;
+		margin:20px 0 0 0;
+	}
+
+    </style>
+		<div>
+		<img src="{{asset('img/apip.png')}}" width="151" height="120" style="margin:0 140px 0 0"/> 
+		<img src="{{asset('img/armoirie_guinee.jpg')}}" width="131" height="120" style=" float:right; margin:-119 0px 0 0;"/> 
+		{%if isQrCode %}{#<img src="{{asset('img/qrcode.png')}}" width="80" height="80"/>#}{%endif%} 
+		{#<img src="{{ qrcode_data_uri('test', { writer: 'svg', size: 150 }) }}" />#}				
+		</div>	
+		<br/>
+		<h1 style="text-align:center">PUBLICATIONS LEGALES</h1>	
+		<br/>
+	{% if typeAnnonce == 'individuel' %}
+
+		{% for annonce in annonces%}
+			<div class="corpsAnnonce">			
+				<div style="text-align:center">
+					<b><u style="font-size: 25px;">AVIS DE CONSTITUTION</u></b><br/><br/>
+					
+					
+				</div>
+			    <br/>
+				Vu les pièces justificatives fournies, il a été constitué une entreprise individuelle suivant les caractéristiques ci-dessous:<br/><br/>
+				<b><u>DÉNOMINATION:</u></b> << {{annonce.denominationSociale|upper}} >> <br/><br/>
+				<b><u>SIÈGE SOCIAL:</u></b> {{annonce.adresseSiege|upper}} <br/><br/>
+				<b><u>OBJET:</u></b> {{annonce.libelleSecteurActivite}}{%if annonce.libelleActiviteSecondaire%}, {{annonce.libelleActiviteSecondaire}}{%endif%}{%if annonce.libelleActiviteSecondaire2%};{{annonce.libelleActiviteSecondaire2}}{%endif%}{%if annonce.detailsActivite%};{{annonce.detailsActivite}}{%endif%}<br/><br/>
+				<b><u>GÉRANT(E):</u></b> {{annonce.gerants[0].gerant|upper}}<br/><br/>
+				<b><u>TÉL:</u></b> {{annonce.telephoneEntreprise}}<br/><br/>
+				<b><u>N°FORMALITÉ:</u></b> {{annonce.numRccmFormalite}}<br/><br/>
+				<b><u>N°RCCM:</u></b> {{annonce.numRccmEntreprise}}<br/><br/>
+				<b><u>DATE RCCM:</u></b> {{annonce.dateRccm|date('d/m/Y')}}<br/>
+				
+			</div>
+			<br/><br/>
+
+			<div style="text-align:center;border-top:1px solid black;margin-top:350px;">
+					Agence de Promotion des Investissements Privés (APIP-Guinée)<br/>
+					252, rue KA022, Boulbinet, Commune de Kaloum BP:2024, Conakry Rép.de Guinée Tél: (+224) 656 31 11 14<br/>
+					E-mail: info@apip.gov.gn | sites web: www.apip.gov.gn<br/><br/>
+					Agrément: Arrêté N°5955|MJ|CAB|2012 du 21 mai 2012
+					
+				</div>
+		{% endfor %}
+	{% else %}
+		{% if typeDossier == "Sous seing privé"%}
+			{% for annonce in annonces%}
+				<div class="corpsAnnonce">
+					{#<div class="blocHeader">
+						<span style="font-size:22px;">{{annonce.denominationSociale}}</span><br/>
+						<span>
+							FORME JURIDIQUE: {{annonce.libelleFormeJuridique|upper}}<br/>
+							CAPITAL SOCIAL: {{annonce.capitalSocial|number_format(0, ',', '.')}} GNF<br/>
+							SIÈGE SOCIAL: {{annonce.adresseSiege|upper}}<br/>
+							{{annonce.numRccmEntreprise}} DU {{annonce.dateRccm|localizeddate('long','none','fr')}}
+						</span>
+					</div>
+					#}
+					<div style="margin:20px;text-align:center;font-weight:bold">
+						<u style="font-size: 20px;"> AVIS DE CONSTITUTION</u>
+					</div>
+					<div>
+						Au vu d’un acte sous seing privé, en date du {{annonce.dateRccm|date('d/m/Y')}},  il a été créé une société commerciale ayant les caractéristiques suivantes :<br/><br/>
+					</div>
+					<div style="font-size:14px">
+						<b><u>DÉNOMINATION SOCIALE</u>:</b> {{annonce.denominationSociale}}<br/><br/>
+						<b><u>FORME JURIDIQUE</u>:</b> {{annonce.sigleFormeJuridique}}<br/>
+						<b><u>CAPITAL SOCIAL</u>:</b> {{annonce.capitalSocial|number_format(0, ',', '.')}} GNF<br/><br/>
+						<b><u>SIÈGE SOCIAL</u>:</b> {{annonce.adresseSiege}}<br/><br/>
+						<b><u>ACTIVITÉ PRINCIPALE</u>:</b> {{annonce.libelleSecteurActivite}}{%if annonce.libelleActiviteSecondaire%};{{annonce.libelleActiviteSecondaire}}{%endif%}{%if annonce.libelleActiviteSecondaire2%};
+						{{annonce.libelleActiviteSecondaire2}}{%endif%}{%if annonce.detailsActivite%};{{annonce.detailsActivite}}{%endif%}<br/><br/>
+						<b><u>DURÉE</u>:</b> {{annonce.duree|localizednumber('spellout')|upper}} ({{annonce.duree}}) ans à partir de son immatriculation au RCCM <br/> <br/>
+						<b><u>EXERCICE SOCIAL</u>:</b> L’exercice social commence le premier Janvier et se termine le trente et un Décembre de chaque année.<br/>
+						<br/><br/>
+						{%for gerant in annonce.gerants%}
+						<b><u>{{gerant.fonctionGerant|upper}}</u>:</b> {{gerant.gerant}} demeurant &agrave; {{gerant.adresseGerant|capitalize}}<br/>
+						{%endfor%}
+						<br/><br/>
+						<b><u>N°FORMALITÉ</u>:</b><br/>
+						La Société a été immatriculée au Registre du Commerce et du Crédit Mobilier sous le numéro : {{annonce.numRccmEntreprise}} DU {{annonce.dateRccm|localizeddate('long','none','fr')}}
+						<br/><br/>
+						Deux copies des statuts et une copie de la déclaration de souscription et de versement ont été déposées au Greffe du Tribunal de Première Instance de KALOUM à Conakry.
+					</div>
+					<br/>
+					<b><u>N°RCCM:</u></b> {{annonce.numRccmEntreprise}}<br/><br/>
+					<b><u>DATE RCCM:</u></b> {{annonce.dateRccm|date('d/m/Y')}}<br/><br/>
+					<div style=""><b>Pour extrait et mention</b></div>
+					
+					<div style=""><b>M. {{annonce.gerants[0].gerant|upper}}, et par délégation Maitre Alsény FOFANA Greffier en chef.</b></div>
+
+				</div>
+				<br/><br/>
+
+				<div style="text-align:center;border-top:1px solid black;margin-top:90px;">
+					Agence de Promotion des Investissements Privés (APIP-Guinée)<br/>
+					252, rue KA022, Boulbinet, Commune de Kaloum BP:2024, Conakry Rép.de Guinée Tél: (+224) 656 31 11 14<br/>
+					E-mail: info@apip.gov.gn | sites web: www.apip.gov.gn<br/><br/>
+					Agrément: Arrêté N°5955|MJ|CAB|2012 du 21 mai 2012
+					
+				</div>
+			{% endfor %}
+		{% elseif typeDossier == "Notaire"%}
+			{% for annonce in annonces%}
+				<div class="corpsAnnonce">
+					{#<div class="blocHeaderNotaire">
+						<span style="font-size:20px;">ÉTUDE MAITRE {{annonce.denominationCabinet|upper}} <br/>NOTAIRE A CONAKRY</span><br/>
+							<span>
+								ADRESSE: {{annonce.adresseCabinet}}<br/>
+								TÉL: {{annonce.telephoneCabinet}}<br/>
+								EMAIL: {{annonce.emailCabinet}}<br/>
+							</span>
+						</div>
+						#}
+						
+					<div class="bandeGrise">
+						{{annonce.denominationSociale|upper}}
+					</div>
+					
+					<div style="margin:20px;text-align:center;font-weight:bold">
+						<u style="font-size: 20px;"> AVIS DE CONSTITUTION</u>
+					</div>
+
+					<div style="font-size:14px">
+						<b><u>DÉNOMINATION SOCIALE</u>:</b> {{annonce.denominationSociale}}<br/><br/>
+						<b><u>FORME JURIDIQUE</u>:</b> {{annonce.libelleFormeJuridique}} - {{annonce.sigleFormeJuridique}}<br/><br/>
+						<b><u>CAPITAL SOCIAL</u>:</b> {{annonce.capitalSocial|localizednumber("spellout","double","fr")|capitalize}} ({{annonce.capitalSocial|number_format(0, ',', '.')}}) francs Guinéens<br/><br/>
+						<b><u>SIÈGE SOCIAL</u>:</b> {{annonce.adresseSiege}}<br/><br/>
+						<b><u>OBJET SOCIAL</u>:</b> {{annonce.libelleSecteurActivite}}{%if annonce.libelleActiviteSecondaire%};{{annonce.libelleActiviteSecondaire}}{%endif%}{%if annonce.libelleActiviteSecondaire2%};
+						{{annonce.libelleActiviteSecondaire2}}{%endif%}{%if annonce.detailsActivite%};{{annonce.detailsActivite}}{%endif%}<br/><br/>
+						<b><u>MONTANT DES APPORTS EN NUMERAIRE</u>:</b> {{annonce.apportNumeraire|localizednumber("spellout","double","fr")|capitalize}} ({{annonce.apportNumeraire|number_format(0, ',', '.')}}) francs Guinéens<br/><br/>											
+						<b><u>DURÉE</u>:</b> {{annonce.duree|localizednumber('spellout')|upper}} ({{annonce.duree}}) ans à partir de son immatriculation au RCCM <br/><br/> 
+						<b><u>EXERCICE SOCIAL</u>:</b> L’exercice social commence le premier Janvier et se termine le trente et un Décembre de chaque année.<br/><br/>
+						{%for gerant in annonce.gerants%}
+						<b><u>{{gerant.fonctionGerant|upper}}</u>:</b> {{gerant.gerant}} demeurant &agrave; {{gerant.adresseGerant|capitalize}}<br/>
+						{%endfor%}
+						<br/><br/>
+						<b><u>RÉGISTRE DU COMMERCE ET DU CRÉDIT MOBILIER</u>:</b> Le dépôt légal a été effectué au Greffe du Tribunal de Première Instance de Kaloum Conakry le {{annonce.dateRccm|localizeddate('long','none','fr')}}
+						sous le numéro {{annonce.numRccmFormalite}} du {{annonce.dateRccm|localizeddate('long','none','fr')}}<br/><br/>						
+					</div>					
+				</div>
+				<br/><br/>
+				<div style="text-align:center;border-top:1px solid black;margin-top:90px;">
+					Agence de Promotion des Investissements Privés (APIP-Guinée)<br/>
+					252, rue KA022, Boulbinet, Commune de Kaloum BP:2024, Conakry Rép.de Guinée Tél: (+224) 656 31 11 14<br/>
+					E-mail: info@apip.gov.gn | sites web: www.apip.gov.gn<br/><br/>
+					Agrément: Arrêté N°5955|MJ|CAB|2012 du 21 mai 2012
+					
+				</div>
+			{% endfor %}
+		{%else%}
+				{% for annonce in annonces%}
+				<div class="corpsAnnonce">
+					{#<div class="blocHeader">
+						<span style="font-size:22px;">{{annonce.denominationSociale}}</span><br/>
+						<span>
+							FORME JURIDIQUE: {{annonce.libelleFormeJuridique|upper}}<br/>
+							CAPITAL SOCIAL: {{annonce.capitalSocial|number_format(0, ',', '.')}} GNF<br/>
+							SIÈGE SOCIAL: {{annonce.adresseSiege|upper}}<br/>
+							{{annonce.numRccmEntreprise}} DU {{annonce.dateRccm|localizeddate('long','none','fr')}}
+						</span>
+					</div>
+					#}
+					<div style="margin:20px;text-align:center;font-weight:bold">
+						<u style="font-size: 20px;">AVIS DE CONSTITUTION</u>
+					</div>
+					
+					<br/>
+				<b>Au vu de l'Attestation de versement du capital social, des statuts et du procès verbal de l'Assemblée constitutive, il a été constitué une {{annonce.sigleFormeJuridique}} aux caracteristiques suivantes:</b><br/><br/>
+
+					<div style="font-size:14px">
+						<b><u>DÉNOMINATION SOCIALE</u>:</b> {{annonce.denominationSociale}}<br/><br/>
+						<b><u>FORME JURIDIQUE</u>:</b> {{annonce.sigleFormeJuridique}}<br/><br/>
+						<b><u>CAPITAL SOCIAL</u>:</b> {{annonce.capitalSocial|number_format(0, ',', '.')}} GNF<br/><br/>
+						<b><u>SIÈGE SOCIAL</u>:</b> {{annonce.adresseSiege}}<br/><br/>
+						<b><u>OBJET SOCIAL</u>:</b> {{annonce.libelleSecteurActivite}}{%if annonce.libelleActiviteSecondaire%};{{annonce.libelleActiviteSecondaire}}{%endif%}{%if annonce.libelleActiviteSecondaire2%};
+						{{annonce.libelleActiviteSecondaire2}}{%endif%}{%if annonce.detailsActivite%};{{annonce.detailsActivite}}{%endif%}<br/><br/>
+						<b><u>DURÉE</u>:</b> {{annonce.duree|localizednumber('spellout')|upper}} ({{annonce.duree}}) ans à partir de son immatriculation au RCCM <br/> <br/>
+						<b><u>EXERCICE SOCIAL</u>:</b> L’exercice social commence le premier Janvier et se termine le trente et un Décembre de chaque année.<br/>
+						<br/>
+						{%for gerant in annonce.gerants%}
+						<b><u>{{gerant.fonctionGerant|upper}}</u>:</b> {{gerant.gerant}} demeurant &agrave; {{gerant.adresseGerant|capitalize}}<br/>
+						{%endfor%}
+						<br/>
+						<b><u>N°FORMALITÉ</u>:</b><br/>
+						La Société a été immatriculée au Registre du Commerce et du Crédit Mobilier sous le numéro : {{annonce.numRccmEntreprise}} DU {{annonce.dateRccm|localizeddate('long','none','fr')}}
+						<br/><br/>
+						Deux copies des statuts et une copie de la déclaration de souscription et de versement ont été déposées au Greffe du Tribunal de Première Instance de KALOUM à Conakry.
+					</div>
+					<br/>
+					<b><u>N°RCCM:</u></b> {{annonce.numRccmEntreprise}}<br/><br/>
+					<b><u>DATE RCCM:</u></b> {{annonce.dateRccm|date('d/m/Y')}}<br/><br/>
+					<div style=""><b>Pour extrait et mention</b></div>
+					
+					<div style=""><b>M. {{annonce.gerants[0].gerant|upper}}, et par délégation Maitre Alsény FOFANA Greffier en chef.</b></div>
+
+				</div>
+				<br/><br/>
+				<div style="text-align:center;border-top:1px solid black;margin-top:90px;">
+					Agence de Promotion des Investissements Privés (APIP-Guinée)<br/>
+					252, rue KA022, Boulbinet, Commune de Kaloum BP:2024, Conakry Rép.de Guinée Tél: (+224) 656 31 11 14<br/>
+					E-mail: info@apip.gov.gn | sites web: www.apip.gov.gn<br/><br/>
+					Agrément: Arrêté N°5955|MJ|CAB|2012 du 21 mai 2012
+					
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endif %}
+	
+</page>

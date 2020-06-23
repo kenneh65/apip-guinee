@@ -1,0 +1,340 @@
+<ul class="nav navbar-nav side-nav">
+    <li {%if active==1%}class="active"{%endif%}>
+        <a href="{{path('administration')}}"><i class="fa fa-fw fa-dashboard"></i> {%trans%}dashboard{%endtrans%}</a>
+
+    </li>
+    {%if is_granted('ROLE_SUPER_ADMIN')%}
+        <li {%if active==2%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#parametrage"><i class="fa fa-wrench"></i>&nbsp;&nbsp;{%trans%}parametrage{%endtrans%}<b class="caret"></b></a>
+            <ul id="parametrage" class="collapse" style="padding:0 5px 0 0;">
+                <li>
+                    <a href="{{path('lexik_translation_grid')}}"><i class="fa fa-flag-o"></i>&nbsp;&nbsp;{%trans%}traduction{%endtrans%}</a>
+                </li>
+                <li >
+                    <a href="{{path('pays_index')}}"><i class="fa fa-fw fa-cloud"></i>&nbsp;&nbsp;{%trans%}gestion_des_pays{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('region_index')}}"><i class="fa fa-phone"></i>&nbsp;&nbsp;{%trans%} gestion_villes {%endtrans%}</a>
+                </li> 
+                <li >
+                    <a href="{{path('lister_prefecture')}}"><i class="fa fa-fw fa-cloud"></i>&nbsp;&nbsp;{%trans%}gestion_prefecture_titre{%endtrans%}</a>
+                </li>
+                <li >
+                    <a href="{{path('lister_sousPrefecture')}}"><i class="fa fa-fw fa-cloud"></i>&nbsp;&nbsp;{%trans%}gestion_sous_prefecture_titre{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('formejuridique_index')}}"><i class="fa fa-square"></i>&nbsp;&nbsp;{%trans%}gestion_formes_juridique {%endtrans%}</a>
+                </li>
+
+                <li>
+                    <a href="{{path('definirCircuit')}}"><i class="fa fa-exchange"></i>&nbsp;&nbsp;{%trans%}definir_circuits{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('fonction_index')}}"><i class="fa fa-suitcase"></i>&nbsp;&nbsp;{%trans%}gerer_fonction{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('categorie_index')}}"><i class="fa fa-building"></i>&nbsp;&nbsp;{%trans%}gerer_categories_activite{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('secteur_index')}}"><i class="fa fa-building"></i>&nbsp;&nbsp;{%trans%}gerer_secteurs{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('ajouter_pole')}}"><i class="fa fa-columns"></i>&nbsp;&nbsp;&nbsp;{%trans%}gerer_poles{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('definirEtapeCreation')}}"><i class="fa fa-tasks"></i>&nbsp;&nbsp;&nbsp;{%trans%}etapes_creation{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('definirPieceJointe')}}"><i class="fa fa-link"></i>&nbsp;&nbsp;&nbsp;{%trans%}piece_joindre{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('definirFraisDossier')}}"><i class="fa fa-money"></i>&nbsp;&nbsp;&nbsp;{%trans%}tarification{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('messagerie_edit')}}"><i class="fa fa-envelope"></i>&nbsp;&nbsp; {%trans%}messagerie{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('commissaire_index')}}"><i class="fa fa-shield"></i>&nbsp;&nbsp; {%trans%}commissaire_au_compte{%endtrans%}</a>
+                </li>
+                {#<li >
+                    <a href="{{path('regles_index')}}"><i class="fa fa-fw fa-wrench"></i>&nbsp;&nbsp;{%trans%}gestion_des_regles{%endtrans%}</a>
+                </li>#}
+                <li >
+                    <a href="{{path('liste_nomcommercial')}}"><i class="fa fa-fw fa-wrench"></i>&nbsp;&nbsp;{%trans%}gestion_des_NomCommercial{%endtrans%}</a>
+                </li>
+
+				<li>
+					<a href="{{path('entreprise_index')}}"><i class="fa fa-university"></i>&nbsp;&nbsp; {%trans%}entreprise_menu{%endtrans%}</a>
+				</li>
+				
+				<li>
+					<a href="{{path('signature_chef_greffe')}}"><i class="fa fa-pencil"></i>&nbsp;&nbsp; {%trans%}signature_menu{%endtrans%}</a>
+				</li>
+            </ul>    
+        </li>
+    {%endif%}
+    {%if is_granted('ROLE_SUPER_ADMIN')%}
+
+        <li  {%if active==3%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#portail"><i class="fa fa-fw fa-newspaper-o"></i>&nbsp;&nbsp;{{'portal'|trans}}<b class="caret"></b></a>
+            <ul id="portail" class="collapse">
+                <li>
+                    <a href="{{path('news_index')}}"><i class="fa fa-fw fa-newspaper-o"></i>&nbsp;&nbsp;{%trans%}gerer_news{%endtrans%}</a>
+                </li>
+                <li >
+                    <a href="{{path('faq_index',{'_locale':app.request.locale})}}"><i class="fa  fa-question"></i>&nbsp;&nbsp; {%trans%}gerer_faq{%endtrans%}</a>
+                </li>
+                <li  >
+                    <a href="{{path('contact_index',{'_locale':app.request.locale})}}"><i class="fa fa-phone"></i>&nbsp;&nbsp;{%trans%} gerer_contact {%endtrans%}</a>
+                </li>  
+                <li  >
+                    <a href="{{path('adminLiensutiles')}}"><i class=" fa fa-link"></i>&nbsp;&nbsp;{%trans%} liens_utils{%endtrans%}</a>
+                </li>  
+                <li  >
+                    <a href="{{path('adminDocumentation')}}"><i class="fa fa-file-text"></i>&nbsp;&nbsp;{%trans%}Documentation{%endtrans%}</a>
+                </li>
+                <!--li>
+                  <a href="{{path('menuLogo')}}"><i class="fa fa-image"></i>&nbsp;&nbsp;&nbsp;{%trans%}message_changer_logo{%endtrans%}</a>
+              </li-->
+
+            </ul>    
+        </li>
+    {%endif%}
+    {%if (is_granted('ROLE_CREATEUR') or is_granted('ROLE_BCE'))  and not is_granted('ROLE_SUPER_ADMIN')%}
+
+
+        <li {%if active==4%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#dossier"><i class="fa fa-fw fa-folder-o"></i>&nbsp;&nbsp;{%trans%}dossier_demande{%endtrans%}<b class="caret"></b></a>
+            <ul class="collapse" id="dossier">
+                {% if profilName !="" %}
+                    {% if profilName==" dépot" %}
+                        <li>
+                            <a href="{{path('depot_new')}}"><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp; {%trans%}depot{%endtrans%}</a>
+                        </li>                                    
+                        <li>
+                            <a href="{{path('lister_depot')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_depot{%endtrans%}</a>
+                        </li>                                    
+                        <li>
+                            <a href="{{path('lister_depot_Modification')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_depot_Modification{%endtrans%}</a>
+                        </li>
+                    {% elseif profilName=="saisi" %}
+
+                        <li>
+                            <a href="{{path('dossierEncours')}}"><i class="fa fa-fw fa-trash-o"></i> &nbsp;&nbsp;{%trans%}brouillon_saisi{%endtrans%}</a>
+                        </li>
+                        <li>
+                            <a href="{{path('suivreDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
+                        </li>
+                        <li>
+                            <a href="{{path('DossiersDiaspora')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}dossier_diaspora{%endtrans%}</a>
+                        </li>
+                    {% elseif app.user.profile.description=="Service retrait" %}
+
+                        <li>
+                            <a href="{{path('lister_retrait')}}"><i class="fa fa-fw fa-trash-o"></i> &nbsp;&nbsp;{%trans%}lister_retrait{%endtrans%}</a>
+                        </li>
+						<li>
+                            <a href="{{path('lister_retrait_partiel')}}"><i class="fa fa-fw fa-trash-o"></i> &nbsp;&nbsp;{%trans%}lister_retrait_partiel{%endtrans%}</a>
+                        </li>
+                        <li>
+                            <a href="{{path('lister_retirer')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_retirer{%endtrans%}</a>
+                        </li>
+                    {% elseif profilName=="help" %}
+                        <li>
+                            <a href="{{path('suiviDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
+
+                        </li>
+                    {% endif %}
+                {%else%}
+
+                    <li>
+                        {{profilName}}<a href="{{path('creerDossier')}}"><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp; {%trans%}ajouter_dossier{%endtrans%}</a>
+                    </li>                                    
+                    <li>
+                        <a href="{{path('suivreDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
+
+                    </li>
+                    <li>
+                        <a href="{{path('dossierEncours')}}"><i class="fa fa-fw fa-trash-o"></i> &nbsp;&nbsp;{%trans%}brouillon{%endtrans%}</a>
+
+                    </li>
+                {%endif%}
+            </ul>    
+        </li>
+    {%endif%}
+    {#{%if is_granted('ROLE_POLE') %}
+
+        <li {%if active==7%}class="active"{%endif%}>
+            <a href="{{path('dossierPole')}}" data-toggle="collapse" data-target="#dossierP"><i class="fa fa-fw fa-folder-o"></i>&nbsp;&nbsp;{%trans%}reception_dossier{%endtrans%}</a>                                
+        </li>
+    {%endif%}#}
+    {#{%if is_granted('ROLE_ADMIN')  or is_granted('ROLE_POLE')  and app.user.pole.sigle|upper != "CT" and app.user.pole.sigle|upper != "GF"%}
+    #}
+    {%if is_granted('ROLE_SUPER_ADMIN')%}
+
+        <li {%if active==5%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#securite"><i class="fa fa-cog"></i>&nbsp;&nbsp;{%trans%}gestion_compte{%endtrans%}<b class="caret"></b></a>
+            <ul class="collapse" id="securite">
+                <li>
+                    <a href="{{path('utilisateurs_index')}}"><i class="fa fa-user"></i>&nbsp;&nbsp;{%trans%}gerer_utilisateurs{%endtrans%}</a>
+                </li>
+            </ul>   
+        </li>        
+    {%endif%}
+
+    {%if is_granted('ROLE_POLE')  and app.user.pole.sigle|upper == "CT"%}
+        <li {%if active==7%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#caisse" ><i class="fa fa-cog"></i> {%trans%}gestion_caisse{%endtrans%}<b class="caret"></b></a>
+            <ul class="collapse" id="caisse">
+                <li>
+                    <a href="{{path('gestion_caisse')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}dossier_attente_paiement{%endtrans%}</a>
+                </li> 
+                <li>
+                    <a href="{{path('reporting_quittance')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}message_rapports_paiement{%endtrans%}</a>
+                </li>
+                <li>
+                    <a href="{{path('brouillard_caisse')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}brouillard_caisse{%endtrans%}</a>
+                </li>
+				
+                <li>
+                    <a href="{{path('repartition_encaissement')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}repartition_des_encaissement{%endtrans%}</a>
+                </li>
+            </ul>
+        </li>
+    {%endif%}
+
+    {%if is_granted('ROLE_POLE')  and (app.user.pole.sigle|upper == "GF" or app.user.pole.sigle|upper == "BNI"  or app.user.pole.sigle|upper == "AGUIPE" or app.user.pole.sigle|upper == "CNSS") %}
+        
+		{% if app.user.profile.description != "gec" %}
+			<li {%if active==7%}class="active"{%endif%}>
+				<a href="javascript:;" data-toggle="collapse" data-target="#caisse" ><i class="fa fa-cog"></i> {%trans%}gestion_dossier{%endtrans%}<b class="caret"></b></a>
+				<ul class="collapse" id="caisse">
+					<li>
+						<a href="{{path('dossierPole')}}"><i class="fa fa-folder-open"></i>&nbsp;&nbsp; {%trans%}list_dossier{%endtrans%}</a>
+					</li> 
+					<li>
+						<a href="{{path('dossierPole',{'idS':2})}}"><i class="fa fa-folder"></i>&nbsp;&nbsp; {%trans%}dossiers_delivre{%endtrans%}</a>
+					</li>
+					<li>
+						<a href="{{path('dossierPole',{'idS':3})}}"><i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp; {%trans%}list_dossier_modification{%endtrans%}</a>
+					</li>
+					 {% if app.user.pole.sigle|upper != "CNSS" %}   
+					<li>
+						<a href="{{path('gestion_caisse_pole')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}recapitulatif_paiement{%endtrans%}</a>
+					</li>
+					{%endif%}				 
+				</ul>
+			</li>		
+		{% else %}		
+			<li {%if active==7%}class="active"{%endif%}>
+				<a href="javascript:;" data-toggle="collapse" data-target="#caisse" ><i class="fa fa-cog"></i> {%trans%}gestion_dossier{%endtrans%}<b class="caret"></b></a>
+				<ul class="collapse" id="caisse">
+					<li>
+						<a href="{{path('dossierAValiderChefGreffe')}}"><i class="fa fa-folder-open"></i>&nbsp;&nbsp; {%trans%}dossiers_a_valider{%endtrans%}</a>
+					</li> 
+					<li>
+						<a href="{{path('dossierValideChefGreffe',{'idS':2})}}"><i class="fa fa-folder"></i>&nbsp;&nbsp; {%trans%}dossiers_valides{%endtrans%}</a>
+					</li>									
+				</ul>
+			</li>
+		{% endif %}
+		
+		{% if app.user.pole.sigle|upper == "CNSS" %} 
+			<li {%if active==7%}class="active"{%endif%}>
+				<a href="javascript:;" data-toggle="collapse" data-target="#statistiques" ><i class="fa fa-fw fa-bar-chart"></i> {%trans%}statistiques{%endtrans%}<b class="caret"></b></a>
+				<ul class="collapse" id="statistiques">				 
+					<li>
+						<a href="{{path('statistiques-periode-cnss-graphe-mois')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_periode{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_periode{%endtrans%}</span></a> 
+					</li>
+					<li>
+						<a href="{{path('statistiques-pays-cnss-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_pays{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_pays{%endtrans%}</span></a>
+					</li>
+					<li>
+						<a href="{{path('statistiques-categorie-activite-cnss-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_categorie_activite{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_categorie_activite{%endtrans%}</span></a>
+					</li>
+				</ul>
+			</li>
+		{%endif%}
+		
+		
+    {%endif%}
+    {%if is_granted('ROLE_POLE')  and app.user.pole.sigle|upper == "AL"%}
+        <li {%if active==7%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#anonces" ><i class="fa fa-cog"></i> {%trans%}gestion_dossier{%endtrans%}<b class="caret"></b></a>
+            <ul class="collapse" id="anonces">
+                <li>
+                    <a href="{{path('annonceur-index')}}"><i class="fa fa-folder-open"></i>&nbsp;&nbsp; {%trans%}message_annonce_legale{%endtrans%}</a>
+                </li> 
+                <li>
+                    <a href="{{path('annonceur-exporte')}}"><i class="fa fa-folder"></i>&nbsp;&nbsp; {%trans%}message_annonce_exportees{%endtrans%}</a>
+                </li>
+            </ul>
+        </li>
+    {%endif%}
+
+    {%if is_granted('ROLE_ADMIN') %}
+        <li {%if active==7%}class="active"{%endif%}>
+            <a href="javascript:;" data-toggle="collapse" data-target="#statistiques" ><i class="fa fa-fw fa-bar-chart"></i> {%trans%}statistiques{%endtrans%}<b class="caret"></b></a>
+            <ul class="collapse" id="statistiques">
+                <li>
+                    <a href="{{path('statistiques-periode-excel-jours')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_par_periode_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_periode_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-periode-graphe-jours')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_periode_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_periode_graphe{%endtrans%}</span></a>
+                </li>
+				<li>
+                    <a href="{{path('statistiques-periode-notaire-excel-jours')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_par_notaire_periode_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_notaire_periode_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-periode-notaire-graphe-jours')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_notaire_periode_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_notaire_periode_graphe{%endtrans%}</span></a>
+                </li>                
+                <li>
+                    <a href="{{path('statistiques-genre-excel')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_par_genre_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_genre_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-genre-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_genre_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_genre_graphe{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-formJuridique-excel')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_formeJuridique_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_formJuridique_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-formJuridique-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_formeJuridique_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_formJuridique_graphe{%endtrans%}</span></a>
+                </li>
+				 <li>
+                    <a href="{{path('statistiques-formJuridique-notaire-excel')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_notaire_formeJuridique_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_notaire_formJuridique_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-formJuridique-notaire-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_notaire_formeJuridique_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_notaire_formJuridique_graphe{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-continent-excel')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_par_continent_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_continent_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-continent-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_continent_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_continent_graphe{%endtrans%}</span></a>
+                </li>				
+                <li>
+                    <a href="{{path('statistiques-pays-excel')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_par_pays_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_pays_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-pays-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_pays_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_pays_graphe{%endtrans%}</span></a>
+                </li>
+
+                <li>
+                    <a href="{{path('statistiques-secteur-activite-excel')}}"><i class="fa fa-fw fa-file-excel-o"></i><span title="{%trans%}nbr_entreprise_crees_par_secteur_activite_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_secteur_activite_excel{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-categorie-activite-graphe')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_categorie_activite_graphe{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_categorie_activite_graphe{%endtrans%}</span></a>
+                </li>
+                <li>
+                    <a href="{{path('statistiques-categorie-activite-excel')}}"><i class="fa fa-fw fa-bar-chart"></i><span title="{%trans%}nbr_entreprise_crees_par_categorie_activite_excel{%endtrans%}">&nbsp;&nbsp; {%trans%}nombre_par_categorie_activite_graphe{%endtrans%}</span></a>
+                </li>
+
+            </ul>
+
+
+        </li>
+    {%endif%}
+    <li {%if active==6%}class="active"{%endif%}>
+        <a href="{{path('accueil')}}"><i class="fa fa-fw fa-home"></i> {%trans%}accueil{%endtrans%}</a>
+    </li>
+</ul>

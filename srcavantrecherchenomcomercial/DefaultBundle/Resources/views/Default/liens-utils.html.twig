@@ -1,0 +1,31 @@
+{% extends '::base-office.html.twig' %}
+{%block title%}{%trans%}liens_utils{%endtrans%}- {{parent()}}{%endblock%}
+{%block menu %}
+    {{ render(controller("DefaultBundle:Default:menu",{'active':8})) }}
+{%endblock%}
+{% block body %}
+       <div  class="clearfix width-100" style="height:100%">
+                    <div class="fusion-row" style="max-width:100%;">
+                        <div id="content" class="full-width">
+                            <div class="fusion-row" style="border-color:#e2e2e2;border-bottom-width: 1px;border-top-width: 1px;border-bottom-style: solid;border-top-style: solid;padding-bottom:0px;padding-top:40px;padding-left:30px;padding-right:30px;padding-left:30px !important;padding-right:30px !important;background-color:#ffffff;margin-bo"> 
+                                   
+                <h3 style="margin:auto">{%trans%}liens_utils{%endtrans%}</h3>
+                        <div>
+                            {%if liens |length==0%}
+                                <div class="alert alert-info"><hr>
+                {%trans%}liens_vides{%endtrans%}</div>
+                                 {%else%}
+                            {%for lien in liens%}
+                                 <hr>
+                                <h3>{{lien.titre}}</h3>
+                               
+                                {{lien.description |slice(0,1000)}}<br><br>
+                                <a  class="col-md-offset-10" href="http://{{lien.url|e('html_attr')}}" target="_blank"><i class="fa fa-arrow-right"></i>{%trans%}visiter_lien{%endtrans%}</a>
+                                {%endfor%}
+                                {%endif%}
+                        </div>
+                    
+                </form>
+            </div></div>
+                        </div></div>
+{%endblock%}
