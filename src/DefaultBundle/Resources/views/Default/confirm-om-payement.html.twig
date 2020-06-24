@@ -32,6 +32,26 @@
         </div>
     </div>
         <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    {% for flashMessage in app.session.flashbag.get('successSMS') %}
+                        <div style="color: white;background:green"
+                             class="alert alert-message-warning text-center " role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <strong>{{flashMessage|raw }} </strong>
+                        </div>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('echecSMS') %}
+                        <div style="color: white;background:#ff5a2f"
+                             class="alert alert-message-warning text-center " role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <strong>{{flashMessage|raw }} </strong>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
                    <div class="row">
                 <div class="col-md-12">
 

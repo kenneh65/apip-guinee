@@ -107,234 +107,219 @@ class QuittanceController extends Controller
 
     public function chargerAction($idq)
     {
-      //  die(dump($idq));
-       $this->get('monservices')->verifyQuittancePayementStstus($idq);
-        $message = '';
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $request = $this->get('request');
-        $codLang = $request->getLocale();
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-        $idl = $langue->getId();
-        $actualDate = new \DateTime();
-        $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
-        if ($quittance->getDatePaiement() == null) {
-            $quittance->setDatePaiement($actualDate);
+        if ($this->get('monServices')->pingIPServer()==true){
+            $verificatioTemoin= $this->get('monservices')->verifyQuittancePayementStstus($idq);
+        }else{
+            $verificatioTemoin=false;
         }
-        $quittance->setMontantVerse($quittance->getMontantTotalFacture());
-        $dossierDemande = $quittance->getDossierDemande();
-        $typeDossier = $dossierDemande->getTypeDossier();
-        $quittance->setTypeDossier($dossierDemande->getTypeDossier());
-        $montant = $quittance->getMontantRestant();
-        $nomCommercial = $quittance->getDenominationSociale();
-        $poleCaisse = $user->getPole(); // $em->getRepository('ParametrageBundle:Pole')->getPoleCaisse();
-        $documentCaisse = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('dossierDemande' => $dossierDemande->getId(), 'pole' => $poleCaisse->getId()));
-        $definedFormeJuridiqueTraduction = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->findOneBy(array('formeJuridique' => $quittance->getFormeJuridique(), 'langue' => $langue));
-        $definedModeTraduit = null;
-        if ($quittance->getModePaiement()) {
-            $definedModeTraduit = $em->getRepository('BanquemondialeBundle:ModePaiementTraduction')->findOneBy(array('modePaiement' => $quittance->getModePaiement(), 'langue' => $langue));
-        }
-        $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
 
-        if ($request->getMethod() == 'POST') {
+
+        if ($verificatioTemoin==true){
+            return $this->redirectToRoute('reporting_quittance');
+        }else{
+            $message = '';
+            $em = $this->getDoctrine()->getManager();
+            $user = $this->container->get('security.context')->getToken()->getUser();
+            $request = $this->get('request');
+            $codLang = $request->getLocale();
+            $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+            $idl = $langue->getId();
+            $actualDate = new \DateTime();
             $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
-            if ($request->request->has('textAreaModifier')) {
-                $motif = $request->get("textAreaModifier");
-                $quittance->setStatut(3);
-                $quittance->setMotif($motif);
-                $em->persist($quittance);
-                //Mise a documentacoolecter
-                if ($documentCaisse) {
-                    $statutTraitementModifier = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(3);
-                    $documentCaisse->setDateDerniereModification(new \DateTime());
-                    $documentCaisse->setStatutTraitement($statutTraitementModifier);
-                    $documentCaisse->setMotif($motif);
-                    $em->persist($documentCaisse);
-                }
-                if ($dossierDemande->getUtilisateurDepot()) {
-                    $dossierDemande->setStatut(-2);
+            if ($quittance->getDatePaiement() == null) {
+                $quittance->setDatePaiement($actualDate);
+            }
+            $quittance->setMontantVerse($quittance->getMontantTotalFacture());
+            $dossierDemande = $quittance->getDossierDemande();
+            $typeDossier = $dossierDemande->getTypeDossier();
+            $quittance->setTypeDossier($dossierDemande->getTypeDossier());
+            $montant = $quittance->getMontantRestant();
+            $nomCommercial = $quittance->getDenominationSociale();
+            $poleCaisse = $user->getPole(); // $em->getRepository('ParametrageBundle:Pole')->getPoleCaisse();
+            $documentCaisse = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('dossierDemande' => $dossierDemande->getId(), 'pole' => $poleCaisse->getId()));
+            $definedFormeJuridiqueTraduction = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->findOneBy(array('formeJuridique' => $quittance->getFormeJuridique(), 'langue' => $langue));
+            $definedModeTraduit = null;
+            if ($quittance->getModePaiement()) {
+                $definedModeTraduit = $em->getRepository('BanquemondialeBundle:ModePaiementTraduction')->findOneBy(array('modePaiement' => $quittance->getModePaiement(), 'langue' => $langue));
+            }
+            $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
+            if ($request->getMethod() == 'POST') {
+                $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
+                if ($request->request->has('textAreaModifier')) {
+                    $motif = $request->get("textAreaModifier");
+                    $quittance->setStatut(3);
+                    $quittance->setMotif($motif);
+                    $em->persist($quittance);
+                    //Mise a documentacoolecter
+                    if ($documentCaisse) {
+                        $statutTraitementModifier = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(3);
+                        $documentCaisse->setDateDerniereModification(new \DateTime());
+                        $documentCaisse->setStatutTraitement($statutTraitementModifier);
+                        $documentCaisse->setMotif($motif);
+                        $em->persist($documentCaisse);
+                    }
+                    if ($dossierDemande->getUtilisateurDepot()) {
+                        $dossierDemande->setStatut(-2);
+                    } else {
+                        $dossierDemande->setStatut(3);
+                    }
+                    $dossierDemande->setMotif($motif);
+                    $em->persist($dossierDemande);
+                    $em->flush();
+                    $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $this->get('session')->getFlashBag()->add('info', $message);
+                    return new RedirectResponse($this->container->get('router')->generate('gestion_caisse'));
                 } else {
-                    $dossierDemande->setStatut(3);
-                }
-                $dossierDemande->setMotif($motif);
-                $em->persist($dossierDemande);
-                $em->flush();
-                $message = $this->get('translator')->trans('message_demande_modification_envoye');
-                $this->get('session')->getFlashBag()->add('info', $message);
-                return new RedirectResponse($this->container->get('router')->generate('gestion_caisse'));
-            } else {
-                $form->bind($request);
-                if ($form->isValid()) {
-                    $data = $request->request->all()['quittance'];
-                    // var_dump($quittance->getModePaiement()->getId());die();
-                    // Recuperation du  Mode de payement Choisi par l'utilisateur
-                    $payMode = $quittance->getModePaiement()->getId();
-                    ///  Recuperation Mode de paiement 3 = Orange-Money dans la BAse de Donee
-                    $isOrangewebPay = $this->get('monservices')->getModePayement(3);
-                    ///> On test si le Mode de paiement Choisi est bien egale 3 (Orange-Money) dans la DB /////
-                    if ($payMode == $isOrangewebPay->getId()) {
+                    $form->bind($request);
+                    if ($form->isValid()) {
+                        $data = $request->request->all()['quittance'];
+                        // var_dump($quittance->getModePaiement()->getId());die();
+                        // Recuperation du  Mode de payement Choisi par l'utilisateur
+                        $payMode = $quittance->getModePaiement()->getId();
+                        ///  Recuperation Mode de paiement 3 = Orange-Money dans la BAse de Donee
+                        $isOrangewebPay = $this->get('monservices')->getModePayement(3);
+                        ///> On test si le Mode de paiement Choisi est bien egale 3 (Orange-Money) dans la DB /////
+                        if ($payMode == $isOrangewebPay->getId()) {
 
-                        $session = $request->getSession();
-                        /// Supression  variables de session
-                        $session->remove('sessionData');
-                        $session->remove('sessionIdq');
-                        $session->remove('codLang');
-                        /// Creation  variables de session
-                        if (!$session->has('sessionData')) {
-                            $session->set('sessionData', $data);
-                            $session->set('sessionIdq', $idq);
-                            $session->set('codLang', $request->getLocale());
-                        }
-                        // On envoi un SMS===
-                        $this->get('monservices')->payementSmsOrange($data['telephone'],$dossierDemande);
-                        // ========= On redirige user sur la confirmation=======////////
-                        return $this->redirectToRoute('confirmation-payement-orange-money');
-                    }
-                    $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
-                    $quittance->setSerie($data['serie']);
-                    $quittance->setNumeroVolume($data['numeroVolume']);
-                    $quittance->setNumeroQuittance($data['numeroQuittance']);
-                    $quittance->setRefTitreRecette($data['refTitreRecette']);
-                    $quittance->setTypeDossier($typeDossier);
-                    $natureRecette = $em->getRepository('BanquemondialeBundle:NatureRecette')->find($data['natureRecette']);
-                    $quittance->setNatureRecette($natureRecette);
-                    $montantVerse = $data['montantVerse'];
-                    $modePaiement = $em->getRepository('BanquemondialeBundle:ModePaiementTraduction')->find($data['modePaiement'])->getModePaiement();
-                    if ($montantVerse > $quittance->getMontantRestant()) {
-                        $translated = $this->get('translator')->trans("message_paiement_superieur_facture");
-                        $this->get('session')->getFlashBag()->add('info', $translated);
-
-                        $quittance->setMontantVerse($montantVerse);
-                        $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
-                    }
-                    else if ($montantVerse < $quittance->getMontantRestant()) {
-                        $translated = $this->get('translator')->trans("message_paiement_inferieur_facture");
-                        $this->get('session')->getFlashBag()->add('info', $translated);
-                        $quittance->setMontantVerse($montantVerse);
-                        $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
-                    }
-                    else {
-                        $quittance->setUtilisateur($user);
-                        $quittance->setMontantVerse($montantVerse);
-                        $quittance->setMontantRestant(0);
-                        $quittance->setModePaiement($modePaiement);
-                        $quittance->setIsPaid(true);
-                        $em->persist($quittance);
-                        //Mise à jour dossier demande pour le pole APIP -Cicuit depot -caisse -agent saisi
-                        $poleAPIP = $em->getRepository('ParametrageBundle:Pole')->getPoleBySige("APIP");
-                        $userDepot = $dossierDemande->getUtilisateurDepot();
-                        if ($userDepot) {
-                            $poleUserDepot = $userDepot->getPole();
-                            if ($poleAPIP == $poleUserDepot) {
-                                //die(dump($userDepot));
-                                //Recherche des Agent de saisi pour continuer le traitement du dossier
-                                $profilSaisi = $em->getRepository('UtilisateursBundle:Profile')->findOneByDescription('saisi');
-                                if ($profilSaisi) {
-                                    $dossierDemande->setStatut(null);
-
-                                    if (!$dossierDemande->getUtilisateur()) {
-                                        $idUserAgentSaisi = $em->getRepository('BanquemondialeBundle:DossierDemande')->findLeastLoadedUserSaisi($userDepot->getEntreprise()->getId());
-                                        $userAgentSaisi = $em->getRepository('UtilisateursBundle:Utilisateurs')->find($idUserAgentSaisi);
-                                        //die(dump($userAgentSaisi));
-                                        //$firstUserAgentSaisi = $em->getRepository('UtilisateursBundle:Utilisateurs')->findOneBy(array('profile' => $profilSaisi->getId(), 'pole' => $poleUserDepot->getId(), 'entreprise' => $userDepot->getEntreprise()->getId()));                                   
-                                        $dossierDemande->setUtilisateur($userAgentSaisi);
-                                    }
-                                    $em->persist($dossierDemande);
-                                }
+                            $session = $request->getSession();
+                            /// Supression  variables de session
+                            $session->remove('sessionData');
+                            $session->remove('sessionIdq');
+                            $session->remove('codLang');
+                            /// Creation  variables de session
+                            if (!$session->has('sessionData')) {
+                                $session->set('sessionData', $data);
+                                $session->set('sessionIdq', $idq);
+                                $session->set('codLang', $request->getLocale());
                             }
+                            // On envoi un SMS===
+                            $this->get('monservices')->payementSmsOrange($data['telephone'],$dossierDemande);
+                            // ========= On redirige user sur la confirmation=======////////
+                            return $this->redirectToRoute('confirmation-payement-orange-money');
                         }
-                        //mise a jour repartition facturation pour brouillard de caisse et autres
-                        $listRepartitionQuittance = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findByDossierDemande($quittance->getDossierDemande());
-                        if ($quittance->getDatePaiement() == null) {
-                            $dateReceptionPaiement = new \DateTime();
-                        } else {
-                            $dateReceptionPaiement = $quittance->getDatePaiement();
-                        }
-                        //retrait de l'ancienne repartition du dossier						
-                        foreach ($listRepartitionQuittance as $repartitionQuittance) {
-                            $em->remove($repartitionQuittance);
-                            $em->flush();
-                        }
-                        //mise a jour de la repartition
-                        $poleAPIP = $em->getRepository('ParametrageBundle:Pole')->getPoleBySige("APIP");
-                        $fraisApip = $em->getRepository('ParametrageBundle:Tarification')->getMontantFraisByPole($dossierDemande->getFormeJuridique()->getId(), $dossierDemande->getTypeDossier()->getId(), $poleAPIP->getId());
-                        $listFraisDossier = $em->getRepository('ParametrageBundle:Tarification')->getListeFraisAPayer($dossierDemande->getId());
+                        $quittance = $em->getRepository('BanquemondialeBundle:Quittance')->find($idq);
+                        $quittance->setSerie($data['serie']);
+                        $quittance->setNumeroVolume($data['numeroVolume']);
+                        $quittance->setNumeroQuittance($data['numeroQuittance']);
+                        $quittance->setRefTitreRecette($data['refTitreRecette']);
+                        $quittance->setTypeDossier($typeDossier);
+                        $natureRecette = $em->getRepository('BanquemondialeBundle:NatureRecette')->find($data['natureRecette']);
+                        $quittance->setNatureRecette($natureRecette);
+                        $montantVerse = $data['montantVerse'];
+                        $modePaiement = $em->getRepository('BanquemondialeBundle:ModePaiementTraduction')->find($data['modePaiement'])->getModePaiement();
+                        if ($montantVerse > $quittance->getMontantRestant()) {
+                            $translated = $this->get('translator')->trans("message_paiement_superieur_facture");
+                            $this->get('session')->getFlashBag()->add('info', $translated);
 
-                        foreach ($fraisApip as $frais) {
-                            $repartitionQuittance = new RepartitionQuittance();
-                            $repartitionQuittance->setMontantDu($frais->getMontant());
-                            $repartitionQuittance->setMontantVerse($frais->getMontant());
-                            $repartitionQuittance->setPole($frais->getPole());
-                            $repartitionQuittance->setDossierDemande($dossierDemande);
-                            $repartitionQuittance->setDatePaiement($dateReceptionPaiement);
-                            $repartitionQuittance->setEntreprise($user->getEntreprise());
-                            $repartitionQuittance->setModePaiement($form->get('modePaiement')->getData());
-                            $em->persist($repartitionQuittance);
+                            $quittance->setMontantVerse($montantVerse);
+                            $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
                         }
-                        foreach ($listFraisDossier as $frais) {
-                            $repartitionQuittance = new RepartitionQuittance();
-                            $repartitionQuittance->setMontantDu($frais->getMontant());
-                            $repartitionQuittance->setMontantVerse($frais->getMontant());
-                            $repartitionQuittance->setPole($frais->getPole());
-                            $repartitionQuittance->setDossierDemande($dossierDemande);
-                            $repartitionQuittance->setDatePaiement($dateReceptionPaiement);
-                            $repartitionQuittance->setEntreprise($user->getEntreprise());
-                            $repartitionQuittance->setModePaiement($form->get('modePaiement')->getData());
-                            $em->persist($repartitionQuittance);
+                        else if ($montantVerse < $quittance->getMontantRestant()) {
+                            $translated = $this->get('translator')->trans("message_paiement_inferieur_facture");
+                            $this->get('session')->getFlashBag()->add('info', $translated);
+                            $quittance->setMontantVerse($montantVerse);
+                            $form = $this->createForm(new QuittanceType(array('langue' => $langue, 'formeJTraduit' => $definedFormeJuridiqueTraduction, 'modeTraduit' => $definedModeTraduit)), $quittance);
                         }
-                        $em->flush();
-                        //fin mise a jour repartition facturation
-                        //Mise à Jour Document Collected
-                        $statutEnDelivre = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(2);
-                        $date = new \DateTime();
-                        $documentSuivant = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPoleSuivant($documentCaisse->getOrdre(), $dossierDemande->getId());
-                        if ($documentCaisse) {
-                            //echo "<script>console.log( 'document caisse' );</script>";
-                            $documentCaisse->setStatutTraitement($statutEnDelivre);
+                        else {
+                            $quittance->setUtilisateur($user);
+                            $quittance->setMontantVerse($montantVerse);
+                            $quittance->setMontantRestant(0);
+                            $quittance->setModePaiement($modePaiement);
+                            $quittance->setIsPaid(true);
+                            $em->persist($quittance);
+                            //Mise à jour dossier demande pour le pole APIP -Cicuit depot -caisse -agent saisi
+                            $poleAPIP = $em->getRepository('ParametrageBundle:Pole')->getPoleBySige("APIP");
+                            $userDepot = $dossierDemande->getUtilisateurDepot();
+                            if ($userDepot) {
+                                $poleUserDepot = $userDepot->getPole();
+                                if ($poleAPIP == $poleUserDepot) {
+                                    //die(dump($userDepot));
+                                    //Recherche des Agent de saisi pour continuer le traitement du dossier
+                                    $profilSaisi = $em->getRepository('UtilisateursBundle:Profile')->findOneByDescription('saisi');
+                                    if ($profilSaisi) {
+                                        $dossierDemande->setStatut(null);
 
-                            if ($documentCaisse->getDateDelivrance() == null) {
-                                $documentCaisse->setDateDelivrance($date);
-                            } else {
-                                $documentCaisse->setDateDerniereModification($date);
-                            }
-                            $em->persist($documentCaisse);
-                            $em->flush();
-
-                            //save quittance
-                            $this->sauvergarderQuittanceDelivre($idq);
-                            //fin save
-                            //mise a jour pole suivant sera ajouter au uniquement en cas de user notaire
-                            //$poleNotaire = $em->getRepository('ParametrageBundle:Pole')->getPoleByName("Notaire");
-                            $userDeCreation = $dossierDemande->getUtilisateur();
-                            $poleUser = $userDeCreation->getPole();
-                            if ($poleUser != $poleAPIP) {
-                                if ($documentSuivant) {
-                                    $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
-                                    $polesSuivants = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPolesSuivants($documentSuivant[0]->getOrdre(), $dossierDemande->getId());
-                                    if ($polesSuivants) {
-                                        //$message = $this->get('translator')->trans('message_dossier_recu');                         
-                                        foreach ($polesSuivants as $poleSuivant) {
-                                            $poleSuivant->setStatutTraitement($statutEncours);
-                                            if ($poleSuivant->getDateSoumission() == null) {
-                                                $poleSuivant->setDateSoumission(new \Datetime());
-                                            }
-                                            $em->persist($poleSuivant);
+                                        if (!$dossierDemande->getUtilisateur()) {
+                                            $idUserAgentSaisi = $em->getRepository('BanquemondialeBundle:DossierDemande')->findLeastLoadedUserSaisi($userDepot->getEntreprise()->getId());
+                                            $userAgentSaisi = $em->getRepository('UtilisateursBundle:Utilisateurs')->find($idUserAgentSaisi);
+                                            //die(dump($userAgentSaisi));
+                                            //$firstUserAgentSaisi = $em->getRepository('UtilisateursBundle:Utilisateurs')->findOneBy(array('profile' => $profilSaisi->getId(), 'pole' => $poleUserDepot->getId(), 'entreprise' => $userDepot->getEntreprise()->getId()));
+                                            $dossierDemande->setUtilisateur($userAgentSaisi);
                                         }
+                                        $em->persist($dossierDemande);
                                     }
-                                } else {
-                                    //Signifie que la caisse est le dernier pole
-                                    $dossierDemande->setStatut(2);
-                                    $dossierDemande->setDateDelivrance($date);
                                 }
+                            }
+                            //mise a jour repartition facturation pour brouillard de caisse et autres
+                            $listRepartitionQuittance = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findByDossierDemande($quittance->getDossierDemande());
+                            if ($quittance->getDatePaiement() == null) {
+                                $dateReceptionPaiement = new \DateTime();
                             } else {
-                                //cas apip, la redirection se fait uniquement pour le profil depot+saisi
-                                $userProfile = $userDeCreation->getProfile();
-                                if ($userProfile->getDescription() != "saisi" && $userProfile->getDescription() != "dépot") {
+                                $dateReceptionPaiement = $quittance->getDatePaiement();
+                            }
+                            //retrait de l'ancienne repartition du dossier
+                            foreach ($listRepartitionQuittance as $repartitionQuittance) {
+                                $em->remove($repartitionQuittance);
+                                $em->flush();
+                            }
+                            //mise a jour de la repartition
+                            $poleAPIP = $em->getRepository('ParametrageBundle:Pole')->getPoleBySige("APIP");
+                            $fraisApip = $em->getRepository('ParametrageBundle:Tarification')->getMontantFraisByPole($dossierDemande->getFormeJuridique()->getId(), $dossierDemande->getTypeDossier()->getId(), $poleAPIP->getId());
+                            $listFraisDossier = $em->getRepository('ParametrageBundle:Tarification')->getListeFraisAPayer($dossierDemande->getId());
+
+                            foreach ($fraisApip as $frais) {
+                                $repartitionQuittance = new RepartitionQuittance();
+                                $repartitionQuittance->setMontantDu($frais->getMontant());
+                                $repartitionQuittance->setMontantVerse($frais->getMontant());
+                                $repartitionQuittance->setPole($frais->getPole());
+                                $repartitionQuittance->setDossierDemande($dossierDemande);
+                                $repartitionQuittance->setDatePaiement($dateReceptionPaiement);
+                                $repartitionQuittance->setEntreprise($user->getEntreprise());
+                                $repartitionQuittance->setModePaiement($form->get('modePaiement')->getData());
+                                $em->persist($repartitionQuittance);
+                            }
+                            foreach ($listFraisDossier as $frais) {
+                                $repartitionQuittance = new RepartitionQuittance();
+                                $repartitionQuittance->setMontantDu($frais->getMontant());
+                                $repartitionQuittance->setMontantVerse($frais->getMontant());
+                                $repartitionQuittance->setPole($frais->getPole());
+                                $repartitionQuittance->setDossierDemande($dossierDemande);
+                                $repartitionQuittance->setDatePaiement($dateReceptionPaiement);
+                                $repartitionQuittance->setEntreprise($user->getEntreprise());
+                                $repartitionQuittance->setModePaiement($form->get('modePaiement')->getData());
+                                $em->persist($repartitionQuittance);
+                            }
+                            $em->flush();
+                            //fin mise a jour repartition facturation
+                            //Mise à Jour Document Collected
+                            $statutEnDelivre = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(2);
+                            $date = new \DateTime();
+                            $documentSuivant = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPoleSuivant($documentCaisse->getOrdre(), $dossierDemande->getId());
+                            if ($documentCaisse) {
+                                //echo "<script>console.log( 'document caisse' );</script>";
+                                $documentCaisse->setStatutTraitement($statutEnDelivre);
+
+                                if ($documentCaisse->getDateDelivrance() == null) {
+                                    $documentCaisse->setDateDelivrance($date);
+                                } else {
+                                    $documentCaisse->setDateDerniereModification($date);
+                                }
+                                $em->persist($documentCaisse);
+                                $em->flush();
+
+                                //save quittance
+                                $this->sauvergarderQuittanceDelivre($idq);
+                                //fin save
+                                //mise a jour pole suivant sera ajouter au uniquement en cas de user notaire
+                                //$poleNotaire = $em->getRepository('ParametrageBundle:Pole')->getPoleByName("Notaire");
+                                $userDeCreation = $dossierDemande->getUtilisateur();
+                                $poleUser = $userDeCreation->getPole();
+                                if ($poleUser != $poleAPIP) {
                                     if ($documentSuivant) {
                                         $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
                                         $polesSuivants = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPolesSuivants($documentSuivant[0]->getOrdre(), $dossierDemande->getId());
                                         if ($polesSuivants) {
-                                            //$message = $this->get('translator')->trans('message_dossier_recu');                         
+                                            //$message = $this->get('translator')->trans('message_dossier_recu');
                                             foreach ($polesSuivants as $poleSuivant) {
                                                 $poleSuivant->setStatutTraitement($statutEncours);
                                                 if ($poleSuivant->getDateSoumission() == null) {
@@ -343,22 +328,45 @@ class QuittanceController extends Controller
                                                 $em->persist($poleSuivant);
                                             }
                                         }
+                                    } else {
+                                        //Signifie que la caisse est le dernier pole
+                                        $dossierDemande->setStatut(2);
+                                        $dossierDemande->setDateDelivrance($date);
+                                    }
+                                } else {
+                                    //cas apip, la redirection se fait uniquement pour le profil depot+saisi
+                                    $userProfile = $userDeCreation->getProfile();
+                                    if ($userProfile->getDescription() != "saisi" && $userProfile->getDescription() != "dépot") {
+                                        if ($documentSuivant) {
+                                            $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
+                                            $polesSuivants = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPolesSuivants($documentSuivant[0]->getOrdre(), $dossierDemande->getId());
+                                            if ($polesSuivants) {
+                                                //$message = $this->get('translator')->trans('message_dossier_recu');
+                                                foreach ($polesSuivants as $poleSuivant) {
+                                                    $poleSuivant->setStatutTraitement($statutEncours);
+                                                    if ($poleSuivant->getDateSoumission() == null) {
+                                                        $poleSuivant->setDateSoumission(new \Datetime());
+                                                    }
+                                                    $em->persist($poleSuivant);
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
+                            //Fin mise a jour
+                            $em->flush();
+                            $translated = $this->get('translator')->trans("message_facture_payee");
+                            $this->get('session')->getFlashBag()->add('info', $translated);
+                            return $this->redirectToRoute('reporting_quittance');
                         }
-                        //Fin mise a jour
-                        $em->flush();
-                        $translated = $this->get('translator')->trans("message_facture_payee");
-                        $this->get('session')->getFlashBag()->add('info', $translated);
-                        return $this->redirectToRoute('reporting_quittance');
                     }
                 }
             }
+            return $this->render('BanquemondialeBundle:Default:Quittance/layout/new.html.twig', array('form' => $form->createView(), 'nomCommercial' => $nomCommercial
+            , 'message' => $message, 'quittance' => $quittance, 'definedFormeJuridiqueTraduction' => $definedFormeJuridiqueTraduction
+            , 'montant' => $montant, 'dd' => $dossierDemande));
         }
-        return $this->render('BanquemondialeBundle:Default:Quittance/layout/new.html.twig', array('form' => $form->createView(), 'nomCommercial' => $nomCommercial
-        , 'message' => $message, 'quittance' => $quittance, 'definedFormeJuridiqueTraduction' => $definedFormeJuridiqueTraduction
-        , 'montant' => $montant, 'dd' => $dossierDemande));
     }
     public function enregistrerAction()
     {

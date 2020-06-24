@@ -119,7 +119,6 @@ class monServices extends Controller
         }
 
     }
-
     public function SmsOrange($phoneNumber, Representant $representant, $typeSms = 'depot')
     {
 
@@ -163,13 +162,11 @@ class monServices extends Controller
             $this->get('session')->getFlashBag()->add('echecSMS', $errorMessage . ' effectué avec succès mais SMS non envoyé au promoteur probleme lie à la conexion internet');
         }
     }
-
     public function formatPhoneNumber($telephone)
     {
         $phone = str_replace('-', '', substr($telephone, -12));
         return $phone;
     }
-
     public function getToken()
     {
         require 'Osms.php';
@@ -187,7 +184,6 @@ class monServices extends Controller
         }
 
     }
-
     public function getAdminContracts()
     {
         require 'Osms.php';
@@ -210,7 +206,6 @@ class monServices extends Controller
             die();
         }
     }
-
     public function getPurchaseHistory()
     {
         require 'Osms.php';
@@ -239,7 +234,6 @@ class monServices extends Controller
             echo $response['error'];
         }
     }
-
     /**
      * Check Internet Connection.
      *
@@ -298,7 +292,6 @@ class monServices extends Controller
             "reference" => $this->fixtags($customerRef),
 
         );
-//die(dump($this->fixtags($customerRef)));
         $webPayment = $om->webPayment($opt);
       //  die(dump($webPayment));
         $transactionStatus = $om->checkTransactionStatus($orderId, $amount, $webPayment['pay_token']);
@@ -546,6 +539,10 @@ class monServices extends Controller
         return $modePayement;
     }
 
+    /**
+     * @param $phoneNumber
+     * @param DossierDemande $dossierDemande
+     */
     public function payementSmsOrange($phoneNumber, DossierDemande $dossierDemande)
     {
         require 'Osms.php';
@@ -575,9 +572,15 @@ class monServices extends Controller
                 $this->get('session')->getFlashBag()->add('echecSMS', 'SMS non envoyé au promoteur un probleme lie à la conexion internet');
             }
         } else {
-            $this->get('session')->getFlashBag()->add('echecSMS', 'Un probleme lie à la conexion internet');
+            $this->get('session')->getFlashBag()->add('echecSMS', 'SMS non envoyé au promoteur un probleme lie à la conexion internet');
         }
     }
+
+    /**
+     * @param PaiementOrange $paiementOrange
+     * @param $status
+     * @param $txnid
+     */
     public  function updatePayementOrange(PaiementOrange $paiementOrange,$status,$txnid){
         $em=$this->getDoctrine()->getManager();
        $paiementOrange->setStatus($status)->setTxnid($txnid);
@@ -585,7 +588,10 @@ class monServices extends Controller
        $em->flush();
     }
 
-
+    /**
+     * @param $idq
+     * @return bool
+     */
     public  function verifyQuittancePayementStstus($idq){
         $em=$this->getDoctrine()->getManager();
         $temoin=false;
@@ -594,25 +600,30 @@ class monServices extends Controller
            if ($value->getCustomer()['idq']==$idq){
                $statusPayement= $this->getStatusPayement($value->getOrderId(),$value->getAmount(),$value->getPayToken());
               if ($statusPayement['status']=="SUCCESS"){
-                  $this->get('monservices')->returnSuccessPayementOrange($value->getCustomer(), $idq, $value->getCustomer()['codeLang']);
-                  $this->get('monservices')->updatePayementOrange($value,$statusPayement['status'],$statusPayement['txnid']);
-                  $errorMessage = "le paiement est effectué";
-                  $this->get('session')->getFlashBag()->add('successStatus', $errorMessage);
+                  $this->returnSuccessPayementOrange($value->getCustomer(), $idq, $value->getCustomer()['codeLang']);
+                  $this->updatePayementOrange($value,$statusPayement['status'],$statusPayement['txnid']);
+                  $errorMessage = "le paiement de ce dossier est dejà effectué";
+                  $this->get('session')->getFlashBag()->add('echecStatus', $errorMessage);
                   $temoin=true;
-                //  return $this->redirectToRoute('reporting_quittance');
-                  return new RedirectResponse($this->generateUrl('reporting_quittance'));
+              }
+              elseif ($statusPayement['status']=="FAILED"){
+                  $this->updatePayementOrange($value,$statusPayement['status'],$statusPayement['txnid']);
+
+              }
+              elseif ($statusPayement['status']=="EXPIRED"){
+                  $this->updatePayementOrange($value,$statusPayement['status'],$statusPayement['txnid']);
+              }
+              elseif ($statusPayement['status']=="PENDING"){
+                  $this->updatePayementOrange($value,$statusPayement['status'],$statusPayement['txnid']);
               }
            }
         }
-       if ($temoin==true){
-          // return $this->redirectToRoute('reporting_quittance');
-           return new RedirectResponse($this->generateUrl('reporting_quittance'));
-       }
-       else{
-           return $temoin;
-       }
+        return $temoin;
     }
 
+    /**
+     * @return string
+     */
     public function getBaseUrl()
     {
         $host = $this->container->get('router')->getContext()->getHost();

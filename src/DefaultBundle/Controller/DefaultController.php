@@ -5264,48 +5264,51 @@ class DefaultController extends Controller
      */
     public function makeOrangeMoneyPayementAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
-        $session = $request->getSession();
-        $session->remove('sessionOrderId');
-        $session->remove('sessionPayToken');
-        $session->remove('sessionAmount');
-
-        $sessionData = $session->get('sessionData');
-        $sessionIdq = $session->get('sessionIdq');
-        $codLang = $session->get('codLang');
-        $customer = array_merge(
-            array(
-            'denominationSociale' => $sessionData['denominationSociale'],
-            'numeroDossier' => $sessionData['numeroDossier'],
-            'telephone' => $sessionData['telephone'],
-                'idq'=>$sessionIdq,
-                'codeLang'=>$codLang
-        ),$sessionData);
+        if ($this->get('monServices')->pingIPServer()==true){
+            $em = $this->getDoctrine()->getManager();
+            $session = $request->getSession();
+            $session->remove('sessionOrderId');
+            $session->remove('sessionPayToken');
+            $session->remove('sessionAmount');
+            $sessionData = $session->get('sessionData');
+            $sessionIdq = $session->get('sessionIdq');
+            $codLang = $session->get('codLang');
+            $customer = array_merge(
+                array(
+                    'denominationSociale' => $sessionData['denominationSociale'],
+                    'numeroDossier' => $sessionData['numeroDossier'],
+                    'telephone' => $sessionData['telephone'],
+                    'idq'=>$sessionIdq,
+                    'codeLang'=>$codLang
+                ),$sessionData);
 //        die(dump($customer));
-        $amount=500;
-           // $sessionData['montantTotalFacture'];
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $paiementOrange = new PaiementOrange();
-        $orderIder = $this->get('monServices')->genrateReferancefactureOrange();
-        $omWeb = $this->get('monServices')->webPayement( $customer['denominationSociale'], $amount, $orderIder);
-        $paiementOrange
-            ->setAmount($amount)
-            ->setPayToken($omWeb['webPayment']['pay_token'])
-            ->setOrderId($omWeb['transactionStatus']['order_id'])
-            ->setStatus($omWeb['transactionStatus']['status'])
-            ->setTxnid($omWeb['transactionStatus']['txnid'])
-            ->setUser($user)
-            ->setCustomer($customer);
-        $em->persist($paiementOrange);
-        $em->flush();
-
-
-        if (!$session->has('sessionOrderId')) {
-            $session->set('sessionOrderId', $omWeb['transactionStatus']['order_id']);
-            $session->set('sessionPayToken', $omWeb['webPayment']['pay_token']);
-            $session->set('sessionAmount', $amount);
+            $amount=500;
+            // $sessionData['montantTotalFacture'];
+            $user = $this->get('security.token_storage')->getToken()->getUser();
+            $paiementOrange = new PaiementOrange();
+            $orderIder = $this->get('monServices')->genrateReferancefactureOrange();
+            $omWeb = $this->get('monServices')->webPayement( $customer['denominationSociale'], $amount, $orderIder);
+            $paiementOrange
+                ->setAmount($amount)
+                ->setPayToken($omWeb['webPayment']['pay_token'])
+                ->setOrderId($omWeb['transactionStatus']['order_id'])
+                ->setStatus($omWeb['transactionStatus']['status'])
+                ->setTxnid($omWeb['transactionStatus']['txnid'])
+                ->setUser($user)
+                ->setCustomer($customer);
+            $em->persist($paiementOrange);
+            $em->flush();
+            if (!$session->has('sessionOrderId')) {
+                $session->set('sessionOrderId', $omWeb['transactionStatus']['order_id']);
+                $session->set('sessionPayToken', $omWeb['webPayment']['pay_token']);
+                $session->set('sessionAmount', $amount);
+            }
+            return new RedirectResponse($omWeb['webPayment']['payment_url']);
         }
-        return new RedirectResponse($omWeb['webPayment']['payment_url']);
+        else{
+            $this->get('session')->getFlashBag()->add('echecSMS','Impossible de lancer le paiement par orange money problème lie à la connexion internet');
+            return $this->redirectToRoute('confirmation-payement-orange-money');
+        }
     }
 
     /**
