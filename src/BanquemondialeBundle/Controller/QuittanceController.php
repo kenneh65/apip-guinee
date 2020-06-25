@@ -593,7 +593,6 @@ class QuittanceController extends Controller
             $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, null, $formeJuridique, $idLangue,$modePaiement);
             if (!empty($poleChoisi)) {
                 $poles = $em->getRepository('ParametrageBundle:Pole')->find($poleChoisi);
-
                 $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardPoleByParameters($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue);
 
                 foreach ($repartitions as $repartition) {
@@ -602,6 +601,7 @@ class QuittanceController extends Controller
                 }
             }
             else {
+
                 foreach ($totaux as $total) {
                     $montant = $total['montant'];
                     $montantTotal = $montantTotal + $montant;
@@ -636,8 +636,9 @@ class QuittanceController extends Controller
             $montant = $total['montant'];
             $montantTotal = $montantTotal + $montant;
         }
+     //   die(dump($montantTotal));
+      // die(dump("DateDebu=$datedebut  ; DateFin=$datefin; entreprise= $entreprise ; poleChoisi= $poleChoisi ; formeJuridique=  $formeJuridique ; modePaiement= $modePaiement ;idLangue= $idLangue"));
 
-       // die(dump("DateDebu=".date_format($datedebut,'Y-m-d')."  ; DateFin=". date_format($datefin,'Y-m-d')." ; entreprise= $entreprise ; poleChoisi= $poleChoisi ; formeJuridique=  $formeJuridique ; modePaiement= $modePaiement ;idLangue= $idLangue"));
         return $this->render('BanquemondialeBundle:Default:Quittance/layout/brouillard.html.twig', array(
             'message' => $message,
             'repartitions' => $repartitions,

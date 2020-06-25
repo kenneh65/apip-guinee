@@ -1,0 +1,68 @@
+{% xlsinclude %}
+    {% xlsrow %}
+        {% xlscell { style: { font: { size: '16' } } } %}
+            {{ 'BROUILLARD DE CAISSE' }}
+        {% endxlscell %}
+    {% endxlsrow %}
+    {% xlsrow %}
+        {% xlscell { style: { font: { size: '16' } } } %}
+            {{ 'Date début' }}
+        {% endxlscell %}
+        {% xlscell { style: { font: { size: '16' } } } %}
+            {{ dateDebut }}
+        {% endxlscell %}
+
+    {% endxlsrow %}
+    {% xlsrow %}
+        {% xlscell { style: { font: { size: '16' } } } %}
+            {{ 'Date fin' }}
+        {% endxlscell %}
+        {% xlscell { style: { font: { size: '16' } } } %}
+            {{ dateFin }}
+        {% endxlscell %}
+    {% endxlsrow %}
+    {% if poleChoisi!=0 %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Pôle' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ monServices.getElementByIdByEntityName('ParametrageBundle:Pole',poleChoisi).nom }}
+            {% endxlscell %}
+        {% endxlsrow %}
+    {% endif %}
+    {% if formeJuridique!=0 %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Forme juridique' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ monServices.getElementByIdByEntityName('BanquemondialeBundle:FormeJuridique',formeJuridique).formeJuridiqueTraduction[0].libelle }}
+            {% endxlscell %}
+        {% endxlsrow %}
+    {% endif %}
+    {% if entreprise!=0 %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Structure / Antenne' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ monServices.getElementByIdByEntityName('BanquemondialeBundle:Entreprise',entreprise).denomination }}
+            {% endxlscell %}
+        {% endxlsrow %}
+    {% endif %}
+    {% if modePaiement!=0 %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Mode de paiement' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ monServices.getElementByIdByEntityName('BanquemondialeBundle:ModePaiementTraduction',modePaiement).libelle }}
+            {% endxlscell %}
+        {% endxlsrow %}
+    {% endif %}
+    {% xlsrow %}
+        {% xlscell { style: { font: { size: '16' } } } %}
+        {% endxlscell %}
+    {% endxlsrow %}
+{% endxlsinclude %}

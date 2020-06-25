@@ -150,10 +150,10 @@ class RepartitionQuittanceRepository extends EntityRepository {
             }
 
             if ( !empty($idPole)) {
-                $slqRequete = $slqRequete . "and r.idPole = " . $idPole;
+                $slqRequete = $slqRequete . " and r.idPole = " . $idPole;
             }
 
-            $slqRequete = $slqRequete . " group by p.id order by p.nom asc";
+            $slqRequete = $slqRequete . " group by p.id order by p.nom asc ";
 
 
             $stmt = $this->getEntityManager()->getConnection()->prepare($slqRequete);

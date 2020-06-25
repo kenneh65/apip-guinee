@@ -1,27 +1,37 @@
-{% xlsdocument %}
-    {% xlssheet 'Worksheet' %}
-        {% if poleChoisi=='0' %}
+{% xlsdocument
+    {
+    'category': 'Brouillard de caisse',
+    'company': 'APIP-GUINEE',
+    'creator': 'APIP-GUINEE',
+    'defaultStyle': {
+    'font': {
+        'size': 18.0
+    }
+},
+    'description': 'Brouillard de caisse',
+    'keywords': 'APIP-GUINEE',
+    'lastModifiedBy': 'APIP-GUINEE',
+    'manager': 'Test manager',
+    'security': {
+    'lockRevision': true,
+    'lockStructure': true,
+    'lockWindows': true,
+    'revisionsPassword': 'test',
+    'workbookPassword': 'test'
+},
+    'subject': 'Brouillard de caisse',
+    'title': 'Brouillard de caisse'
+    }
+%}
+    {% xlssheet 'Brouillard de caisse' %}
+        {% if poleChoisi==0 %}
+            {% include 'inc/statistique_caisse_excel.xls.twig' %}
             {% xlsrow %}
-                {% xlscell %}{{ 'Forme juridique' }}{% endxlscell %}
-                {% xlscell %}{{ poles.nom|trans }}{% endxlscell %}
-            {% endxlsrow %}
-            {% for repartition in repartitions %}
-                {% xlsrow %}
-                    {% xlscell %}{{ repartition.formeJuridique }}{% endxlscell %}
-                    {% xlscell %}{{ repartition.montant|number_format(0, '.', '  ') }}{% endxlscell %}
-                {% endxlsrow %}
-            {% endfor %}
-            {% xlsrow %}
-                {% xlscell %}{{ 'total' }}{% endxlscell %}
-                {% xlscell %}{{ montantTotal|number_format(0, '.', '  ') }}{% endxlscell %}
-            {% endxlsrow %}
-        {% else %}
-            {% xlsrow %}
-                {% xlscell %}{{ 'Forme juridique' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'FORME JURIDIQUE' }}{% endxlscell %}
                 {% for pole in poles %}
-                    {% xlscell %}{{ pole.nom|trans }}{% endxlscell %}
+                    {% xlscell  { style: { font: { size: '18' } } } %}{{ pole.nom|trans }}{% endxlscell %}
                 {% endfor %}
-                {% xlscell %}{{ 'montant' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'MONTANT' }}{% endxlscell %}
             {% endxlsrow %}
             {% for repartition in repartitions %}
                 {% xlsrow %}
@@ -40,17 +50,17 @@
                             {% xlscell %}{{ '0' }}{% endxlscell %}
                         {% endif %}
                     {% endfor %}
-                    {% xlscell %}{{ montantTotal|number_format(0, '.', '  ') }}{% endxlscell %}
+                    {% xlscell  { style: { font: { size: '18' } } } %}{{ sousTotal|number_format(0, '.', '  ') }}{% endxlscell %}
                 {% endxlsrow %}
             {% endfor %}
             {% xlsrow %}
-                {% xlscell %}{{ 'total' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Total' }}{% endxlscell %}
 
                 {% for pole in poles %}
                     {% set frein2 = 0 %}
                     {% for total in totaux %}
                         {% if total.pole == pole.nom %}
-                            {% xlscell %}{{ total.montant |number_format(0, '.', ',') }}{% endxlscell %}
+                            {% xlscell  { style: { font: { size: '18' } } } %}{{ total.montant |number_format(0, '.', ',') }}{% endxlscell %}
                             {% set frein2 = 1 %}
                         {% endif %}
                     {% endfor %}
@@ -58,7 +68,23 @@
                         {% xlscell %}{{ '0' }}{% endxlscell %}
                     {% endif %}
                 {% endfor %}
-                {% xlscell %}{{ montantTotal |number_format(0, '.', ',') }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ montantTotal |number_format(0, '.', ',') }}{% endxlscell %}
+            {% endxlsrow %}
+        {% else %}
+            {% include 'inc/statistique_caisse_excel.xls.twig' %}
+            {% xlsrow %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'FORME JURIDIQUE' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ poles.nom|trans }}{% endxlscell %}
+            {% endxlsrow %}
+            {% for repartition in repartitions %}
+                {% xlsrow %}
+                    {% xlscell %}{{ repartition.formeJuridique }}{% endxlscell %}
+                    {% xlscell %}{{ repartition.montant|number_format(0, '.', '  ') }}{% endxlscell %}
+                {% endxlsrow %}
+            {% endfor %}
+            {% xlsrow %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Total' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ montantTotal|number_format(0, '.', '  ') }}{% endxlscell %}
             {% endxlsrow %}
         {% endif %}
     {% endxlssheet %}

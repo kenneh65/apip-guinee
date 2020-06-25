@@ -5195,10 +5195,12 @@ class DefaultController extends Controller
             }
         }
         $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique,$modePaiement);
-        $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, null, $formeJuridique, $idLangue,$modePaiement);
-        $poles = $em->getRepository('ParametrageBundle:Pole')->find($poleChoisi);
-        if (!empty($poleChoisi)) {
 
+        $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue,$modePaiement);
+      //  die(dump('ok'));
+        if (!empty($poleChoisi)) {
+            $poles = $em->getRepository('ParametrageBundle:Pole')->find($poleChoisi);
+          //  die(dump('ok'));
             $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardPoleByParameters($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue);
             foreach ($repartitions as $repartition) {
                 $montant = $repartition['montant'];
@@ -5206,17 +5208,18 @@ class DefaultController extends Controller
             }
         }
         else {
-            $poles = $em->getRepository('ParametrageBundle:Pole')->find($poleChoisi);
+            $poles = $em->getRepository('ParametrageBundle:Pole')->getPolesQuittance();
+
             foreach ($totaux as $total) {
                 $montant = $total['montant'];
                 $montantTotal = $montantTotal + $montant;
             }
         }
-        foreach ($totaux as $total) {
-            $montant = $total['montant'];
-            $montantTotal = $montantTotal + $montant;
-        }
-      //die(dump($poleChoisi));
+//        foreach ($totaux as $total) {
+//            $montant = $total['montant'];
+//            $montantTotal = $montantTotal + $montant;
+//        }
+       // die(dump($montantTotal));
         return array(
             'repartitions' => $repartitions,
             'montantTotal' => $montantTotal,
@@ -5225,6 +5228,9 @@ class DefaultController extends Controller
             'totaux' => $totaux,
             'dateDebut' => $datedebut,
             'dateFin' => $datefin,
+            'formeJuridique'=>$formeJuridique,
+            'modePaiement'=>$modePaiement,
+            'entreprise'=>$entreprise,
             'nomCaisse' => $nomCaisse);
     }
 

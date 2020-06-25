@@ -634,6 +634,17 @@ class monServices extends Controller
         return $baseUrl;
     }
 
+    /**
+     * @param $entityName
+     * @param $idElement
+     * @return mixed
+     */
+    public function getElementByIdByEntityName($entityName,$idElement){
+        $em=$this->getDoctrine()->getManager();
+        $entity=$em->getRepository($entityName)->findOneById($idElement);
+        return $entity;
+    }
+
     public function testAPIwebPayement()
     {
         $om = new OmSdk();
