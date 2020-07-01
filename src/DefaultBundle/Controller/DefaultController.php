@@ -398,11 +398,6 @@ class DefaultController extends Controller
         if (is_object($user) && $user->getFirstLog()) {
             return $this->redirectToRoute('utilisateur_profil-updatepassword');
         }
-
-        //$texte = $this->get('translator')->trans('envoi_email_soumission_saisie',array('%numeroDossier%' => $numeroDossier));
-        //die(dump($texte));
-
-
         $request = $this->get('request');
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
@@ -462,6 +457,9 @@ class DefaultController extends Controller
         $nbreDocSuivi = 0;
         $nbrDocAValider = 0;
         $nbrDocValide = 0;
+        $NombreTotalEnattenteSaisiiInterfaceDGA=0;
+        $NombreTotalEnattenteImmatriculationInterfaceDGA=0;
+        $NombreTotalEnattenteModificationInterfaceDGA=0;
 
         if ($pole && $pole->getSigle() == "AL") {
             $dossierEnCours = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierAnnonceurEncours($user);
@@ -474,6 +472,7 @@ class DefaultController extends Controller
             $dossiersDelivre = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceValideByParametres(null, $langue->getId(), $user->getId(), null);
             if ($user->getEntreprise()) {
                 $dossierEnCours = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceEnAttenteByParametres(null, $langue->getId(), $user->getId(), null, $user->getEntreprise()->getSousPrefecture()->getId());
+
             }
             if ($user->getEntreprise() && $user->getEntreprise()->getIsSiege() == false) {
 
@@ -490,6 +489,7 @@ class DefaultController extends Controller
 
 
             $nbreDocEnCours = count($dossierEnCours);
+
             $nbreDocDelivre = count($dossiersDelivre);
             $nbreDocModifie = count($dossiersModifie);
             $nbreDocBrouillon = count($dossiersBrouillon);
@@ -539,7 +539,16 @@ class DefaultController extends Controller
             //  $serviceListeRetraipartiel=$this->get('monservices')->getlisteNbreDossierRetraitPartiel($user,null, 1,2, 200, 2 , null);
             //  var_dump(count($serviceListeRetraipartiel));die();
         }
-        return $this->render('DefaultBundle:Default:index.html.twig', array(
+        $view='DefaultBundle:Default:index.html.twig';
+       if ( $this->get('security.authorization_checker')->isGranted('ROLE_DGA') && !$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')){
+
+           $view="DefaultBundle:Default:dgaInterface.html.twig";
+           $NombreTotalEnattenteSaisiiInterfaceDGA = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA([],null,null)['ResultqueryattSaisie'];
+           $NombreTotalEnattenteImmatriculationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGA();
+           $NombreTotalEnattenteModificationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteModificationDGA();
+       }
+
+        return $this->render($view, array(
             'nbreDocEnCours' => $nbreDocEnCours,
             'StatNbreDossierBYPole' => $listeNbreDossierEncoursByPole,
             'StatDossierDelivre' => $listeNbreDossierDelivreByPole,
@@ -560,10 +569,106 @@ class DefaultController extends Controller
             'nbreDocDepotModification' => $nbreDocDepotModification,
             'nbrDocAValider' => $nbrDocAValider,
             'nbrDocValide' => $nbrDocValide,
-            //'listeNbreDossierRetraitPartiel'=>count($serviceListeRetraipartiel)
+            'NombreTotalEnattenteSaisiiInterfaceDGA'=>$NombreTotalEnattenteSaisiiInterfaceDGA,
+            'NombreTotalEnattenteImmatriculationInterfaceDGA'=>count($NombreTotalEnattenteImmatriculationInterfaceDGA),
+            'NombreTotalEnattenteModificationInterfaceDGA'=>count($NombreTotalEnattenteModificationInterfaceDGA)
         ));
     }
 
+
+    /**
+     * @Route("/{_locale}/admin/suivi-liste-des-dossier-en-attentes-immatriculation/{ids}",name="dossier-en-attentes-immatriculation-dga-interface")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function listDossierEnAttenteImmatriculationDGAAction($data = null, $idS = 1) {
+        $em = $this->getDoctrine()->getManager();
+       // $user = $this->container->get('security.context')->getToken()->getUser();
+       // $pole = $user->getPole();
+        $idPole = 1;
+        $pole = $em->getRepository('ParametrageBundle:Pole')->findOneById($idPole);
+        $data = $this->getRequest()->request->get('data');
+        $request = $this->get('request');
+        //$request->setLocale("en");
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $idCodeLangue = $langue->getId();
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam(null, $idCodeLangue, $idPole, 25, $idS);
+        if ($request->getMethod() == 'POST') {
+            $data = $request->request->all()['dossiersPole'];
+           // die(dump($data));
+            $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam( $data, $idCodeLangue, $idPole, null, $idS);
+        }
+
+        $form = $this->createForm(new DossierPoleSearchType(array('langue' => $langue)));
+
+        $form->bind($request);
+
+        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
+    }
+    /**
+     * @Route("/{_locale}/admin/suivi-liste-des-dossier-en-attentes-modification/{ids}",name="dossier-en-attentes-modification-dga-interface")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function listDossierEnAttenteModificationDGAAction($data = null, $idS = 3) {
+        $em = $this->getDoctrine()->getManager();
+//        $user = $this->container->get('security.context')->getToken()->getUser();
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
+       $pole = $em->getRepository('ParametrageBundle:Pole')->findOneById($idPole);
+           //$user->getPole();
+
+//        if ($pole) {
+//            $idPole = $pole->getId();
+//        }
+
+
+        $data = $this->getRequest()->request->get('data');
+        $request = $this->get('request');
+        //$request->setLocale("en");
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $idCodeLangue = $langue->getId();
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam(null, $idCodeLangue, $idPole, 25, $idS);
+
+        if ($request->getMethod() == 'POST') {
+            $data = $request->request->all()['dossiersPole'];
+            // die(dump($data));
+            $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam( $data, $idCodeLangue, $idPole, null, $idS);
+        }
+
+        $form = $this->createForm(new DossierPoleSearchType(array('langue' => $langue)));
+
+        $form->bind($request);
+
+        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
+    }
+    /**
+     * @Route("/{_locale}/admin/suivi-dga-liste-dossier-encour",name="suivi-dga-liste-dossier-encour")
+     * @Security("has_role('ROLE_DGA')")
+     */
+    public function listDossierEnCoursAction() {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $profilName = "";
+        if ($user->getProfile()) {
+            $profil = $user->getProfile()->getDescription();
+            $profilName = $profil;
+        }
+        $data = NULL;
+        $request = $this->get('request');
+        //$request->setLocale("en");
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $idLangue = $langue->getId();
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA(null, $idLangue, $user->getId(), 25);
+        if ($request->getMethod() == 'POST') {
+            $data = $request->request->all()['dossierEncours'];
+            $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA($data, $idLangue, $user->getId(), null);
+        }
+        $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
+        $form->bind($request);
+        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttenteSaisie.html.twig', array('form' => $form->createView(),
+            'listerdemande' => $listerdemande['tabResult'], 'langue' => $idLangue, 'profilName' => $profilName));
+    }
     /**
      * @Route("/{_locale}/detailsDossierPole/{idP}/{idS}",name="detailsDossierPole")
      *
@@ -5184,9 +5289,9 @@ class DefaultController extends Controller
      * @Route("/{datedebut}/{datefin}/{entreprise}/{poleChoisi}/{formeJuridique}/{modePaiement}/{idLangue}/statistiques-de-caisse-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistiques-de-caisse-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:Default:statistiques-de-caisse-excel.xls.twig")
      */
-    public function brouillardCaisseEnExcelAction($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique,$modePaiement,$idLangue)
+    public function brouillardCaisseEnExcelAction($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $modePaiement, $idLangue)
     {
-        $em=$this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $montantTotal = 0;
         if (!empty($entreprise)) {
             $caisse = $em->getRepository('BanquemondialeBundle:Entreprise')->find($entreprise);
@@ -5194,20 +5299,19 @@ class DefaultController extends Controller
                 $nomCaisse = $caisse->getDenomination();
             }
         }
-        $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique,$modePaiement);
+        $totaux = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findRepartitionQuittanceByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $modePaiement);
 
-        $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue,$modePaiement);
-      //  die(dump('ok'));
+        $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardByParametres($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue, $modePaiement);
+        //  die(dump('ok'));
         if (!empty($poleChoisi)) {
             $poles = $em->getRepository('ParametrageBundle:Pole')->find($poleChoisi);
-          //  die(dump('ok'));
+            //  die(dump('ok'));
             $repartitions = $em->getRepository('BanquemondialeBundle:RepartitionQuittance')->findBrouillardPoleByParameters($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $idLangue);
             foreach ($repartitions as $repartition) {
                 $montant = $repartition['montant'];
                 $montantTotal = $montantTotal + $montant;
             }
-        }
-        else {
+        } else {
             $poles = $em->getRepository('ParametrageBundle:Pole')->getPolesQuittance();
 
             foreach ($totaux as $total) {
@@ -5219,7 +5323,7 @@ class DefaultController extends Controller
 //            $montant = $total['montant'];
 //            $montantTotal = $montantTotal + $montant;
 //        }
-       // die(dump($montantTotal));
+        // die(dump($montantTotal));
         return array(
             'repartitions' => $repartitions,
             'montantTotal' => $montantTotal,
@@ -5228,9 +5332,9 @@ class DefaultController extends Controller
             'totaux' => $totaux,
             'dateDebut' => $datedebut,
             'dateFin' => $datefin,
-            'formeJuridique'=>$formeJuridique,
-            'modePaiement'=>$modePaiement,
-            'entreprise'=>$entreprise,
+            'formeJuridique' => $formeJuridique,
+            'modePaiement' => $modePaiement,
+            'entreprise' => $entreprise,
             'nomCaisse' => $nomCaisse);
     }
 
@@ -5270,7 +5374,7 @@ class DefaultController extends Controller
      */
     public function makeOrangeMoneyPayementAction(Request $request)
     {
-        if ($this->get('monServices')->pingIPServer()==true){
+        if ($this->get('monServices')->pingIPServer() == true) {
             $em = $this->getDoctrine()->getManager();
             $session = $request->getSession();
             $session->remove('sessionOrderId');
@@ -5284,16 +5388,16 @@ class DefaultController extends Controller
                     'denominationSociale' => $sessionData['denominationSociale'],
                     'numeroDossier' => $sessionData['numeroDossier'],
                     'telephone' => $sessionData['telephone'],
-                    'idq'=>$sessionIdq,
-                    'codeLang'=>$codLang
-                ),$sessionData);
+                    'idq' => $sessionIdq,
+                    'codeLang' => $codLang
+                ), $sessionData);
 //        die(dump($customer));
-            $amount=500;
+            $amount = 500;
             // $sessionData['montantTotalFacture'];
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $paiementOrange = new PaiementOrange();
             $orderIder = $this->get('monServices')->genrateReferancefactureOrange();
-            $omWeb = $this->get('monServices')->webPayement( $customer['denominationSociale'], $amount, $orderIder);
+            $omWeb = $this->get('monServices')->webPayement($customer['denominationSociale'], $amount, $orderIder);
             $paiementOrange
                 ->setAmount($amount)
                 ->setPayToken($omWeb['webPayment']['pay_token'])
@@ -5310,9 +5414,8 @@ class DefaultController extends Controller
                 $session->set('sessionAmount', $amount);
             }
             return new RedirectResponse($omWeb['webPayment']['payment_url']);
-        }
-        else{
-            $this->get('session')->getFlashBag()->add('echecSMS','Impossible de lancer le paiement par orange money problème lie à la connexion internet');
+        } else {
+            $this->get('session')->getFlashBag()->add('echecSMS', 'Impossible de lancer le paiement par orange money problème lie à la connexion internet');
             return $this->redirectToRoute('confirmation-payement-orange-money');
         }
     }
@@ -5322,12 +5425,13 @@ class DefaultController extends Controller
      */
     public function confirmationPayementOrangeMoneyAction(Request $request)
     {
-      //$em = $this->getDoctrine()->getManager();
+        //$em = $this->getDoctrine()->getManager();
         $referer = $this->getRequest()->headers->get('referer');
         return $this->render('DefaultBundle:Default:confirm-om-payement.html.twig', array(
             'referer' => $referer
         ));
     }
+
     /**
      * @Route("/{_locale}/admin/returning-payement-orange-money",name="returning-payement-orange-money")
      */
@@ -5342,32 +5446,29 @@ class DefaultController extends Controller
         $sessionPayToken = $session->get('sessionPayToken');
         $sessionAmount = $session->get('sessionAmount');
         $statusPayement = $this->get('monservices')->getStatusPayement($sessionOrderId, $sessionAmount, $sessionPayToken);
-        $paiementOrange=$em->getRepository('DefaultBundle:PaiementOrange')->findOneByOrderId($sessionOrderId);
+        $paiementOrange = $em->getRepository('DefaultBundle:PaiementOrange')->findOneByOrderId($sessionOrderId);
         $tabStatus = array(
             'INITIATED' => 'INITIATED',
             'PENDING' => 'PENDING',
             'EXPIRED' => 'EXPIRED',
             'SUCCESS' => 'SUCCESS',
             'FAILED' => 'FAILED');
-            if ($statusPayement['status'] == $tabStatus['INITIATED']) {
+        if ($statusPayement['status'] == $tabStatus['INITIATED']) {
             $errorMessage = "Le Paiement a été annule veuillez réessayer";
             $this->get('session')->getFlashBag()->add('echecStatus', $errorMessage);
             return $this->redirectToRoute('traiter_quittance', array('idq' => $sessionIdq));
-        }
-        elseif ($statusPayement['status'] == $tabStatus['PENDING']) {
+        } elseif ($statusPayement['status'] == $tabStatus['PENDING']) {
             $errorMessage = "L'utilisateur a cliqué sur « Confirmer », la transaction est en cours du côté d’Orange";
             $this->get('session')->getFlashBag()->add('successStatus', $errorMessage);
-           // die(dump($errorMessage));
-        }
-        elseif ($statusPayement['status'] == $tabStatus['EXPIRED']) {
-            $this->get('monservices')->updatePayementOrange($paiementOrange,$tabStatus['EXPIRED'],$statusPayement['txnid']);
+            // die(dump($errorMessage));
+        } elseif ($statusPayement['status'] == $tabStatus['EXPIRED']) {
+            $this->get('monservices')->updatePayementOrange($paiementOrange, $tabStatus['EXPIRED'], $statusPayement['txnid']);
             $errorMessage = "Le délai de validation a expiré, veuillez réessayer";
             $this->get('session')->getFlashBag()->add('echecStatus', $errorMessage);
             return $this->redirectToRoute('traiter_quittance', array('idq' => $sessionIdq));
-        }
-        elseif ($statusPayement['status'] == $tabStatus['SUCCESS']) {
+        } elseif ($statusPayement['status'] == $tabStatus['SUCCESS']) {
             $this->get('monservices')->returnSuccessPayementOrange($sessionData, $sessionIdq, $codLang);
-            $this->get('monservices')->updatePayementOrange($paiementOrange,$tabStatus['SUCCESS'],$statusPayement['txnid']);
+            $this->get('monservices')->updatePayementOrange($paiementOrange, $tabStatus['SUCCESS'], $statusPayement['txnid']);
             $errorMessage = "le paiement est effectué";
             $this->get('session')->getFlashBag()->add('successStatus', $errorMessage);
             /// Supression  variables de session
@@ -5380,9 +5481,8 @@ class DefaultController extends Controller
             $session->remove('sessionAmount');
             return $this->redirectToRoute('reporting_quittance');
             // // die(dump($errorMessage));
-        }
-        elseif ($statusPayement['status'] == $tabStatus['FAILED']) {
-            $this->get('monservices')->updatePayementOrange($paiementOrange,$tabStatus['FAILED'],$statusPayement['txnid']);
+        } elseif ($statusPayement['status'] == $tabStatus['FAILED']) {
+            $this->get('monservices')->updatePayementOrange($paiementOrange, $tabStatus['FAILED'], $statusPayement['txnid']);
             $errorMessage = "Le paiement a échoué veillez recomencer";
             $this->get('session')->getFlashBag()->add('echecStatus', $errorMessage);
             return $this->redirectToRoute('traiter_quittance', array('idq' => $sessionIdq));
@@ -5394,26 +5494,14 @@ class DefaultController extends Controller
      */
     public function testPayementOrange(Request $request)
     {
-        $session = $request->getSession();
-        $sessionData = $session->get('sessionData');
-        $sessionIdq = $session->get('sessionIdq');
-        $codLang = $session->get('codLang');
-       $this->get('monservices')->verifyQuittancePayementStstus('22560');
 
-
-       $this->get('monservices')->returnSuccessPayementOrange($sessionData,$sessionIdq,$codLang);
-
-//        $host = $this->container->get('router')->getContext()->getHost();
-//        $parameter_locale = $this->container->get('router')->getContext()->getParameter('_locale');
-//        $scheme = $this->container->get('router')->getContext()->getScheme();
-//        $port = $this->container->get('router')->getContext()->getHttpPort();
-//
-//        $baseUrl = $scheme . '://' . $host . '/' . $parameter_locale . '/';
-//
-//        die(dump($baseUrl));
-//        die(dump($this->get('router')->generate('test-payement-orange-money')));
-//        $omWeb = $this->get('monservices')->testAPIwebPayement();
-        return new RedirectResponse($omWeb['payment_url']);
+//        $session = $request->getSession();
+//        $sessionData = $session->get('sessionData');
+//        $sessionIdq = $session->get('sessionIdq');
+//        $codLang = $session->get('codLang');
+        $this->get('monservices')->SmsOrangetest();
+        var_dump('ok');die();
+        return 1;
     }
 
     /**
@@ -5423,9 +5511,9 @@ class DefaultController extends Controller
     public function testExportExcel(Request $request)
     {
 
-        $data=['name'=>'Kante Mohamed','Genre'=>'Masculin','Age'=>27,'Adresse'=>'Lambayi'];
-       // die(dump($data));
-        return  ['persone' => ['name'=>'Kante Mohamed','Genre'=>'Masculin','Age'=>27,'Adresse'=>'Lambayi']];
+        $data = ['name' => 'Kante Mohamed', 'Genre' => 'Masculin', 'Age' => 27, 'Adresse' => 'Lambayi'];
+        // die(dump($data));
+        return ['persone' => ['name' => 'Kante Mohamed', 'Genre' => 'Masculin', 'Age' => 27, 'Adresse' => 'Lambayi']];
     }
 
 }

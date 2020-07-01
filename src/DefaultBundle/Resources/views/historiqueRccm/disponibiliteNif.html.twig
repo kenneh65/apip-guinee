@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                <div style="color: white;background:green"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                <div style="color: white;background:#ff5a2f"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="">
+        <h3>Veuillez rechercher la disponiblite RCCM</h3>
+        <form  method="POST">
+            <div class="row well">
+                <div class="col-lg-4">
+                 Du   <input value="{{ dateDebut}}" placeholder="Date debut" name="dateDebut" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-4">
+                 au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-4"><br>
+                           <button formaction="{{ path('get-disponibilite-rccm-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                </div>
+            </div>
+        </form>
+            <div class="table-responsive">
+                <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Num. dossier</th>
+                        <th>Dénomination</th>
+                        <th>Form Juridique</th>
+                        <th>RCCM</th>
+                        <th>Date creation</th>
+                        <th>Date rccm</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for rccm in rccmRecu %}
+                        <tr>
+                            <td>{{ rccm.numeroDossier }}</td>
+                            <td>{{ rccm.denominationSociale }}</td>
+                            <td>{{ rccm.libelle }} ({{ rccm.sigle }})</td>
+                            <td>{{ rccm.numRccmFormalite }}</td>
+                            <td>{{ rccm.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ rccm.date|date('d/m/Y') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery-1.12.4.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery.dataTables.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+
+
+    <script type="text/javaScript">
+        $(document).ready(function() {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+            $('#datatable').DataTable({"language": {
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                }});} );
+    </script>
+
+{% endblock %}

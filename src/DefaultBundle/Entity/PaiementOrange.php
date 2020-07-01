@@ -23,6 +23,53 @@ class PaiementOrange
 
 
     /**
+     * @return datetime
+     */
+    public function getInitiateDate()
+    {
+        return $this->initiateDate;
+    }
+
+    /**
+     * @param datetime $initiateDate
+     */
+    public function setInitiateDate($initiateDate)
+    {
+        $this->initiateDate = $initiateDate;
+    }
+
+    /**
+     * @return datetime
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    /**
+     * @param datetime $endDate
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+    }
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="initiateDate", type="datetime",nullable=true)
+     */
+    private $initiateDate;
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="endDate", type="datetime",nullable=true)
+     */
+    private $endDate;
+
+
+    /**
      * @ORM\OneToMany(targetEntity="DefaultBundle\Entity\factureOrange", mappedBy="PaiementOrange")
      *  @ORM\JoinColumn(nullable=true)
      */
@@ -255,6 +302,7 @@ class PaiementOrange
     public function __construct()
     {
         $this->factureOrange = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->initiateDate=new \Datetime();
     }
 
     /**

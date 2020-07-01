@@ -1,0 +1,153 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                <div style="color: white;background:green"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                <div style="color: white;background:#ff5a2f"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="">
+        <h3>Situation des NIF physiques re&ccedil;us et non encore  trait&eacute;s</h3>
+        <form  method="POST">
+            <div class="row well">
+                <div class="col-lg-4">
+                 Du   <input value="{{ dateDebut}}" placeholder="Date debut" name="dateDebut" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-4">
+                 au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-4"><br>
+                           <button formaction="{{ path('liste-nif-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                </div>
+            </div>
+        <div class="row">
+            <div class="modal-footer"><br>
+                <div class="col-lg-12">
+                    <button formaction="{{ path('traitement-nif-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception rccm physique
+                    </button>
+                </div>
+            </div>
+        </div>
+            <div class="table-responsive">
+                <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>
+                            <input id="checkAll"  style="display: inline-block" name="checkAll" class="checkAll checkbox" type="checkbox"/>
+                            <label for="checkAll">Tout ({{ nifRecu|length }})</label>
+                        </th>
+                        <th>Num.dossier</th>
+                        <th>Dénomination</th>
+                        <th>Forme juridiquee</th>
+                        <th>NIF</th>
+                        <th>Date creation dossier</th>
+                        <th>Date traitement NIF</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for nif in nifRecu %}
+                        <tr>
+                            <td class="col-lg-1">
+                                <div class="pretty p-default">{{ loop.index }}
+                                    <input class="choixEleves" name="choixNif[]" type="checkbox"
+                                           value="{{ nif.id }}"/>
+                                </div>
+                            </td>
+                            <td>{{ nif.numeroDossier }}</td>
+                            <td>{{ nif.denominationSociale }}</td>
+                            <td>{{ nif.libelle }} ({{ nif.sigle }})</td>
+                            <td>{{ nif.numeroIdentificationFiscale }}</td>
+                            <td>{{ nif.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ nif.date|date('d/m/Y') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        <div class="row">
+            <div class="modal-footer">
+                <div class="col-lg-12">
+                    <button formaction="{{ path('traitement-nif-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception nif physique
+                    </button>
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+
+{#    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery-1.12.4.js')}}"></script>#}
+{#    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery.dataTables.min.js')}}"></script>#}
+{#    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.bootstrap4.min.js')}}"></script>#}
+{#    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.buttons.min.js')}}"></script>#}
+{#    <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>#}
+{#    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>#}
+{#    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>#}
+
+    <script type="text/javascript" src="{{ asset('jquery-3.2.1.js') }}"></script>
+    <script type="text/javascript">
+        $('.promuRed').on('change', function () {
+            isChecked();
+            $('.promuRed').not(this).prop('checked', false);
+        });
+        $(document).ready(function () {
+            isChecked();
+            $('.checkAll').on('click', function () {
+                $(this).closest('table').find('tbody :checkbox')
+                    .prop('checked', this.checked)
+                    .closest('tr').toggleClass('selected', this.checked);
+                isChecked();
+
+            });
+            $('tbody :checkbox').on('click', function () {
+                isChecked();
+                $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+                $(this).closest('table').find('.checkAll').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+
+            });
+            function isChecked() {
+                var checkboxes = document.getElementsByClassName('choixEleves');
+                var checkboxesChecked = [];
+                // loop over them all
+                for (var i=0; i<checkboxes.length; i++) {
+                    // And stick the checked ones onto an array...
+                    if (checkboxes[i].checked) {
+                        checkboxesChecked.push(checkboxes[i]);
+                    }
+                }
+                if (checkboxesChecked.length<=0){
+                    $(".internatEleve").attr('disabled',true);
+                    $(".internatEleve").attr('title','Assurez-vous de sélectionner au moins une ligne');
+                }
+                else {
+                    $(".internatEleve").attr('disabled',false);
+                    $(".internatEleve").attr('title','');
+                }
+            }
+
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}

@@ -2446,8 +2446,6 @@ class DossierDemandeRepository extends EntityRepository {
 
         return $results[0]["id"];
     }
-
-
     public function recherNomcommercialUpdate($temoin=false,$motcle){
         $em=$this->getEntityManager()->getConnection();
         if ($temoin==false){///false pour une recherche like
@@ -2486,5 +2484,81 @@ WHERE a.denominationSociale =:denominationSociale ORDER BY denominationSociale";
         return $result;
     }
 
+    public function findDossierEnAttenteSaisiInterfaceDGA($data, $idLangue, $idUser = null, $limit = null) {
+        $queryattSaisi = $this->_em->createQueryBuilder('s')
+            ->addSelect('s')
+            ->from('BanquemondialeBundle:dossierdemande','s')
+            ->Join('UtilisateursBundle:Utilisateurs','u')
+            ->andWhere('s.statut  is  NULL ')
+            ->andWhere('u.entreprise=:entreprise')
+           ->setParameter('entreprise', 2);
+        $ResultqueryattSaisie=count($queryattSaisi->getQuery()->getResult());
+        $query = $this->_em->createQueryBuilder('a');
+        $query
+            ->select('a')
+            ->from('BanquemondialeBundle:dossierdemande','a')
+            ->andWhere('a.statut is NULL ')
+            ->orderBy('a.dateCreation','desc');
+
+        if (!empty($data)) {
+            if ($data['id'] != '') {
+                $query->andWhere('LOWER(a.id) = :id')
+                    ->setParameter('id', $data['id']);
+            }
+            if ($data['denominationSociale'] != '') {
+                $query->andWhere('LOWER(a.denominationSociale) like :denominationSociale')
+                    ->setParameter('denominationSociale', '%' . $data['denominationSociale'] . '%');
+            }
+            if ($data && array_key_exists('nomCommercial', $data) && $data['nomCommercial'] != '') {
+                $query->andWhere('LOWER(a.nomCommercial) like :nomCommercial')
+                    ->setParameter('nomCommercial', '%' . $data['nomCommercial'] . '%');
+            }
+            if ($data['dateCreationDebut'] != '') {
+                $query->andWhere('DATE_DIFF(a.dateCreation,:dateCreationDebut)>=0')
+                    ->setParameter('dateCreationDebut', new DateTime($data['dateCreationDebut']));
+            }
+            if ($data['dateCreationFin'] != '') {
+                $query->andWhere('DATE_DIFF(a.dateCreation,:dateCreationFin)<=0')
+                    ->setParameter('dateCreationFin', new DateTime($data['dateCreationFin']));
+            }
+
+            if ($data['formeJuridique'] != '') {
+                $query->andWhere('a.formeJuridique = :formeJuridique')
+                    ->setParameter('formeJuridique', $data['formeJuridique']);
+            }
+        }
+         if ($limit) {
+            $query->setMaxResults($limit);
+        }
+        $results = $query->getQuery()->getResult();
+        $tabResult = array();
+        $i = 0;
+        foreach ($results as $result) {
+            $tabResult[$i]['id'] = $result->getId();
+            $formJ = $result->getFormeJuridique();
+            $idf = $formJ->getId();
+            $tabResult[$i]['idFormeJ'] = $idf;
+            $formJTrad = $this->getEntityManager()->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getLibelleFormeJuridiqueByLanque($idLangue, $idf);
+            ($formJTrad) ? $tabResult[$i]['libelleFormeJ'] = $formJTrad->getLibelle() : $tabResult[$i]['libelleFormeJ'] = "";
+
+            $idTyp = $result->getTypeOperation()->getId();
+            $tabResult[$i]['idTypeOp'] = $idTyp;
+            $typeOpTrad = $this->getEntityManager()->getRepository('BanquemondialeBundle:TypeOperationTraduction')->getLibelleOperationByLanque($idLangue, $idTyp);
+            ($typeOpTrad) ? $tabResult[$i]['libelleTypeOp'] = $typeOpTrad->getLibelle() : $tabResult[$i]['libelleTypeOp'] = "";
+
+            $agentSaisi = $result->getUtilisateur();
+            ($agentSaisi) ? $tabResult[$i]['affectation'] = $agentSaisi->getPrenom() . " " . $agentSaisi->getNom() : $tabResult[$i]['affectation'] = '';
+            $tabResult[$i]['denominationSociale'] = $result->getDenominationSociale();
+            $tabResult[$i]['nomCommercial'] = $result->getnomCommercial();
+            $tabResult[$i]['enseigne'] = $result->getEnseigne();
+            $tabResult[$i]['telephone'] = $result->getTelephone();
+            $tabResult[$i]['email'] = $result->getEmail();
+            //$tabResult[$i]['fax'] = $result->getFax();
+            $tabResult[$i]['region'] = $result->getRegion();
+            $tabResult[$i]['dateCreation'] = $result->getDateCreation();
+            $i++;
+        }
+        return compact('tabResult','ResultqueryattSaisie');
+    }
 
 }

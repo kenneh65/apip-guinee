@@ -161,15 +161,6 @@ class QuittanceRepository extends EntityRepository {
                     ->setParameter('nomagent', '%' . $data['nomAgentDepot'] . '%');
             }
         }
-        /*
-          if (($data['datePaiementDebut'] == '')&&($data['datePaiementFin'] == '')) {
-          $today = date('Y-m-d');
-          $query->andWhere('DATE_DIFF(a.dateFacturation,:datePaiementFin)<=0')
-          ->setParameter('datePaiementFin', new DateTime($today));
-          $query->andWhere('DATE_DIFF(a.dateFacturation,:datePaiementDebut)>=0')
-          ->setParameter('datePaiementDebut', new DateTime($today));
-          }
-         */
         if ($limit) {
             $query->setMaxResults($limit);
         }

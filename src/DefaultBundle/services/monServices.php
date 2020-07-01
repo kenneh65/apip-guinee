@@ -119,12 +119,28 @@ class monServices extends Controller
         }
 
     }
+    public function SmsOrangetest()
+    {
+        $config = array(
+            'clientId' => 'jliEaf0ABXlgiYsGALjLZKqEahvCbf4F',
+            'clientSecret' => 'W9xttZSCD9EwaI8a'
+        );
+        $osms = new Osms($config);
+        $response=$osms->getTokenFromConsumerKey();
+        if (!empty($response['access_token'])) {
+            $senderAddress = 'tel:+224621134693';
+            $receiverAddress = 'tel:+224621134693';
+            $message = 'Hello World!';
+            $senderName = 'Optimus Prime';
+            $osms->sendSMS($senderAddress, $receiverAddress, $message, $senderName);
+        }
+        else {
+            // error
+        }
+
+    }
     public function SmsOrange($phoneNumber, Representant $representant, $typeSms = 'depot')
     {
-
-        require 'Osms.php';
-        // require 've';
-
         $config = array(
             'clientId' => 'jliEaf0ABXlgiYsGALjLZKqEahvCbf4F',
             'clientSecret' => 'W9xttZSCD9EwaI8a'
@@ -169,7 +185,7 @@ class monServices extends Controller
     }
     public function getToken()
     {
-        require 'Osms.php';
+        require 'Osms.php__';
         $config = array(
             'clientId' => 'jliEaf0ABXlgiYsGALjLZKqEahvCbf4F',
             'clientSecret' => 'W9xttZSCD9EwaI8a'
@@ -186,7 +202,7 @@ class monServices extends Controller
     }
     public function getAdminContracts()
     {
-        require 'Osms.php';
+        require 'Osms.php__';
         $config = array(
             'token' => 'zEde12gFGIAX93hqcPaHSqFBgUqR',
         );
@@ -208,7 +224,7 @@ class monServices extends Controller
     }
     public function getPurchaseHistory()
     {
-        require 'Osms.php';
+        require 'Osms.php__';
         $config = array(
             'token' => 'zEde12gFGIAX93hqcPaHSqFBgUqR',
         );
@@ -545,9 +561,6 @@ class monServices extends Controller
      */
     public function payementSmsOrange($phoneNumber, DossierDemande $dossierDemande)
     {
-        require 'Osms.php';
-        // require 've';
-
         $config = array(
             'clientId' => 'jliEaf0ABXlgiYsGALjLZKqEahvCbf4F',
             'clientSecret' => 'W9xttZSCD9EwaI8a'
@@ -584,6 +597,7 @@ class monServices extends Controller
     public  function updatePayementOrange(PaiementOrange $paiementOrange,$status,$txnid){
         $em=$this->getDoctrine()->getManager();
        $paiementOrange->setStatus($status)->setTxnid($txnid);
+       $paiementOrange->setEndDate(new \Datetime());
        $em->persist($paiementOrange);
        $em->flush();
     }

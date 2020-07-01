@@ -1529,7 +1529,6 @@ class DocumentCollectedRepository extends EntityRepository {
         //die(dump($infoPoleSuivant));
         return $infoPoleSuivant;
     }
-
     public function findFirstPoleTraitant($idd) {
         $query = $this->createQueryBuilder('dc')
             ->leftJoin('dc.dossierDemande', 'd')->addSelect('d')
@@ -1540,7 +1539,6 @@ class DocumentCollectedRepository extends EntityRepository {
         $infoFirtPole = $query->getQuery()->getResult();
         return $infoFirtPole;
     }
-
     public function findFirstsPoles($idd) {
         $query = $this->createQueryBuilder('dc')
             ->leftJoin('dc.dossierDemande', 'd')->addSelect('d')
@@ -1549,7 +1547,6 @@ class DocumentCollectedRepository extends EntityRepository {
             ->setParameters(array('idd' => $idd));
         return $query->getQuery()->getResult();
     }
-
     public function findDossierEncours($user) {
         $query = $this->createQueryBuilder('d')
             ->where('d.pole =:pole and d.statutTraitement=1 and (d.utilisateur=:user or d.utilisateur is null)')
@@ -1557,6 +1554,172 @@ class DocumentCollectedRepository extends EntityRepository {
 
         return $query->getQuery()->getResult();
     }
+    public function findDossierEnAttenteImmatriculationDGA() {
+        $query = $this->createQueryBuilder('d')
+            ->where('d.pole =:pole and d.statutTraitement=1')
+            ->setParameters(array('pole' =>1));
+        return $query->getQuery()->getResult();
+    }
+
+    public function findDossierEnAttenteImmatriculationDGAWithParam($data, $idLangue, $idPole, $limit = null, $statut = null) {
+        $query = $this->createQueryBuilder('dc')
+            ->leftJoin('dc.dossierDemande', 'd')->addSelect('d')
+            ->leftJoin('dc.pole', 'p')->addSelect('p')
+            ->andWhere('dc.statutTraitement is not null')
+            ->andWhere('dc.utilisateur is null')
+            ->andWhere('p.id=:idp')->setParameters(array('idp' => $idPole));
+        if (!empty($data)) {
+            if ($data['numeroDossier'] != '') {
+                $query->andWhere('LOWER(d.numeroDossier) = :numeroDossier')
+                    ->setParameter('numeroDossier', $data['numeroDossier']);
+            }
+            if ($data['denominationSociale'] != '') {
+                $query->andWhere('LOWER(d.denominationSociale) like :denominationSociale')
+                    ->setParameter('denominationSociale', '%' . $data['denominationSociale'] . '%');
+            }
+            if ($data['dateCreationDebut'] != '') {
+                $query->andWhere('DATE_DIFF(dc.dateSoumission,:dateCreationDebut)>=0')
+                    ->setParameter('dateCreationDebut', new DateTime($data['dateCreationDebut']));
+            }
+            if ($data['dateCreationFin'] != '') {
+                $query->andWhere('DATE_DIFF(dc.dateSoumission,:dateCreationFin)<=0')
+                    ->setParameter('dateCreationFin', new DateTime($data['dateCreationFin']));
+            }
+            if ($data['formeJuridique'] != '') {
+                $query->andWhere('d.formeJuridique = :formeJuridique')
+                    ->setParameter('formeJuridique', $data['formeJuridique']);
+            }
+            if ($data['typeDossier'] != '') {
+                $query->andWhere('d.typeDossier = :typeDossier')
+                    ->setParameter('typeDossier', $data['typeDossier']);
+            }
+            if ($data['entreprise'] != '') {
+                $query->leftJoin('d.utilisateur', 'u')->andWhere('u.entreprise=:idE')
+                    ->setParameter('idE', $data['entreprise']);
+            }
+        }
+
+        if ($statut) {
+            $query->andWhere('dc.statutTraitement = :st')
+                ->setParameter('st', $statut);
+        }
+        if ($statut && $statut == 2) {
+            if ($data['dateDelivranceDebut'] != '') {
+
+                $query->andWhere('DATE_DIFF(dc.dateDelivrance,:dateDelivranceDebut)>=0')
+                    ->setParameter('dateDelivranceDebut', new DateTime($data['dateDelivranceDebut']));
+            }
+
+            if ($data['dateDelivranceFin'] != '') {
+                $query->andWhere('DATE_DIFF(dc.dateDelivrance,:dateDelivranceFin)<=0')
+                    ->setParameter('dateDelivranceFin', new DateTime($data['dateDelivranceFin']));
+                //die(dump($data['dateDelivranceFin']));
+            }
+        }
+        if ($statut && $statut1 = 1) {
+            $query->orderBy('dc.dateDelivrance', 'desc');
+        }
+        else {
+
+            $query->orderBy('dc.dateSoumission', 'desc');
+        }
+        if ($limit) {
+            $query->setMaxResults($limit);
+        }
+        $query->orderBy('dc.dateSoumission', 'desc');
+        $results = $query->getQuery()->getResult();
+
+        $tabResult = array();
+        $i = 0;
+        foreach ($results as $result) {
+            $tabResult[$i]['numeroDossier'] = $result->getDossierDemande()->getNumeroDossier();
+            $tabResult[$i]['denominationSociale'] = $result->getDossierDemande()->getDenominationSociale();
+            $tabResult[$i]['nomCommercial'] = $result->getDossierDemande()->getNomCommercial();
+            $tabResult[$i]['enseigne'] = $result->getDossierDemande()->getEnseigne();
+            $tabResult[$i]['telephone'] = $result->getDossierDemande()->getTelephone();
+            $tabResult[$i]['email'] = $result->getDossierDemande()->getEmail();
+            //$tabResult[$i]['fax'] = $result->getDossierDemande()->getFax();
+            $tabResult[$i]['region'] = $result->getDossierDemande()->getRegion();
+            $tabResult[$i]['dateCreation'] = $result->getDossierDemande()->getDateCreation();
+            $tabResult[$i]['orange'] = $result->isOrangePole();
+            $tabResult[$i]['red'] = $result->isRedPole();
+            $tabResult[$i]['dateSoumission'] = $result->getDateSoumission();
+            $tabResult[$i]['dateDelivrance'] = $result->getDateDelivrance();
+            $tabResult[$i]['duree'] = $result->getDuree();
+            $tabResult[$i]['motif'] = $result->getMotif();
+            $tabResult[$i]['id'] = $result->getDossierDemande()->getId();
+
+            $formJ = $result->getDossierDemande()->getFormeJuridique();
+            $idf = $formJ->getId();
+            $tabResult[$i]['idFormeJ'] = $idf;
+            $formJTrad = $this->getEntityManager()->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getLibelleFormeJuridiqueByLanque($idLangue, $idf);
+            ($formJTrad) ? $tabResult[$i]['libelleFormeJ'] = $formJTrad->getLibelle() : $tabResult[$i]['libelleFormeJ'] = "";
+            $idTyp = $result->getDossierDemande()->getTypeOperation()->getId();
+            $tabResult[$i]['idTypeOp'] = $idTyp;
+            $typDossier = $result->getDossierDemande()->getTypeDossier()->getLibelle();
+            $tabResult[$i]['typDossier'] = $typDossier;
+            $typeOpTrad = $this->getEntityManager()->getRepository('BanquemondialeBundle:TypeOperationTraduction')->getLibelleOperationByLanque($idLangue, $idTyp);
+            ($typeOpTrad) ? $tabResult[$i]['libelleTypeOp'] = $typeOpTrad->getLibelle() : $tabResult[$i]['libelleTypeOp'] = "";
+
+            $statutTraitement = $result->getStatutTraitement();
+            $tabResult[$i]['idStatutTraitement'] = $statutTraitement->getId();
+            $statutTraitementTraduction = $this->getEntityManager()->getRepository('BanquemondialeBundle:StatutTraitementTraduction')->getLibelleStatutTraitementByLangue($idLangue, $statutTraitement);
+            ($statutTraitementTraduction) ? $tabResult[$i]['libelleStatutTraitement'] = $statutTraitementTraduction->getLibelle() : $tabResult[$i]['libelleStatutTraitement'] = "";
+
+            $formJGerant = $this->getEntityManager()->getRepository('BanquemondialeBundle:Representant')->findOneByDossierDemande($result->getDossierDemande());
+            $tabResult[$i]['gerant'] = ($formJGerant) ? $formJGerant->getPrenom() . ' ' . $formJGerant->getNom() : "";
+            $verifDoss = true;
+            if ($data['gerant'] != '') {
+                //die(dump($data['gerant']));
+                if (stripos($tabResult[$i]['gerant'], $data['gerant']) === false) {
+                    unset($tabResult[$i]);
+                    $i--;
+                }
+            }
+            $UserSaisi = $result->getDossierDemande()->getUtilisateur();
+
+            $tabResult[$i]['agentSaisi'] = ($UserSaisi) ? $UserSaisi->getPrenom() . ' ' . $UserSaisi->getNom() : "";
+            $entreprise = ($UserSaisi) ? $UserSaisi->getEntreprise() : "";
+            $tabResult[$i]['structure'] = ($UserSaisi && $entreprise != "") ? $UserSaisi->getEntreprise()->getDenomination() : "";
+            $em = $this->getEntityManager();
+            $numeroNif = "";
+            $numeroAguipe = "";
+            $numeroCnss = "";
+            $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneBy(array('dossierDemande' => $result->getDossierDemande()->getId()));
+            $numeroRccm = ($rccm) ? $rccm->getNumRccmFormalite() : "";
+            if ($statut && $statut == 2) {
+                $pole = $em->getRepository('ParametrageBundle:pole')->find($idPole);
+                if ($pole && $pole->getSigle() == 'BNI') {
+                    $nif = $em->getRepository('BanquemondialeBundle:Nif')->findOneBy(array('dossierDemande' => $result->getDossierDemande()->getId()));
+                    $numeroNif = ($nif) ? $nif->getNumeroIdentificationFiscale() : "";
+                }
+                if ($pole && $pole->getSigle() == 'CNSS') {
+                    $cnss = $em->getRepository('BanquemondialeBundle:ComplementCnss')->findOneBy(array('dossierDemande' => $result->getDossierDemande()->getId()));
+                    $numeroCnss = ($cnss) ? $cnss->getNumeroEmployeur() : "";
+                }
+                if ($pole && $pole->getSigle() == 'AGUIPE') {
+                    $aguipe = $em->getRepository('BanquemondialeBundle:Aguipe')->findOneBy(array('dossierDemande' => $result->getDossierDemande()->getId()));
+                    $numeroAguipe = ($aguipe) ? $aguipe->getNumeroImmatriculation() . '/AGUIPE/' . $result->getDateDelivrance()->format('Y') : "";
+                }
+            }
+            $tabResult[$i]['numeroRccm'] = $numeroRccm;
+            $tabResult[$i]['numeroNif'] = $numeroNif;
+            $tabResult[$i]['numeroAguipe'] = $numeroAguipe;
+            $tabResult[$i]['numeroCnss'] = $numeroCnss;
+            $i++;
+        }
+       // die(dump($tabResult));
+        return $tabResult;
+    }
+
+
+    public function findDossierEnAttenteModificationDGA() {
+        $query = $this->createQueryBuilder('d')
+            ->where('d.pole =:pole and d.statutTraitement=3')
+            ->setParameters(array('pole' =>1));
+        return $query->getQuery()->getResult();
+    }
+
 
     public function findDossierDelivre($user) {
         $query = $this->createQueryBuilder('d')
@@ -1566,7 +1729,6 @@ class DocumentCollectedRepository extends EntityRepository {
             ->setParameters(array('pole' => $user->getPole(), 'user' => $user));
         return $query->getQuery()->getResult();
     }
-
     public function findDossierAnnonceurEncours($user) {
 
         $sqlQuery = "SELECT d.id
@@ -1591,7 +1753,6 @@ class DocumentCollectedRepository extends EntityRepository {
         //die(dump($results));
         return $results;
     }
-
     public function findDossierAnnonceurDelivre($user) {
         $sqlQuery = "SELECT d.id
 		FROM documentCollected dc 
@@ -1614,14 +1775,12 @@ class DocumentCollectedRepository extends EntityRepository {
 
         return $results;
     }
-
     public function findDossierDelivreRetrait($user) {
         $query = $this->createQueryBuilder('d')
             ->join('d.statutTraitement', 's')
             ->where('s.id=2');
         return $query->getQuery()->getResult();
     }
-
     public function findDossierNotDelivreRetrait($idDoss) {
         $query = $this->createQueryBuilder('d')
             ->leftJoin('d.statutTraitement', 's')

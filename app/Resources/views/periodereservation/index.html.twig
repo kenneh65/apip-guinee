@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>PeriodeReservation list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Libelle</th>
+                <th>Amount</th>
+                <th>Nombre</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for periodeReservation in periodeReservations %}
+            <tr>
+                <td><a href="{{ path('periodereservation_show', { 'id': periodeReservation.id }) }}">{{ periodeReservation.id }}</a></td>
+                <td>{{ periodeReservation.libelle }}</td>
+                <td>{{ periodeReservation.amount }}</td>
+                <td>{{ periodeReservation.nombre }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('periodereservation_show', { 'id': periodeReservation.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('periodereservation_edit', { 'id': periodeReservation.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('periodereservation_new') }}">Create a new entry</a>
+        </li>
+    </ul>
+{% endblock %}

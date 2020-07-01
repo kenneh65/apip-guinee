@@ -1,0 +1,193 @@
+{% extends '::base.html.twig' %}
+{%block title%}representant_entreprise{%endblock%}
+{% block stylesheets %}
+    <style>
+        .thumbnail {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+            transition: 0.3s;
+            min-width: 40%;
+            border-radius: 5px;
+        }
+
+        .thumbnail-description {
+            min-height: 40px;
+        }
+
+        .thumbnail:hover {
+            cursor: pointer;
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 1);
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <div class="hpanel">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        Confirmation de paiement par orange money
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    {% for flashMessage in app.session.flashbag.get('successSMS') %}
+                        <div style="color: white;background:green"
+                             class="alert alert-message-warning text-center " role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <strong>{{flashMessage|raw }} </strong>
+                        </div>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('echecSMS') %}
+                        <div style="color: white;background:#ff5a2f"
+                             class="alert alert-message-warning text-center " role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <strong>{{flashMessage|raw }} </strong>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+                   <div class="row">
+                <div class="col-md-12">
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="thumbnail">
+                                <div class="caption text-center" >
+                                    <div class="position-relative">
+                                        <img src="http://maliactu.net/wp-content/uploads/2014/06/orange-money-1.png" style="width:72px;height:72px;" />
+                                    </div>
+                                    <div class="thumbnail-description smaller">
+                                        <h4>
+                                            Vous êtes sur le point d'effectuer le paiement par orange money, il vous faut un code de confirmation générer par le client pour la validation
+                                        </h4>
+                                    </div>
+                                    <h4 id="thumbnail-label">
+                                        Le compte du client sera débuté de :
+                                        <a style="list-style: none;text-decoration: none" >
+                                           {{(app.session.get('sessionData')['montantTotalFacture']*0.02+app.session.get('sessionData')['montantTotalFacture'])|number_format('0', '.',' ')}} GNF
+                                        </a>
+                                    </h4>
+
+                                    <div class="thumbnail-description smaller">
+                                        <h3>Pour générer un code OTP (Code paiement)</h3>
+                                        <h3>le promoteur doit composer:</h3> <h2>*144*4*2*1# <br> Puis Entrer code secret pour confirmer</h2>
+
+                                    </div>
+
+                                </div>
+                                <div class="caption card-footer text-center">
+                                    <ul class="list-inline">
+                                        <li>
+                                            <i class="people lighter"></i>&nbsp; <a href="{{ path('make-orange-money-payement') }}">
+                                            <button class="btn btn-success" type="reset">  Lancer le Paiement</button>
+                                            </a>
+                                        </li>
+                                        <li></li>
+                                        <li>
+                                            <a href="{{ path('traiter_quittance',{'idq':app.session.get('sessionIdq')}) }}">
+                                            <button class="btn btn-warning" type="reset">Annuler le Paiement</button>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{%block javascripts %}
+    {{parent()}}
+
+    <script type="text/javascript">
+        // $(function () {
+        //     $('#datetimepicker').datetimepicker({locale: 'fr', format: 'yyyy-MM-dd'});
+        // });
+
+        $('.supprimerFonction').click(function () {
+            var representantId = '';
+            representantId = $(this).attr('data-id');
+            var url = '{{ path("representant_supprimer",{"id":"representantId"} ) }}';
+            swal({
+                    title: "{{'message_confirmation'|trans}}",
+                    text: "{{'message_confirmer_suppression'|trans}}",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3f5872",
+                    cancelButtonText: "{{'annuler'|trans}}",
+                    confirmButtonText: "{{'confirm_suppression'|trans}}",
+                },
+                function () {
+                    url = url.replace("representantId", representantId);
+                    window.location.replace(url);
+                });
+        });
+
+
+
+    </script>
+    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>
+    <script type="application/javascript">
+
+        const isNumericInput = (event) => {
+            const key = event.keyCode;
+            return ((key >= 48 && key <= 57) || // Allow number line
+                (key >= 96 && key <= 105) // Allow number pad
+            );
+        };
+
+        const isModifierKey = (event) => {
+            const key = event.keyCode;
+            return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+                (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+                (key > 36 && key < 41) || // Allow left, up, right, down
+                (
+                    // Allow Ctrl/Command + A,C,V,X,Z
+                    (event.ctrlKey === true || event.metaKey === true) &&
+                    (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+                )
+        };
+
+        const enforceFormat = (event) => {
+            // Input must be of a valid number format or a modifier key, and not longer than ten digits
+            if(!isNumericInput(event) && !isModifierKey(event)){
+                event.preventDefault();
+            }
+        };
+
+        const formatToPhone = (event) => {
+            if(isModifierKey(event)) {return;}
+
+            // I am lazy and don't like to type things more than once
+            const target = event.target;
+            const input = event.target.value.replace(/\D/g,'').substring(0,12); // First ten digits of input only
+            const zip = '224';
+            const middle = input.substring(3,6);
+            const middle1 = input.substring(6,8);
+            const middle2 = input.substring(8,10);
+            const middle3 = input.substring(10,12);
+
+
+            if(input.length > 10){target.value = `(+${zip}) ${middle}-${middle1}-${middle2}-${middle3}`;}
+            else if(input.length > 7){target.value = `(+${zip}) ${middle}-${middle1}-${middle2}`;}
+            else if(input.length > 5){target.value = `(+${zip}) ${middle}-${middle1}`;}
+            else if(input.length > 0){target.value = `(+${zip}) ${middle}`;}
+        };
+
+        const inputElement = document.getElementById('representant_telephone');
+        inputElement.addEventListener('keydown',enforceFormat);
+        inputElement.addEventListener('keyup',formatToPhone);
+
+
+        const inputElement2 = document.getElementById('representant_portable');
+        inputElement2.addEventListener('keydown',enforceFormat);
+        inputElement2.addEventListener('keyup',formatToPhone);
+    </script>
+{%endblock%}

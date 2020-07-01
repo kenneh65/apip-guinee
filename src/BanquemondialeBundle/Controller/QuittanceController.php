@@ -109,6 +109,7 @@ class QuittanceController extends Controller
     {
         if ($this->get('monServices')->pingIPServer()==true){
             $verificatioTemoin= $this->get('monservices')->verifyQuittancePayementStstus($idq);
+           // var_dump($verificatioTemoin);die();
         }else{
             $verificatioTemoin=false;
         }
@@ -116,7 +117,8 @@ class QuittanceController extends Controller
 
         if ($verificatioTemoin==true){
             return $this->redirectToRoute('reporting_quittance');
-        }else{
+        }
+        else{
             $message = '';
             $em = $this->getDoctrine()->getManager();
             $user = $this->container->get('security.context')->getToken()->getUser();
@@ -651,9 +653,9 @@ class QuittanceController extends Controller
             'nomCaisse' => $nomCaisse,
             'form' => $form->createView(),
 
-            'formeJuridique'=>$formeJuridique,
-            'modePaiement'=>$modePaiement,
-            'entreprise'=>$entreprise,
+            'formeJuridique' => $formeJuridique,
+            'modePaiement' => $modePaiement,
+            'entreprise' => $entreprise,
             'idLangue'=>$idLangue,
 
 

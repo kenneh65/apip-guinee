@@ -21,9 +21,47 @@
 },
     'subject': 'Brouillard de caisse',
     'title': 'Brouillard de caisse'
-    }
-%}
-    {% xlssheet 'Brouillard de caisse' %}
+    } %}
+    {% xlssheet 'Brouillard de caisse'
+        {
+            pageMargins: {
+            top: 1,
+            bottom: 1,
+            left: 0.75,
+            right: 0.75,
+            header: 0.5,
+            footer: 0.5
+        },
+            pageSetup: {
+            fitToHeight: 1,
+            fitToPage: false,
+            fitToWidth: 1,
+            horizontalCentered: false,
+            orientation: 'landscape',
+            paperSize: 9,
+            printArea: 'A1:B1',
+            scale: 100,
+            verticalCentered: false
+        },
+
+            printGridlines: true,
+            rightToLeft: false,
+            rowDimension: {
+            'default': {
+                collapsed: false,
+                outlineLevel: 0,
+                rowHeight: -1,
+                rowIndex: '1',
+                visible: true,
+                xfIndex: 0,
+                zeroHeight:false
+            },
+        },
+            sheetState: 'visible',
+            showGridlines: true,
+            tabColor: 'a1a1e0',
+            zoomScale: 75
+        } %}
         {% if poleChoisi==0 %}
             {% include 'inc/statistique_caisse_excel.xls.twig' %}
             {% xlsrow %}

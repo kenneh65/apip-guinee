@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                <div style="color: white;background:green"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                <div style="color: white;background:#ff5a2f"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="">
+        <h3>Liste des dossiers {% if choix=='nonquittancer' %}  non encore  {% endif %}saisie  du  {{ dateDebut|date('d/m/Y') }}  au {{ dateFin|date('d/m/Y') }}</h3>
+            <div class="table-responsive">
+                <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Num.dossier</th>
+                        <th>Dénomination</th>
+                        <th>Forme juridique</th>
+                        <th>Date cr&eacute;ation dossier</th>
+                        <th>Agent de  Saisie</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in (choix=='dossierNonSaisie')?statSaisie['dossierNonSaisie']:statSaisie['dossierSaisie'] %}
+                        <tr>
+                            <td>{{ d.numeroDossier }}</td>
+                            <td>{{ d.denominationSociale }}</td>
+                            <td>{{ d.libelle }}</td>
+                            <td>{{ d.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ monServices.getUserById(d.idUserSaisi)==null?'':monServices.getUserById(d.idUserSaisi).username }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery-1.12.4.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery.dataTables.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+
+{% endblock %}

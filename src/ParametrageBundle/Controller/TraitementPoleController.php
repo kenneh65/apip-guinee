@@ -2,6 +2,7 @@
 
 namespace ParametrageBundle\Controller;
 
+use ParametrageBundle\Entity\Formulaire\MembreTenuFormulaire;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use ParametrageBundle\Entity\PoleComplementDossier;
 use BanquemondialeBundle\Entity\FormulaireDelivre;
@@ -21,7 +22,6 @@ use ParametrageBundle\Entity\Formulaire\AssocieFormulaire;
 use ParametrageBundle\Entity\Formulaire\PersonneMoraleFormulaire;
 use ParametrageBundle\Entity\Formulaire\RenseignementRelatifActiviteMoraleFormulaire;
 use ParametrageBundle\Entity\Formulaire\FormulaireGie;
-use DefaultBundle\Entity\Formulaire\MembreTenuFormulaire;
 use ParametrageBundle\Entity\Formulaire\AdministrateurFormulaire;
 use ParametrageBundle\Entity\Formulaire\RenseignementRelatifGroupementFormulaire;
 use ParametrageBundle\Entity\Formulaire\RenseignementRelatifActiviteGroupementFormulaire;
@@ -49,9 +49,11 @@ use Symfony\Component\Serializer\Encoder\JsonDecode;
  *
  * @author fgueye
  */
-class TraitementPoleController extends Controller {
+class TraitementPoleController extends Controller
+{
 
-    public function listDossierPoleAction($data = null, $maxItemPerPage = 25) {
+    public function listDossierPoleAction($data = null, $maxItemPerPage = 25)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
@@ -77,7 +79,7 @@ class TraitementPoleController extends Controller {
             if (isset($request->query->all()['listDossierPole'])) {
 
                 $data = $request->query->all()['listDossierPole'];
-                $listedossier = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDocumentCollectedByParametres($data, $idCodeLangue, $idPole);               
+                $listedossier = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDocumentCollectedByParametres($data, $idCodeLangue, $idPole);
             } else {
                 $listedossier = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findById(0);
             }
@@ -90,12 +92,12 @@ class TraitementPoleController extends Controller {
         }
 
 
-
         $listedossier = $this->get('knp_paginator')->paginate($listedossier, $this->getRequest('request')->query->get('page', 1), 25);
         return $this->render('ParametrageBundle:ParameterPole:dossierPole.html.twig', array('form' => $form->createView(), 'listedossier' => $listedossier, 'langue' => $idCodeLangue, 'maxItemPerPage' => $maxItemPerPage));
     }
 
-    public function traiterDossierAction($idd) {
+    public function traiterDossierAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $idPole = 0; //cette valeur est a prendre dans la variable de session à la connection        
@@ -117,11 +119,16 @@ class TraitementPoleController extends Controller {
 
                 $rte = $em->getRepository("ParametrageBundle:FonctionnalitePole")->getRoutePole($idPole);
             }
-        }        
+        }
         return new RedirectResponse($this->container->get('router')->generate($rte, array('idd' => $idd)));
     }
 
-    public function enregistrerP1($idd, $pole) {
+    public function traiterDossierAnnonceurAction()
+    {
+    }
+
+    public function enregistrerP1($idd, $pole)
+    {
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
         if ($pole) {
             $idPole = $pole->getId();
@@ -157,13 +164,13 @@ class TraitementPoleController extends Controller {
         $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
 
         $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
-        if ($parametrageSignature) {            
+        if ($parametrageSignature) {
             $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
         }
         $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserP1.html.twig', array('idd' => $idd, 'dd' => $dossierDemande, 'rep' => $representant[0], 'listeTypeOrigine' => $listeTypeOrigine, 'origine' => $origine,
             'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, 'rccm' => $rccm,
             'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
-            'activitePrincipale' => $activitePrincipale, 'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2,'libelleSignatureGreffe' => $libelleSignatureGreffe));
+            'activitePrincipale' => $activitePrincipale, 'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2, 'libelleSignatureGreffe' => $libelleSignatureGreffe));
         $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), "RCC");
         $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . ".pdf";
         $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande));
@@ -190,7 +197,8 @@ class TraitementPoleController extends Controller {
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function enregistrerG1($idd, $pole) {
+    public function enregistrerG1($idd, $pole)
+    {
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
         if ($pole) {
             $idPole = $pole->getId();
@@ -237,12 +245,12 @@ class TraitementPoleController extends Controller {
         $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
 
         $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
-        if ($parametrageSignature) {            
+        if ($parametrageSignature) {
             $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
         }
         $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserG1.html.twig', array('idd' => $idd, 'representant' => $representant
-            , 'activites' => $lesActivites, 'dossier' => $dossier, 'formeJ' => $formJ, 'secAct' => $secAct, 'associe' => $associe
-            , 'rccm' => $rccm, 'typeF' => $typeF, 'leRepresentant' => $leRepresentant,'libelleSignatureGreffe' => $libelleSignatureGreffe));
+        , 'activites' => $lesActivites, 'dossier' => $dossier, 'formeJ' => $formJ, 'secAct' => $secAct, 'associe' => $associe
+        , 'rccm' => $rccm, 'typeF' => $typeF, 'leRepresentant' => $leRepresentant, 'libelleSignatureGreffe' => $libelleSignatureGreffe));
         $lesFormulairesDelives = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), "RCCM");
         $nomFichier = "formulaire" . $idd . "_" . $lesFormulairesDelives->getId() . ".pdf";
         $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossier));
@@ -269,7 +277,8 @@ class TraitementPoleController extends Controller {
         $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
     }
 
-    public function enregistrerNIF($idd) {
+    public function enregistrerNIF($idd)
+    {
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
@@ -289,7 +298,7 @@ class TraitementPoleController extends Controller {
 
         $nif = $em->getRepository('BanquemondialeBundle:Nif')->findOneByDossierDemande($idd);
 
-        $dateNif = new \DateTime();        
+        $dateNif = new \DateTime();
         $dateValiditeTemp = new \DateTime();
         $timestamp = $dateValiditeTemp->getTimestamp();
         $dateValidite = strftime('%d %B %Y', $timestamp);
@@ -334,7 +343,8 @@ class TraitementPoleController extends Controller {
         $em->flush();
     }
 
-    public function enregistrerNI($idd, $pole) {
+    public function enregistrerNI($idd, $pole)
+    {
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
@@ -354,7 +364,6 @@ class TraitementPoleController extends Controller {
         if ($rccm) {
             $dateRccm = $rccm->getDate();
         }
-
 
 
         $listeTypeOrigine = $em->getRepository('ParametrageBundle:TypeOrigine')->findAll();
@@ -403,7 +412,8 @@ class TraitementPoleController extends Controller {
         //exit;
     }
 
-    public function enregistrerPE1($idd, $pole) {
+    public function enregistrerPE1($idd, $pole)
+    {
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
         if ($pole) {
             $idPole = $pole->getId();
@@ -451,7 +461,8 @@ class TraitementPoleController extends Controller {
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function enregistrerGE4($idd, $pole) {
+    public function enregistrerGE4($idd, $pole)
+    {
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
         if ($pole) {
             $idPole = $pole->getId();
@@ -498,7 +509,8 @@ class TraitementPoleController extends Controller {
         $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
     }
 
-    public function enregistrerM0($idd, $pole) {
+    public function enregistrerM0($idd, $pole)
+    {
         $em = $this->getDoctrine()->getManager();
         $request = $this->get('request');
         $codLang = $request->getLocale();
@@ -552,12 +564,12 @@ class TraitementPoleController extends Controller {
         $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
 
         $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
-        if ($parametrageSignature) {            
+        if ($parametrageSignature) {
             $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
         }
         $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserM0.html.twig', array('idd' => $idd,
             'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'listeTypeOrigine' => $listeTypeOrigine,
-            'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'listeTypeFormalite' => $listeTypeFormalite, 'origine' => $origine, 'dateRccm' => $dateRccm, 'rccm' => $rccm, 'soussigne' => $soussigne,'libelleSignatureGreffe' => $libelleSignatureGreffe));
+            'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'listeTypeFormalite' => $listeTypeFormalite, 'origine' => $origine, 'dateRccm' => $dateRccm, 'rccm' => $rccm, 'soussigne' => $soussigne, 'libelleSignatureGreffe' => $libelleSignatureGreffe));
 
         $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), 'RCCM');
         $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . ".pdf";
@@ -584,7 +596,8 @@ class TraitementPoleController extends Controller {
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function enregistrerME1($idd, $pole) {
+    public function enregistrerME1($idd, $pole)
+    {
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
         if ($pole) {
             $idPole = $pole->getId();
@@ -631,7 +644,9 @@ class TraitementPoleController extends Controller {
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function delivrerDossierAction(Request $request) {
+    public function delivrerDossierAction(Request $request)
+    {
+        // die(dump('ok'));
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
@@ -641,9 +656,7 @@ class TraitementPoleController extends Controller {
             $idPole = $pole->getId();
             $nomDuPole = $this->get('translator')->trans($pole->getNom());
         }
-
         $idd = $request->get('idd');
-
         $retour = '';
         $sms = "";
         $dateActu = new \DateTime();
@@ -655,7 +668,6 @@ class TraitementPoleController extends Controller {
         if ($request->getMethod() == 'POST') {
 
             $documentCollected = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande));
-
             if ($documentCollected) {
                 //si le dossier de reception n'existe pas le creer
                 $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
@@ -714,10 +726,8 @@ class TraitementPoleController extends Controller {
                 if ($documentsCollectedMemeOrdre) {
                     $message = $this->get('translator')->trans('message_dossier_en_cours');
                     $objet = $this->get('translator')->trans('traitement_dossier_en_cours');
-                }
-
-                //on cherche la liste des documentcollected du prochain ordre 
-                else {                    
+                } //on cherche la liste des documentcollected du prochain ordre
+                else {
                     if ($documentSuivant) {
                         $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
                         $polesSuivants = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPolesSuivants($documentSuivant[0]->getOrdre(), $idd);
@@ -789,7 +799,7 @@ class TraitementPoleController extends Controller {
                 if ($dossierDemande->getEmailPromoteur()) {
                     $sujet = $this->get('translator')->trans('sujet_notification_email');
                     $ancienEmailUtilisateur = $dossierDemande->getUtilisateur()->getEmail();
-                    $dossierDemande->getUtilisateur()->setEmail($dossierDemande->getEmailPromoteur());
+                    $dossierDemande->getUtilisateur()->setEmail($this->valideMail($dossierDemande->getEmailPromoteur()));
                     try {
                         $this->sendMail($sujet, $texteMail, $dossierDemande->getUtilisateur());
                     } catch (\Exception $e) {
@@ -797,19 +807,19 @@ class TraitementPoleController extends Controller {
                         $this->get('session')->getFlashBag()->add('error', $translated);
                         $this->get('logger')->error($e->getMessage());
                     } finally {
-                        $dossierDemande->getUtilisateur()->setEmail($ancienEmailUtilisateur);
+                        $dossierDemande->getUtilisateur()->setEmail($this->valideMail($ancienEmailUtilisateur));
                     }
                 }
                 return new JsonResponse(array('resultat' => '1', 'url' => $sms));
             }
-
             //return new JsonResponse(array('resultat' => '1'));
         }
 
         return new JsonResponse(array('resultat' => '0'));
     }
 
-    public function traitercnssAction($idd) {
+    public function traitercnssAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $em = $this->getDoctrine()->getManager();
@@ -850,6 +860,9 @@ class TraitementPoleController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $idd]);
+// die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
 
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
@@ -866,7 +879,7 @@ class TraitementPoleController extends Controller {
                     $newComplementCnss->setDateImmatriculation($dateComplementCnss);
                     $newComplementCnss->setDossierDemande($dossierDemande);
                     $newComplementCnss->setNumeroEmployeur($request->get('numeroEmployeur'));
-                                        
+
                     $newComplementCnss->setDateEffet(new \DateTime($request->get('dateEffet')));
                     $newComplementCnss->setCategorie($request->get('categorie'));
                     $newComplementCnss->setPlafonne($request->get('plafonne'));
@@ -880,7 +893,7 @@ class TraitementPoleController extends Controller {
 
                     $complementCnss->setDateImmatriculation($dateComplementCnss);
                     $complementCnss->setDossierDemande($dossierDemande);
-                    $complementCnss->setNumeroEmployeur($request->get('numeroEmployeur'));                                        
+                    $complementCnss->setNumeroEmployeur($request->get('numeroEmployeur'));
                     $complementCnss->setDateEffet(new \DateTime($request->get('dateEffet')));
                     $complementCnss->setCategorie($request->get('categorie'));
                     $complementCnss->setPlafonne($request->get('plafonne'));
@@ -894,17 +907,18 @@ class TraitementPoleController extends Controller {
         }
 
         return $this->render('ParametrageBundle:ParameterPole:traiterCnss.html.twig', array('idd' => $idd, 'cnss' => $cnss,
-                    'dd' => $dossierDemande, 'message' => $message, 'motif' => $motif, 'aguipe' => $aguipe, 'user' => $user,
-                    'pole' => $pole, 'dateComplementCnss' => $dateComplementCnss, 'complementCnss' => $complementCnss,
-                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'rep' => $rep, 'activitePrincipale' => $activitePrincipale,
-                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
+            'dd' => $dossierDemande, 'message' => $message, 'motif' => $motif, 'aguipe' => $aguipe, 'user' => $user,
+            'pole' => $pole, 'dateComplementCnss' => $dateComplementCnss, 'complementCnss' => $complementCnss,
+            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'rep' => $rep, 'activitePrincipale' => $activitePrincipale,
+            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
         ));
     }
 
-    public function traiterSocieteCommercialeAction($idd) {
+    public function traiterSocieteCommercialeAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
-        $em = $this->getDoctrine()->getManager();        
+        $em = $this->getDoctrine()->getManager();
         $request = $this->get('request');
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
@@ -992,6 +1006,9 @@ class TraitementPoleController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $idd]);
+                    // die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
 
                     $notif = $this->container->get('utilisateurs.notification');
                     $message2 = $this->get('translator')->trans('par_le_pole');
@@ -1033,15 +1050,14 @@ class TraitementPoleController extends Controller {
 
 
                         return $this->render('ParametrageBundle:ParameterPole:traiterDossierM0.html.twig', array('idd' => $idd,
-                                    'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                                    'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine, "numSequentiel" => $numSequentiel,
-                                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, "formatRccm" => $debutNumRccm,
-                                    'numSequentielEntreprise' => $numSequentielEntreprise, 'debutRccmFormalite' => $debutNumRccmFormalite,
-                                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs,
-                                    'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
-                                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+                            'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+                            'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine, "numSequentiel" => $numSequentiel,
+                            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, "formatRccm" => $debutNumRccm,
+                            'numSequentielEntreprise' => $numSequentielEntreprise, 'debutRccmFormalite' => $debutNumRccmFormalite,
+                            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs,
+                            'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
+                            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
                     }
-
 
 
                     $em->persist($newRccm);
@@ -1078,13 +1094,13 @@ class TraitementPoleController extends Controller {
 
 
                         return $this->render('ParametrageBundle:ParameterPole:traiterDossierM0.html.twig', array('idd' => $idd,
-                                    'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                                    'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine, "numSequentiel" => $numSequentiel,
-                                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, "formatRccm" => $debutNumRccm,
-                                    'numSequentielEntreprise' => $numSequentielEntreprise, 'debutRccmFormalite' => $debutNumRccmFormalite,
-                                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs,
-                                    'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
-                                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+                            'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+                            'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine, "numSequentiel" => $numSequentiel,
+                            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, "formatRccm" => $debutNumRccm,
+                            'numSequentielEntreprise' => $numSequentielEntreprise, 'debutRccmFormalite' => $debutNumRccmFormalite,
+                            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs,
+                            'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
+                            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
                     }
 
 
@@ -1096,16 +1112,17 @@ class TraitementPoleController extends Controller {
         }
 
         return $this->render('ParametrageBundle:ParameterPole:traiterDossierM0.html.twig', array('idd' => $idd,
-                    'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                    'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine, "numSequentiel" => $numSequentiel,
-                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, "formatRccm" => $debutNumRccm, 'debutRccmFormalite' => $debutNumRccmFormalite,
-                    'numSequentielEntreprise' => $numSequentielEntreprise, 'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise,
-                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs, 'activitePrincipale' => $activitePrincipale,
-                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
+            'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+            'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine, "numSequentiel" => $numSequentiel,
+            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, "formatRccm" => $debutNumRccm, 'debutRccmFormalite' => $debutNumRccmFormalite,
+            'numSequentielEntreprise' => $numSequentielEntreprise, 'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise,
+            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs, 'activitePrincipale' => $activitePrincipale,
+            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
         ));
     }
 
-    public function traiterGroupementInteretEconomiqueAction($idd) {
+    public function traiterGroupementInteretEconomiqueAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $em = $this->getDoctrine()->getManager();
@@ -1144,6 +1161,9 @@ class TraitementPoleController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $idd]);
+                    // die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
 
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
@@ -1192,14 +1212,15 @@ class TraitementPoleController extends Controller {
         }
 
         return $this->render('ParametrageBundle:ParameterPole:traiterDossierM0.html.twig', array('idd' => $idd,
-                    'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                    'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine,
-                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
-                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs
+            'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+            'listeAssocies' => $listeAssocies, 'listeComissaires' => $listeCommissareAuxCptes, 'origine' => $origine,
+            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
+            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'listeAdministrateurs' => $listeAdministrateurs
         ));
     }
 
-    public function traiterPersonnePhysiqueAction($idd) {
+    public function traiterPersonnePhysiqueAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $em = $this->getDoctrine()->getManager();
@@ -1273,6 +1294,9 @@ class TraitementPoleController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $idd]);
+// die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
 
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
@@ -1311,15 +1335,14 @@ class TraitementPoleController extends Controller {
                         }
 
 
-
                         return $this->render('ParametrageBundle:ParameterPole:traiterDossierP1.html.twig', array('idd' => $idd,
-                                    'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                                    'origine' => $origine, "formatRccm" => $debutNumRccm, "numSequentiel" => $numSequentiel,
-                                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
-                                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'numSequentielEntreprise' => $numSequentielEntreprise,
-                                    'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
-                                    'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
-                                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
+                            'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+                            'origine' => $origine, "formatRccm" => $debutNumRccm, "numSequentiel" => $numSequentiel,
+                            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
+                            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'numSequentielEntreprise' => $numSequentielEntreprise,
+                            'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
+                            'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
+                            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
                         ));
                     }
 
@@ -1355,15 +1378,14 @@ class TraitementPoleController extends Controller {
                         }
 
 
-
                         return $this->render('ParametrageBundle:ParameterPole:traiterDossierP1.html.twig', array('idd' => $idd,
-                                    'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                                    'origine' => $origine, "formatRccm" => $debutNumRccm, "numSequentiel" => $numSequentiel,
-                                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
-                                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'numSequentielEntreprise' => $numSequentielEntreprise,
-                                    'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
-                                    'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
-                                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
+                            'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+                            'origine' => $origine, "formatRccm" => $debutNumRccm, "numSequentiel" => $numSequentiel,
+                            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
+                            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'numSequentielEntreprise' => $numSequentielEntreprise,
+                            'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
+                            'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
+                            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
                         ));
                     }
 
@@ -1382,17 +1404,18 @@ class TraitementPoleController extends Controller {
         }
 
         return $this->render('ParametrageBundle:ParameterPole:traiterDossierP1.html.twig', array('idd' => $idd,
-                    'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
-                    'origine' => $origine, "formatRccm" => $debutNumRccm, "numSequentiel" => $numSequentiel,
-                    'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
-                    'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'numSequentielEntreprise' => $numSequentielEntreprise,
-                    'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
-                    'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
-                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
+            'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'listeTypeOrigine' => $listeTypeOrigine,
+            'origine' => $origine, "formatRccm" => $debutNumRccm, "numSequentiel" => $numSequentiel,
+            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm,
+            'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'numSequentielEntreprise' => $numSequentielEntreprise,
+            'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
+            'styleNumeroFormalite' => $styleNumeroFormalite, 'styleNumeroEntreprise' => $styleNumeroEntreprise, 'activitePrincipale' => $activitePrincipale,
+            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2
         ));
     }
 
-    public function visualiserM0Action($idd) {
+    public function visualiserM0Action($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
@@ -1457,12 +1480,12 @@ class TraitementPoleController extends Controller {
         $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
 
         $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
-        if ($parametrageSignature) {            
+        if ($parametrageSignature) {
             $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
         }
         $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserM0.html.twig', array('idd' => $idd, 'libelleFormeJ' => $libelleFormeJ,
             'activites' => $lesActivites, 'dd' => $dossierDemande, 'listeDirigeants' => $listeDirigeants, 'listeTypeOrigine' => $listeTypeOrigine,
-            'listeAssocies' => $listeAssocies,'libelleSignatureGreffe' => $libelleSignatureGreffe, 'listeComissaires' => $listeCommissareAuxCptes, 'listeTypeFormalite' => $listeTypeFormalite, 'origine' => $origine, 'dateRccm' => $dateRccm, 'rccm' => $rccm, 'soussigne' => $soussigne));
+            'listeAssocies' => $listeAssocies, 'libelleSignatureGreffe' => $libelleSignatureGreffe, 'listeComissaires' => $listeCommissareAuxCptes, 'listeTypeFormalite' => $listeTypeFormalite, 'origine' => $origine, 'dateRccm' => $dateRccm, 'rccm' => $rccm, 'soussigne' => $soussigne));
         $nomFichier = "formulaire" . $idd . "_" . $pole->getId() . ".pdf"; //cofifier après rccm
         $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
         $html2pdf->pdf->SetDisplayMode('real');
@@ -1471,7 +1494,8 @@ class TraitementPoleController extends Controller {
         exit;
     }
 
-    public function visualiserChefGreffeM0Action($idd) {
+    public function visualiserChefGreffeM0Action($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
@@ -1558,7 +1582,8 @@ class TraitementPoleController extends Controller {
         exit;
     }
 
-    public function visualiserME1Action($idd) {
+    public function visualiserME1Action($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
 
@@ -1588,7 +1613,8 @@ class TraitementPoleController extends Controller {
         //$html2pdf->Output($cheminDownload . 'formulairesDelivres\\' . $nomFichier, 'F');
     }
 
-    public function visualiserNIAction($idd) {
+    public function visualiserNIAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
@@ -1620,7 +1646,6 @@ class TraitementPoleController extends Controller {
         $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
 
 
-
         $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserNI.html.twig', array('idd' => $idd,
             'dd' => $dossierDemande, 'cnss' => $complementCnss, 'dateComplementCnss' => $dateComplementCnss,
             'leCnss' => $leCnss, 'rccm' => $rccm, 'user' => $user, 'rep' => $rep, 'activitePrincipale' => $activitePrincipale,
@@ -1633,7 +1658,8 @@ class TraitementPoleController extends Controller {
         exit;
     }
 
-    public function traiterDemandeNIFAction($idd) {
+    public function traiterDemandeNIFAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $em = $this->getDoctrine()->getManager();
@@ -1696,6 +1722,10 @@ class TraitementPoleController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $idd]);
+// die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
+
 
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
@@ -1735,7 +1765,7 @@ class TraitementPoleController extends Controller {
                           $styleNumeroFormulaire = "border:1px red solid;";
                           } */
                         return $this->render('ParametrageBundle:ParameterPole:traiterDossierNIF.html.twig', array('idd' => $idd, 'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'pole' => $pole, 'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'dateValidite' => $dateValidite, 'nif' => $newNif, 'styleNIF' => $styleNIF, 'styleNumeroFormulaire' => $styleNumeroFormulaire, 'activitePrincipale' => $activitePrincipale,
-                                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+                            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
                     }
 
                     $newNif->setDate($dateNif);
@@ -1748,9 +1778,6 @@ class TraitementPoleController extends Controller {
                     $newNif->setRue($rue);
                     $newNif->setMarche($marche);
                     $newNif->setBoutique($boutique);
-
-
-
 
 
                     $em->persist($newNif);
@@ -1779,7 +1806,7 @@ class TraitementPoleController extends Controller {
                         }
 
                         return $this->render('ParametrageBundle:ParameterPole:traiterDossierNIF.html.twig', array('idd' => $idd, 'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'pole' => $pole, 'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'dateValidite' => $dateValidite, 'nif' => $nif, 'styleNIF' => $styleNIF, 'styleNumeroFormulaire' => $styleNumeroFormulaire, 'activitePrincipale' => $activitePrincipale,
-                                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+                            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
                     }
 
                     $nif->setDate($dateNif);
@@ -1805,11 +1832,12 @@ class TraitementPoleController extends Controller {
             }
         }
         return $this->render('ParametrageBundle:ParameterPole:traiterDossierNIF.html.twig', array('idd' => $idd,
-                    'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'pole' => $pole, 'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'dateValidite' => $dateValidite, 'nif' => $nif, 'styleNIF' => $styleNIF, 'styleNumeroFormulaire' => $styleNumeroFormulaire, 'activitePrincipale' => $activitePrincipale,
-                    'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+            'dd' => $dossierDemande, 'rep' => $gerant[0], 'message' => $message, 'motif' => $motif, 'pole' => $pole, 'rccm' => $rccm, 'statutTraitrement' => $documentCollected->getStatutTraitement(), 'dateValidite' => $dateValidite, 'nif' => $nif, 'styleNIF' => $styleNIF, 'styleNumeroFormulaire' => $styleNumeroFormulaire, 'activitePrincipale' => $activitePrincipale,
+            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
     }
 
-    public function visualiserNIFAction($idd) {
+    public function visualiserNIFAction($idd)
+    {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
@@ -1832,7 +1860,7 @@ class TraitementPoleController extends Controller {
 
         $nif = $em->getRepository('BanquemondialeBundle:Nif')->findOneByDossierDemande($idd);
 
-        $dateNif = new \DateTime();                
+        $dateNif = new \DateTime();
         $dateValidite = new \DateTime();
         $anneeActuelle = date('Y');
         $dateFinAnnee = new \DateTime($anneeActuelle . '-12-31');
@@ -1879,7 +1907,8 @@ class TraitementPoleController extends Controller {
         exit;
     }
 
-    function sendSMS($langue, $sms, $telephone) {
+    function sendSMS($langue, $sms, $telephone)
+    {
         $url = '';
         $retour = "";
         if (strlen($sms) > 160) {
@@ -1908,13 +1937,14 @@ class TraitementPoleController extends Controller {
         return $retour;
     }
 
-    function sendMail($sujet, $texte, $utilisateur) {
+    function sendMail($sujet, $texte, $utilisateur)
+    {
         $em = $this->getDoctrine()->getManager();
 
         $messagerie = $em->getRepository('ParametrageBundle:Messagerie')->find(1);
         $transport = \Swift_SmtpTransport::newInstance($messagerie->getMailerHost(), $messagerie->getMailerPort())
-                        ->setUsername($messagerie->getMailerUser())
-                        ->setPassword($messagerie->getMailerPassword())->setEncryption($messagerie->getEncryption());
+            ->setUsername($messagerie->getMailerUser())
+            ->setPassword($messagerie->getMailerPassword())->setEncryption($messagerie->getEncryption());
         $mailer = \Swift_Mailer::newInstance($transport);
 
         $message = \Swift_Message::newInstance($transport);
@@ -1922,9 +1952,9 @@ class TraitementPoleController extends Controller {
         $translated = $translated = $this->get('translator')->trans("notification");
 
         $message->setSubject($sujet)
-                ->setFrom(array($messagerie->getExpediteurEmail() => $messagerie->getExpediteurName()))
-                ->setTo($utilisateur->getEmail())
-                ->setBody($this->renderView('ParametrageBundle:Parametrage:email\notification.email.twig', array('texte' => $texte, 'user' => $utilisateur)), 'text/html');
+            ->setFrom(array($messagerie->getExpediteurEmail() => $messagerie->getExpediteurName()))
+            ->setTo($utilisateur->getEmail())
+            ->setBody($this->renderView('ParametrageBundle:Parametrage:email\notification.email.twig', array('texte' => $texte, 'user' => $utilisateur)), 'text/html');
 
         try {
             $mailer->send($message);
@@ -1933,60 +1963,45 @@ class TraitementPoleController extends Controller {
         }
     }
 
-    public function sendRccmAction(Request $request, $idd) {
-
+    public function sendRccmAction(Request $request, $idd)
+    {
+        // $this->get('monservices')->UpdateSecteurActiviteNonValid();
         $encoders = array(new JsonEncoder(new JsonEncode(JSON_UNESCAPED_UNICODE), new JsonDecode(false)));
         $normalizers = new PropertyNormalizer();
-
         $normalizers->setCircularReferenceHandler(function ($object) {
             return $object->getId();
         });
-
         $serializer = new Serializer(array($normalizers), $encoders);
-
         $errors = '';
-
         $em = $this->getDoctrine()->getManager();
         /* recherche des donnees du formulaire */
         $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
         $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
-
         $poleGreffe = $em->getRepository('ParametrageBundle:Pole')->findOneBySigle('GF');
-
         $poleNIF = $em->getRepository('ParametrageBundle:Pole')->findOneBySigle('BNI');
-
         $cheminUpload = $em->getRepository('ParametrageBundle:Chemins')->find(1)->getNom();
-        $chemin=$em->getRepository('ParametrageBundle:Chemins')->find(4);
-        $ipServeurDNI=($chemin)? $chemin->getNom() : "";                
-
+        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(4);
+        $ipServeurDNI = ($chemin) ? $chemin->getNom() : "";
         $formulaireDelivreRccm = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('dossierDemande' => $idd, 'pole' => $poleGreffe));
         $cheminFichierRccmOut = $cheminUpload . $idd . '\\' . $formulaireDelivreRccm->getNomFichier();
-
-        $collectionPieceJointe = $em->getRepository('BanquemondialeBundle:CollectionPieceJointe')->findAllPieceJoined($idd, 1);        
+        $collectionPieceJointe = $em->getRepository('BanquemondialeBundle:CollectionPieceJointe')->findAllPieceJoined($idd, 1);
         //historique
         $documentCollected = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('pole' => $poleNIF, 'dossierDemande' => $idd));
-
         $statutEchecEnvoiDni = $em->getRepository('BanquemondialeBundle:StatutTraitement')->findOneByCode("DM"); //EE ->EM on m'a demande de la renvoyer a modifier chez le user
         $codeEchecEnvoiDni = $em->getRepository('BanquemondialeBundle:StatutTraitementTraduction')->getLibelleStatutTraitementByLangue(1, $statutEchecEnvoiDni);
-
         $statutEnCoursEnvoiDni = $em->getRepository('BanquemondialeBundle:StatutTraitement')->findOneByCode("EC");
         $codeEnCoursEnvoiDni = $em->getRepository('BanquemondialeBundle:StatutTraitementTraduction')->getLibelleStatutTraitementByLangue(1, $statutEnCoursEnvoiDni);
-
-
         $historiqueEnvoi = new HistoriqueEchangeDNI();
         $historiqueEnvoi->setNumeroDossier($dossierDemande->getNumeroDossier());
         $historiqueEnvoi->setDateEnvoiRccm(new \DateTime());
         $historiqueEnvoi->setContenuEnvoi("");
         //$historiqueEnvoi->setCodeRetourDNI($codeEchecEnvoiDni);
         $historiqueEnvoi->setDossierDemande($dossierDemande);
-
         $documentCollected->setStatutTraitement($statutEchecEnvoiDni);
         $historiqueEnvoi->setCodeRetourDNI("APIP00");
         $em->persist($documentCollected);
         $em->persist($historiqueEnvoi);
         $em->flush();
-
-
         /* try {
           set_error_handler(function($errno, $errstr, $errfile, $errline ) {
           throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -2028,18 +2043,15 @@ class TraitementPoleController extends Controller {
           //die("exception 1");
           }
          */
-
         $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
         $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
         $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
-
         $activitePrincipaleLibelle = null;
         $codeActivite = "";
         $activiteSecondaire1Libelle = "";
         $codeActivite1 = "";
         $activiteSecondaire2Libelle = "";
         $codeActivite2 = "";
-
         if ($activitePrincipale) {
             $activitePrincipaleLibelle = $activitePrincipale->getLibelle();
             if ($dossierDemande->getSecteurActivite()) {
@@ -2058,15 +2070,12 @@ class TraitementPoleController extends Controller {
                 $codeActivite2 = $dossierDemande->getActiviteSecondaire2()->getCode();
             }
         }
-
-
         $categorieActivitePrincipale = null;
         $codeCategorie = "";
         $categorieActiviteSecondaire1 = null;
         $codeCategorie1 = "";
         $categorieActiviteSecondaire2 = null;
         $codeCategorie2 = "";
-
         if ($dossierDemande->getSecteurActivite()) {
             $categorieActivitePrincipale = $em->getRepository('ParametrageBundle:CategorieActiviteTraduction')->findOneBy(array('categorieActivite' => $dossierDemande->getSecteurActivite()->getCategorieActivite(), 'langue' => 1));
             if ($dossierDemande->getSecteurActivite()) {
@@ -2085,12 +2094,9 @@ class TraitementPoleController extends Controller {
                 $codeCategorie2 = $dossierDemande->getActiviteSecondaire2()->getCategorieActivite()->getCode();
             }
         }
-
         $categorieActivitePrincipaleLibelle = "";
         $categorieActiviteSecondaire1Libelle = "";
         $categorieActiviteSecondaire2Libelle = "";
-
-
         if ($categorieActivitePrincipale) {
             $categorieActivitePrincipaleLibelle = $categorieActivitePrincipale->getLibelle();
         }
@@ -2100,26 +2106,22 @@ class TraitementPoleController extends Controller {
         if ($categorieActiviteSecondaire2) {
             $categorieActiviteSecondaire2Libelle = $categorieActiviteSecondaire2->getLibelle();
         }
-
-
         $dateRccm = new \DateTime();
         if ($rccm) {
             $dateRccm = $rccm->getDate();
         }
-
         $typeFormalite = $em->getRepository('BanquemondialeBundle:TypeFormaliteRccm')->find($rccm->getTypeFormaliteRccm());
         $adresse = $dossierDemande->getRegion()->getLibelle() . "-" . $dossierDemande->getPrefecture()->getLibelle() . "-" . $dossierDemande->getSousPrefecture()->getLibelle();
-
         $sigleOuEnseigne = null;
+
+        // var_dump($this->get('monservices')->truncateWord($dossierDemande->getDenominationSociale(),50));die();
         if ($dossierDemande->getSigle()) {
             $sigleOuEnseigne = $dossierDemande->getSigle();
         } else if ($dossierDemande->getEnseigne()) {
-            $sigleOuEnseigne = $dossierDemande->getEnseigne();
+            $sigleOuEnseigne = $this->get('monservices')->createAcronym($dossierDemande->getEnseigne(), true);
         } else {
-            $sigleOuEnseigne = $dossierDemande->getDenominationSociale();
+            $sigleOuEnseigne = $this->get('monservices')->createAcronym($dossierDemande->getDenominationSociale(), true);
         }
-
-
         $nomPrecedentEploitant = null;
         $prenomPrecedentEploitant = null;
         $adressePrecedentEploitant = null;
@@ -2131,20 +2133,15 @@ class TraitementPoleController extends Controller {
         $adresseSucc = null;
         $activiteSucc = null;
         $typeOrigine = null;
-
-
         $formulaire = null;
 
-
+//       GROUPEMENT INTERET ECONOMIQUE
         if ($dossierDemande->getFormeJuridique()->getSigle() == "GIE") {
             $json_url = "http://nifp.mbudget.gov.gn/api/v1/constitutions/";
-
             $listeAssocies = $em->getRepository('BanquemondialeBundle:Associe')->findBy(array('dossierDemande' => $idd), array('id' => 'ASC'), 3, null);
             $associes = array();
             $listeAdministrateurs = $em->getRepository('BanquemondialeBundle:Administrateur')->findBy(array('dossierDemande' => $dossierDemande->getId()), array('id' => 'asc'), 3);
             $administrateurs = array();
-
-
             foreach ($listeAssocies as $associe) {
                 $associeTemp = new MembreTenuFormulaire();
                 $associeTemp->setNom($associe->getNom());
@@ -2157,8 +2154,6 @@ class TraitementPoleController extends Controller {
                 $associeTemp->setAdresse($associe->getAdresse());
                 array_push($associes, $associeTemp);
             }
-
-
             $listeDirigeants = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), 1);
             foreach ($listeDirigeants as $administrateur) {
                 $administrateurTemp = new AdministrateurFormulaire();
@@ -2180,7 +2175,6 @@ class TraitementPoleController extends Controller {
                 $administrateurTemp->setFonction("administrateur");
                 array_push($administrateurs, $administrateurTemp);
             }
-
             /* partie relatif groupement */
             $renseignementRelatifGroupement = new RenseignementRelatifGroupementFormulaire();
             $renseignementRelatifGroupement->setDenomination($dossierDemande->getDenominationSociale());
@@ -2188,8 +2182,8 @@ class TraitementPoleController extends Controller {
             $renseignementRelatifGroupement->setAdresse($adresse);
             $renseignementRelatifGroupement->setAdresseSiege($dossierDemande->getAdresseSiege());
             $renseignementRelatifGroupement->setFormeJuridique("Groupement d'Intèrêt Economique");
-            $renseignementRelatifGroupement->setCapitalSocial($dossierDemande->getCapitalSocial());
-            $renseignementRelatifGroupement->setDuree($dossierDemande->getDuree());
+            $renseignementRelatifGroupement->setCapitalSocial(empty($dossierDemande->getCapitalSocial()) ? 0 : $dossierDemande->getCapitalSocial());
+            $renseignementRelatifGroupement->setDuree(empty($dossierDemande->getDuree()) ? 0 : $dossierDemande->getDuree());
 
             /* partie relatif activites */
             $renseignementRelatifActivite = new RenseignementRelatifActiviteGroupementFormulaire();
@@ -2232,8 +2226,10 @@ class TraitementPoleController extends Controller {
             $formulaire->setSigle($sigleOuEnseigne);
             $formulaire->setTypeEntreprise("personne morale");
             $formulaire->setTypeRccm("GIE");
-            $formulaire->setEmail($dossierDemande->getEmail());
-            $formulaire->setTelephone($dossierDemande->getTelephone());
+
+
+            $formulaire->setEmail($this->valideMail($dossierDemande->getEmail()));
+            $formulaire->setTelephone(empty($dossierDemande->getTelephone()) ? "" : $dossierDemande->getTelephone());
             $communeCodif = new CommuneFormulaire();
             $codeC = ($dossierDemande->getSousPrefecture()) ? $dossierDemande->getSousPrefecture()->getCode() : "";
             $libelleC = ($dossierDemande->getSousPrefecture()) ? $dossierDemande->getSousPrefecture()->getLibelle() : "";
@@ -2251,16 +2247,17 @@ class TraitementPoleController extends Controller {
             $formulaire->setTypeDemande(strtoupper($typeFormalite->getLibelle()));
             $formulaire->setRenseignementRelatifGroupement($renseignementRelatifGroupement);
             $formulaire->setRenseignementRelatifActivite($renseignementRelatifActivite);
-            $formulaire->setAssocies($associes);
-            $formulaire->setAdministrateurs($administrateurs);
-        } else if ($dossierDemande->getFormeJuridique()->getSigle() == "EI") {
+            $formulaire->setAssocies(array_values(array_unique($associes, SORT_REGULAR)));
+            $formulaire->setAdministrateurs(array_values(array_unique($administrateurs, SORT_REGULAR)));
+        } //        ENTREPRISE  INDIVIDUEL
+        else if ($dossierDemande->getFormeJuridique()->getSigle() == "EI") {
             $json_url = "http://nifp.mbudget.gov.gn/api/v1/formulaires/";
 
             $gerants = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), 1);
             $gerant = $gerants[0]; //$em->getRepository('BanquemondialeBundle:Representant')->findBy(array('dossierDemande' => $idd), array('id' => 'ASC'), 1, null)[0];
 
             $personneEngageurs = $em->getRepository('BanquemondialeBundle:PersonneEngageur')->getPersEngageursByDossierDemande($idd, 1);
-            //die(dump($personneEngageurs));
+            // die(dump($personneEngageurs));
 
             $listeConjoints = $em->getRepository('BanquemondialeBundle:Conjoint')->findBy(array('representant' => $gerant['id']));
             $conjoints = array();
@@ -2272,7 +2269,8 @@ class TraitementPoleController extends Controller {
                 $conjointTemp->setDateMariage($conjoint->getDateMariage()->format('Y-m-d'));
                 $conjointTemp->setLieuMariage($conjoint->getLieuMariage());
                 $conjointTemp->setOptionMatrimoniale($conjoint->getOptionMatrimoniale());
-                $conjointTemp->setRegimeMatrimonial($conjoint->getRegimeMatrimonial()->getLibelle());
+                //die(dump($conjoint->getRegimeMatrimonial()));
+                $conjointTemp->setRegimeMatrimonial((!empty($conjoint->getRegimeMatrimonial())) ? $conjoint->getRegimeMatrimonial()->getLibelle() : "");
                 $conjointTemp->setClausesRestrictives($conjoint->getClausesRestrictives());
                 $conjointTemp->setDemandeSeparationBiens($conjoint->getDemandeSeparationBiens());
                 array_push($conjoints, $conjointTemp);
@@ -2290,6 +2288,7 @@ class TraitementPoleController extends Controller {
                 $sigleSucc = $origine->getSigleOuEnseigne();
                 $nomCommercialSucc = $origine->getNomCommercial();
                 $dateOuvertureSucc = $origine->getDateOuverture();
+               // die(dump($dossierDemande));
                 $adresseSucc = $origine->getAdresseEtablissementSecondaire();
                 $activiteSucc = $origine->getActiviteEtablissementSecondaire();
                 $typeOrigine = $origine->getTypeOrigine();
@@ -2311,16 +2310,17 @@ class TraitementPoleController extends Controller {
             $renseignementRelatifPersonnePhysique->setDateLieuNaissance($gerant['dateDeNaissance']->format('Y-m-d') . " à " . $gerant['LieuNaissance']);
             $renseignementRelatifPersonnePhysique->setNationalite($gerant['nationalite']);
             $renseignementRelatifPersonnePhysique->setAdresse($dossierDemande->getAdresseSiege());
-            $renseignementRelatifPersonnePhysique->setAdressePostale($dossierDemande->getBoitePostale());
-            $renseignementRelatifPersonnePhysique->setTelephone($gerant['telephone']);
-            $renseignementRelatifPersonnePhysique->setDomicilePersonnel($gerant['adresse']);
+            $renseignementRelatifPersonnePhysique->setAdressePostale(strval($dossierDemande->getBoitePostale()));
+            $renseignementRelatifPersonnePhysique->setTelephone(empty($gerant['telephone']) ? "" : $gerant['telephone']);
+            // $renseignementRelatifPersonnePhysique->setTelephone($gerant['telephone']);
+            $renseignementRelatifPersonnePhysique->setDomicilePersonnel(empty($gerant['adresse']) ? "" : $gerant['adresse']);
+//            $renseignementRelatifPersonnePhysique->setDomicilePersonnel($gerant['adresse']);
             $renseignementRelatifPersonnePhysique->setVille($gerant['ville']);
-            $renseignementRelatifPersonnePhysique->setQuartier($gerant['quartier']);
-            $renseignementRelatifPersonnePhysique->setEmail($gerant['email']);
-            $renseignementRelatifPersonnePhysique->setSituationMatrimoniale($gerant['situationMatrimoniale']);
+            $renseignementRelatifPersonnePhysique->setQuartier(empty($gerant['quartier']) ? "" : $gerant['quartier']);
+            $renseignementRelatifPersonnePhysique->setEmail($this->valideMail($gerant['email']));
+            $renseignementRelatifPersonnePhysique->setSituationMatrimoniale(empty($gerant['situationMatrimoniale']) ? "" : $gerant['situationMatrimoniale']);
             $renseignementRelatifPersonnePhysique->setAutresPrecisions($gerant['numeroIdentiteNational'] . ' | ' . date('Y') . ' (' . $gerant['typeIdentification'] . ')');
-            $renseignementRelatifPersonnePhysique->setConjoints($conjoints);
-
+            $renseignementRelatifPersonnePhysique->setConjoints(array_values(array_unique($conjoints, SORT_REGULAR)));
             /* partie relatif activite etablissement */
             $renseignementRelatifActiviteEtablissement = new ActiviteEtablissementEiFormulaire();
             $renseignementRelatifActiviteEtablissement->setNomCommercial($dossierDemande->getNomCommercial());
@@ -2363,6 +2363,8 @@ class TraitementPoleController extends Controller {
             $renseignementRelatifActiviteEtablissement->setNomCommercialSucc($nomCommercialSucc);
             $renseignementRelatifActiviteEtablissement->setSigleSucc($sigleSucc);
             $renseignementRelatifActiviteEtablissement->setDateOuvertureSucc($dateOuvertureSucc);
+                      //  $renseignementRelatifActiviteEtablissement->setDateOuvertureSucc($dateOuvertureSucc);
+
             $renseignementRelatifActiviteEtablissement->setAdresseSucc($adresseSucc);
             $renseignementRelatifActiviteEtablissement->setActiviteSucc($activiteSucc);
 
@@ -2376,7 +2378,8 @@ class TraitementPoleController extends Controller {
                 $engageurTemp->setDateNaissance($engageur['dateNaissance']->format('Y-m-d'));
                 $engageurTemp->setLieuNaissance($engageur['lieuNaissance']);
                 $engageurTemp->setNationalite($engageur['nationalite']);
-                $engageurTemp->setDomicile($engageur['domicile']);
+                $engageurTemp->setDomicile(empty($engageur['domicile']) ? "" : $engageur['domicile']);
+                // $engageurTemp->setDomicile($engageur['domicile']);
                 array_push($autres_personnes_physiques, $engageurTemp);
             }
 
@@ -2388,8 +2391,8 @@ class TraitementPoleController extends Controller {
             $formulaire->setSigle($sigleOuEnseigne);
             $formulaire->setTypeEntreprise("personne physique");
             $formulaire->setTypeRccm($dossierDemande->getFormeJuridique()->getSigle());
-            $formulaire->setEmail($dossierDemande->getEmail());
-            $formulaire->setTelephone($dossierDemande->getTelephone());
+            $formulaire->setEmail($this->valideMail($dossierDemande->getEmail()));
+            $formulaire->setTelephone(empty($dossierDemande->getTelephone()) ? "" : $dossierDemande->getTelephone());
             $communeCodif = new CommuneFormulaire();
             $codeC = ($dossierDemande->getSousPrefecture()) ? $dossierDemande->getSousPrefecture()->getCode() : "";
             $libelleC = ($dossierDemande->getSousPrefecture()) ? $dossierDemande->getSousPrefecture()->getLibelle() : "";
@@ -2407,15 +2410,14 @@ class TraitementPoleController extends Controller {
             $formulaire->setTypeDemande(strtoupper($typeFormalite->getLibelle()));
             $formulaire->setPersPhysique($renseignementRelatifPersonnePhysique);
             $formulaire->setActiviteEtablissement($renseignementRelatifActiviteEtablissement);
-            $formulaire->setAutresPersonnes($autres_personnes_physiques);
-            //die(dump($formulaire));
-        } else {
+            $formulaire->setAutresPersonnes(array_values(array_unique($autres_personnes_physiques, SORT_REGULAR)));
+            // die(dump($formulaire));
+        } // PERSONNE MORALE
+        else {
+
             $json_url = "http://nifp.mbudget.gov.gn/api/v1/declarations/";
-
-
             $origine = $em->getRepository('BanquemondialeBundle:OriginePM')->findOneByDossierDemande($idd);
             $typeOrigineLibelle = null;
-
             if ($origine) {
                 $nomPrecedentEploitant = $origine->getNomExploitant();
                 $prenomPrecedentEploitant = $origine->getPrenomExploitant();
@@ -2428,22 +2430,17 @@ class TraitementPoleController extends Controller {
                 $adresseSucc = $origine->getAdresseEtablissementSecondaire();
                 $activiteSucc = $origine->getActiviteEtablissementSecondaire();
                 $typeOrigine = $origine->getTypeOrigine();
-
                 if ($typeOrigine) {
                     $typeOrigineLibelle = str_replace("é", "e", $typeOrigine->getLibelle());
                 }
             } else {
                 $typeOrigineLibelle = "creation";
             }
-
             $listeAssocies = $em->getRepository('BanquemondialeBundle:Associe')->findBy(array('dossierDemande' => $idd), array('id' => 'ASC'), 3, null);
             $associes = array();
-
             $listeDirigeants = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), 1);
             $listeAdministrateurs = $em->getRepository('BanquemondialeBundle:Administrateur')->findBy(array('dossierDemande' => $dossierDemande->getId()), array('id' => 'asc'), 3);
             $administrateurs = array();
-
-            //die(dump($listeDirigeants));
 
             foreach ($listeAssocies as $associe) {
                 $associeTemp = new AssocieFormulaire();
@@ -2454,9 +2451,9 @@ class TraitementPoleController extends Controller {
                 }
                 $associeTemp->setLieuNaissance($associe->getLieuNaissance());
                 $associeTemp->setAdresse($associe->getAdresse());
+
                 array_push($associes, $associeTemp);
             }
-
             foreach ($listeDirigeants as $administrateur) {
                 $administrateurTemp = new AdministrateurFormulaire();
                 $administrateurTemp->setNom($administrateur["nom"]);
@@ -2467,7 +2464,6 @@ class TraitementPoleController extends Controller {
                 $administrateurTemp->setFonction($administrateur["libelleFonction"]);
                 array_push($administrateurs, $administrateurTemp);
             }
-
             foreach ($listeAdministrateurs as $administrateur) {
                 $administrateurTemp = new AdministrateurFormulaire();
                 $administrateurTemp->setNom($administrateur->getNom());
@@ -2478,15 +2474,14 @@ class TraitementPoleController extends Controller {
                 $administrateurTemp->setFonction("administrateur");
                 array_push($administrateurs, $administrateurTemp);
             }
-
+            // die(dump(($administrateurs)));
+            // die(dump(array_unique($administrateurs,SORT_REGULAR)));
 
             $formeJuridiqueTraduction = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->findOneBy(array('formeJuridique' => $dossierDemande->getFormeJuridique(), 'langue' => 1));
             $formeJuridiqueLibelle = null;
-
             if ($formeJuridiqueTraduction) {
                 $formeJuridiqueLibelle = $formeJuridiqueTraduction->getLibelle();
             }
-
             /* renseignement_relatif_personne_morale */
             $renseignementRelatifPersonneMorale = new PersonneMoraleFormulaire();
             $renseignementRelatifPersonneMorale->setDenomination($dossierDemande->getDenominationSociale());
@@ -2496,11 +2491,11 @@ class TraitementPoleController extends Controller {
             $renseignementRelatifPersonneMorale->setAdresseEtablissement($dossierDemande->getAdresseEtablissement());
             $renseignementRelatifPersonneMorale->setFormeJuridique($formeJuridiqueLibelle);
             $renseignementRelatifPersonneMorale->setRccmSiege($dossierDemande->getRccmSiege());
-            $renseignementRelatifPersonneMorale->setCapitalSocial($dossierDemande->getCapitalSocial());
-            $renseignementRelatifPersonneMorale->setDontNumeraire($dossierDemande->getApportNumeraire());
-            $renseignementRelatifPersonneMorale->setDontNature($dossierDemande->getApportNature());
-            $renseignementRelatifPersonneMorale->setDuree($dossierDemande->getDuree());
-
+            ///////////Avec l'operateur terniare on verifie si l'element son pas vide
+            $renseignementRelatifPersonneMorale->setCapitalSocial(empty($dossierDemande->getCapitalSocial()) ? 0 : $dossierDemande->getCapitalSocial());
+            $renseignementRelatifPersonneMorale->setDontNumeraire(empty($dossierDemande->getApportNumeraire()) ? 0 : $dossierDemande->getApportNumeraire());
+            $renseignementRelatifPersonneMorale->setDontNature(empty($dossierDemande->getApportNature()) ? 0 : $dossierDemande->getApportNature());
+            $renseignementRelatifPersonneMorale->setDuree(empty($dossierDemande->getDuree()) ? 0 : $dossierDemande->getDuree());
 
             /* renseignement_relatif_activite_et_etablisement */
             $renseignementRelatifActiviteMoraleFormulaire = new RenseignementRelatifActiviteMoraleFormulaire();
@@ -2555,8 +2550,8 @@ class TraitementPoleController extends Controller {
             $formulaire->setSigle($sigleOuEnseigne);
             $formulaire->setTypeEntreprise("personne morale");
             $formulaire->setTypeRccm($dossierDemande->getFormeJuridique()->getSigle());
-            $formulaire->setEmail($dossierDemande->getEmail());
-            $formulaire->setTelephone($dossierDemande->getTelephone());
+            $formulaire->setEmail($this->valideMail($dossierDemande->getEmail()));
+            $formulaire->setTelephone(empty($dossierDemande->getTelephone()) ? "" : $dossierDemande->getTelephone());
             $communeCodif = new CommuneFormulaire();
             $codeC = ($dossierDemande->getSousPrefecture()) ? $dossierDemande->getSousPrefecture()->getCode() : "";
             $libelleC = ($dossierDemande->getSousPrefecture()) ? $dossierDemande->getSousPrefecture()->getLibelle() : "";
@@ -2572,43 +2567,50 @@ class TraitementPoleController extends Controller {
             $formulaire->setRccm($rccm->getNumRccmEntreprise());
             $formulaire->setDateRccm($rccm->getDate()->format('Y-m-d'));
             $formulaire->setTypeDemande(strtoupper($typeFormalite->getLibelle()));
-
             $formulaire->setRenseignementRelatifPersonneMorale($renseignementRelatifPersonneMorale);
             $formulaire->setRenseignementRelatifActiviteEtablissement($renseignementRelatifActiviteMoraleFormulaire);
+            //die(dump($associes));
             $formulaire->setAssocies($associes);
-            $formulaire->setAdministrateurs($administrateurs);
+            // die(dump(array_values(array_unique($associes,SORT_REGULAR))));
+            $formulaire->setAssocies(array_values(array_unique($associes, SORT_REGULAR)));
+            $formulaire->setAdministrateurs(array_values(array_unique($administrateurs, SORT_REGULAR)));
         }
-
-
 
         $validator = $this->get('validator');
         $violations = $validator->validate($formulaire);
-        
+
         if (count($violations) !== 0) {
             foreach ($violations as $violation) {
+
                 echo $violation->getMessage() . '<br>';
                 $errors = $errors . $violation . ' <br>';
+
             }
-
-
             $documentCollected->setStatutTraitement($statutEchecEnvoiDni);
             $jsonFormulaire7 = $serializer->serialize($formulaire, 'json');
- $historiqueEnvoi->setContenuEnvoi($errors);
+            $historiqueEnvoi->setContenuEnvoi($errors);
+            $historiqueEnvoi->setContenuEnvoi($jsonFormulaire7);
             $historiqueEnvoi->setCodeRetourDNI('008');
+            $historiqueEnvoi->setContenuDataRecu($errors);
             $em->persist($historiqueEnvoi);
+
             $em->flush();
             //exit;
             return new JsonResponse(array('resultat' => '0'));
-        } else {
+        }
+        else {
+
             try {
+
                 $username = "dnsi";  // authentication
                 $password = "dnsi";  // authentication
                 $auth = '{"username":"dnsi","password":"dnsi"}';
                 //generation du token                
-                $json_url0 = "http://".$ipServeurDNI."/login";
-                
+                $json_url0 = "http://" . $ipServeurDNI . "/login";
+                // die(dump($json_url0));
                 $em->flush();
                 $ch0 = curl_init($json_url0);
+
                 // Configuring curl options
                 $options0 = array(
                     CURLOPT_RETURNTRANSFER => true,
@@ -2620,24 +2622,25 @@ class TraitementPoleController extends Controller {
 
                 // Setting curl options
                 curl_setopt_array($ch0, $options0);
-
                 // Getting results
                 $resultTo = curl_exec($ch0); // Getting jSON result string
-                $dataReponseToken = json_decode($resultTo, true);
-                $token = $dataReponseToken["token"];
 
+                $dataReponseToken = json_decode($resultTo, true);
+
+                $token = $dataReponseToken["token"];
+                //  die(dump($token));
                 curl_close($ch0);
                 //fin genera
                 $formulaire->setToken($token);
 
                 $jsonFormulaire = $serializer->serialize($formulaire, 'json');
+              //  die(dump($jsonFormulaire));
                 $jsonFormulaire0 = str_replace("\/", "/", $jsonFormulaire);
                 $jsonFormulaire1 = preg_replace('/\bnull\b/u', '""', $jsonFormulaire0);
-
+                //die(dump($jsonFormulaire0));
                 $historiqueEnvoi->setContenuEnvoi($jsonFormulaire1);
                 $em->persist($historiqueEnvoi);
                 $em->flush();
-                //die(dump($jsonFormulaire));
                 //Transformer en csv
                 //ecrire dans un fichier texte
                 $nomF = $dossierDemande->getNumeroDossier();
@@ -2659,16 +2662,13 @@ class TraitementPoleController extends Controller {
                 //$this->jsonToCsv($jsonFormulaire, "D:/declaration.csv");
                 //fin transformation
                 //juste pour test a enlever
-                $json_url = "http://".$ipServeurDNI."/apip/demande";
-
-
+                $json_url = "http://" . $ipServeurDNI . "/apip/demande";
                 // fama : cette partie sera commenté provisoirement avant que le NIF soit pret
                 // Initializing curl
-
                 $ch = curl_init($json_url);
                 $formulaire->setToken($token);
-                $jsonFormulaire5 = $serializer->serialize($formulaire, 'json');
 
+                $jsonFormulaire5 = $serializer->serialize($formulaire, 'json');
                 // Configuring curl options
                 $options = array(
                     CURLOPT_RETURNTRANSFER => true,
@@ -2678,30 +2678,23 @@ class TraitementPoleController extends Controller {
                     CURLOPT_CONNECTTIMEOUT => 120,
                     CURLOPT_TIMEOUT => 120
                 );
-
                 // Setting curl options
                 curl_setopt_array($ch, $options);
-
                 // Getting results
                 $result = curl_exec($ch); // Getting jSON result string
-
                 $historiqueEnvoi->setContenuDataRecu($result);
-                $em->persist($historiqueEnvoi);
 
+                $em->persist($historiqueEnvoi);
                 if (curl_errno($ch)) {
                     print curl_error($ch);
                     $dataReponse = curl_errno($ch);
                     $historiqueEnvoi->setContenuDataRecu($result);
                     $em->persist($historiqueEnvoi);
-                } else {
+                }
+                else {
                     $dataReponse = json_decode($result, true);
                 }
                 curl_close($ch);
-
-
-                //die(dump($dataReponse));
-                //
-                  //				//die(dump($dataReponse));
                 try {
                     //traitement du code de retour
                     $motif = "";
@@ -2711,7 +2704,8 @@ class TraitementPoleController extends Controller {
                             $documentCollected->setDateSoumission(new \DateTime());
                             //$documentCollected->
 //                                                           	
-                        } else {
+                        }
+                        else {
 
                             $messages = $dataReponse["messages"] ? $dataReponse["messages"] : array();
                             $motif = $messages[0]; //implode("_", $messages);
@@ -2719,7 +2713,8 @@ class TraitementPoleController extends Controller {
                             $documentCollected->setMotif($motif);
                             //$em->flush();
                         }
-                    } else {
+                    }
+                    else {
                         $dataReponse["code"] = "APIP00";
                         $messages = $dataReponse["messages"] ? $dataReponse["messages"] : array();
                         $motif = $messages[0]; //implode("_", $messages);
@@ -2747,15 +2742,20 @@ class TraitementPoleController extends Controller {
                     $em->persist($documentCollected);
                     $em->persist($historiqueEnvoi);
                     $em->flush();
-                } catch (\Exception $ex0) {
+                    //die(dump($historiqueEnvoi));
+                }
+                catch (\Exception $ex0) {
                     $historiqueEnvoi->setCodeRetourDNI("APIP10");
                     $em->persist($historiqueEnvoi);
                     $em->flush();
                     return new JsonResponse(array('resultat' => '0'));
                 }
-            } catch (\Exception $ex) {
+            }
+            catch (\Exception $ex) {
+               // die(dump($ex));
                 $historiqueEnvoi->setCodeRetourDNI("APIP00");
                 $em->persist($historiqueEnvoi);
+                // die(dump($historiqueEnvoi));
                 $em->flush();
                 return new JsonResponse(array('resultat' => '0'));
             }
@@ -2763,7 +2763,8 @@ class TraitementPoleController extends Controller {
         return new JsonResponse(array('resultat' => '1'));
     }
 
-    function jsonToCsv($json, $csvFilePath = false, $boolOutputFile = false) {
+    function jsonToCsv($json, $csvFilePath = false, $boolOutputFile = false)
+    {
 
         // See if the string contains something
         if (empty($json)) {
@@ -2833,4 +2834,16 @@ class TraitementPoleController extends Controller {
         unlink($strTempFile);
     }
 
+    /**
+     * @param $mail
+     * @return string
+     */
+    function valideMail($mail)
+    {
+        if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+            return 'abcdef@gmail.com';
+        } else {
+            return $mail;
+        }
+    }
 }

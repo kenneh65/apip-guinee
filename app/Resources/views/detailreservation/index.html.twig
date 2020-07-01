@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Detailreservation list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Datedebut</th>
+                <th>Datefin</th>
+                <th>Statut</th>
+                <th>Operation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for detailreservation in detailreservations %}
+            <tr>
+                <td><a href="{{ path('detailreservation_show', { 'id': detailreservation.id }) }}">{{ detailreservation.id }}</a></td>
+                <td>{{ detailreservation.dateDebut }}</td>
+                <td>{{ detailreservation.dateFin }}</td>
+                <td>{% if detailreservation.statut %}Yes{% else %}No{% endif %}</td>
+                <td>{% if detailreservation.operation %}{{ detailreservation.operation|join(', ') }}{% endif %}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('detailreservation_show', { 'id': detailreservation.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('detailreservation_edit', { 'id': detailreservation.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('detailreservation_new') }}">Create a new entry</a>
+        </li>
+    </ul>
+{% endblock %}

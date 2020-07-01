@@ -30,6 +30,15 @@
                 {{ monServices.getElementByIdByEntityName('ParametrageBundle:Pole',poleChoisi).nom }}
             {% endxlscell %}
         {% endxlsrow %}
+    {% else %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Pôle' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Tout les pôles' }}
+            {% endxlscell %}
+        {% endxlsrow %}
     {% endif %}
     {% if formeJuridique!=0 %}
         {% xlsrow %}
@@ -38,6 +47,15 @@
             {% endxlscell %}
             {% xlscell { style: { font: { size: '16' } } } %}
                 {{ monServices.getElementByIdByEntityName('BanquemondialeBundle:FormeJuridique',formeJuridique).formeJuridiqueTraduction[0].libelle }}
+            {% endxlscell %}
+        {% endxlsrow %}
+    {% else %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Forme juridique' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Toutes les formes juridiques' }}
             {% endxlscell %}
         {% endxlsrow %}
     {% endif %}
@@ -50,6 +68,17 @@
                 {{ monServices.getElementByIdByEntityName('BanquemondialeBundle:Entreprise',entreprise).denomination }}
             {% endxlscell %}
         {% endxlsrow %}
+
+    {% else %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Structure / Antenne' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Toutes les Structures / Antennes' }}
+            {% endxlscell %}
+        {% endxlsrow %}
+
     {% endif %}
     {% if modePaiement!=0 %}
         {% xlsrow %}
@@ -60,6 +89,17 @@
                 {{ monServices.getElementByIdByEntityName('BanquemondialeBundle:ModePaiementTraduction',modePaiement).libelle }}
             {% endxlscell %}
         {% endxlsrow %}
+
+    {% else %}
+        {% xlsrow %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Mode de paiement' }}
+            {% endxlscell %}
+            {% xlscell { style: { font: { size: '16' } } } %}
+                {{ 'Tout les modes' }}
+            {% endxlscell %}
+        {% endxlsrow %}
+
     {% endif %}
     {% xlsrow %}
         {% xlscell { style: { font: { size: '16' } } } %}

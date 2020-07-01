@@ -44,12 +44,12 @@ class Media
 	/**
 	* @ORM\Column(type="string",length=255, nullable=true)
 	*/
-	public $path;
+	private $path;
 	
 	/**
 	* @ORM\Column(type="string",length=255, nullable=true)
 	*/
-	public $extension;
+	private $extension;
 	
 
 	public $file;
