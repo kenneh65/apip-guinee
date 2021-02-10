@@ -1,0 +1,102 @@
+{% extends '::base.html.twig' %}
+{% block body %}
+    <div class="container" style="width:100%">
+        {% if choix==1 %}
+            <h2>Statistique de d&eacute;pôt par l'agent {{ user.nom~' '~user.prenom }} ( {{ user.username }})</h2><br>
+        {% elseif choix==2 %}
+            <h2>Statistique de dossiers quittanc&eacute;s par l'agent {{ user.nom~' '~user.prenom }} ( {{ user.username }})</h2><br>
+        {% elseif choix==3 %}
+            <h2>Statistique de dossiers saisis par l'agent {{ user.nom~' '~user.prenom }} ( {{ user.username }})</h2><br>
+        {% elseif choix==4 %}
+            <h1>Liste des dossiers immatricul&eacute;s</h1><br>
+        {% elseif choix==5 %}
+            <h1>Liste des dossiers retires</h1><br>
+        {% else %}
+            <h1>Statistique de suivi de dossiers</h1><br>
+        {% endif %}
+        {% for message in app.session.flashbag.get('info') %}
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="">
+            <a target="_blank"
+               href="{{ path('statistique-liste-des-dossier-traite-par-agent-excel',{
+                   'userId':user.id,
+                   'service':choix,
+                   'dateDebut':dateDebut,
+                   'dateFin':dateFin}) }}">
+                <button type="button" class="pull-right btn btn-success btn-sm">
+                    <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                </button>
+            </a>
+                <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>N&deg;</th>
+                        <th>Num.dossier</th>
+                        <th>Dénomination</th>
+                        <th>Forme juridique</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in listeDossiers %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ d.numeroDossier }}</td>
+                            <td>{{ d.denominationSociale }}</td>
+                            <td>{{ d.libelle}}</td>
+                            <td>{{ d.dateCreation|date('d/m/Y H:s:i' ) }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(function () {
+                $('#dossiers').DataTable({
+                    "bInfo": false, "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]], bFilter: false, "language": {
+                        "sProcessing": "{{ 'traitement_en_cours'|trans }}",
+                        "sSearch": "{{ 'rechercher'|trans }} :",
+                        "sLengthMenu": "{{ 'Afficher _MENU_ éléments'|trans }}",
+                        "sInfo": "{{ 'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans }}",
+                        "sInfoEmpty": "{{ 'Affichage des éléments 0 à 0 sur 0 élément'|trans }}",
+                        "sInfoFiltered": "({{ 'filtré de _MAX_ éléments au total'|trans }})",
+                        "sInfoPostFix": "",
+                        "sLoadingRecords": "Chargement en cours...",
+                        "sZeroRecords": "{{ 'Aucun élément à afficher'|trans }}",
+                        "sEmptyTable": "{{ 'aucun_resultat'|trans }}",
+                        "oPaginate": {
+                            "sFirst": "{{ 'premier'|trans }}",
+                            "sPrevious": "{{ 'precedent'|trans }}",
+                            "sNext": "{{ 'suivant'|trans }}",
+                            "sLast": "{{ 'dernier'|trans }}"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                            "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                        }
+                    }
+                });
+                $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+                $('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+                $('#datetimepicker3').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+                $('#datetimepicker4').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+            }
+        );
+    </script>
+{% endblock %}

@@ -25,4 +25,17 @@ class ReponseWSRepository extends EntityRepository
         }
         return $description;
     }
+    public function getDossierByNomCmmercial($nameCom)
+    {
+        $query = $this->createQueryBuilder('r')
+            ->where('upper(r.denominationSociale)=upper(:strCode)')
+            ->setParameter('strCode', $nameCom)->setMaxResults(1);
+
+        $result=$query->getQuery()->getOneOrNullResult();
+        $description="Entrprise Inexistante";
+        if($result){
+            $description=$result->getDescription();
+        }
+        return $description;
+    }
 }

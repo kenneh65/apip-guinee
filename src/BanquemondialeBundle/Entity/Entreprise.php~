@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="entreprise")
  * @ORM\Entity(repositoryClass="BanquemondialeBundle\Repository\EntrepriseRepository")
- *  @UniqueEntity("ninea",message="direction.ninea_unique") 
+ *  @UniqueEntity("denomination",message="denomination_exist") 
   */
 class Entreprise
 {
@@ -26,7 +26,7 @@ class Entreprise
  /**
      * @var string
      *
-     * @ORM\Column(name="denomination", type="string", length=200, nullable=false)
+     * @ORM\Column(name="denomination", type="string", length=200, nullable=false,unique=true)
      */
     private $denomination;
 
@@ -447,4 +447,27 @@ class Entreprise
         return $this->actif;
     }
 
+
+    /**
+     * Set isSiege
+     *
+     * @param boolean $isSiege
+     * @return Entreprise
+     */
+    public function setIsSiege($isSiege)
+    {
+        $this->isSiege = $isSiege;
+
+        return $this;
+    }
+
+    /**
+     * Get isSiege
+     *
+     * @return boolean 
+     */
+    public function getIsSiege()
+    {
+        return $this->isSiege;
+    }
 }

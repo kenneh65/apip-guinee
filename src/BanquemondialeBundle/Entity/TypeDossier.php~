@@ -34,14 +34,24 @@ class TypeDossier
      * @ORM\Column(name="attestationPayement", type="boolean", nullable=true, options={"default":false})
      */
     private $attestationPayement=true;
-    /**
+    
+	/**
      * @var boolean
      *
      * @ORM\Column(name="enableByDEPOT", type="boolean", nullable=true, options={"default":true})
      */
     private $enableByDEPOT=true;
+	
+	/**
+     * @var boolean
+     *
+     * @ORM\Column(name="enableBySaisi", type="boolean", nullable=true, options={"default":true})
+     */
+    private $enableBySaisi=true;
     
-/**
+	
+    
+	/**
      * @ORM\ManyToOne(targetEntity="ParametrageBundle\Entity\Pole")
      * @ORM\JoinColumn(name="idPole", referencedColumnName="id")
      */
@@ -126,5 +136,52 @@ class TypeDossier
     public function getPole()
     {
         return $this->pole;
+    }
+
+    /**
+     * Set enableByDEPOT
+     *
+     * @param boolean $enableByDEPOT
+     * @return TypeDossier
+     */
+    public function setEnableByDEPOT($enableByDEPOT)
+    {
+        $this->enableByDEPOT = $enableByDEPOT;
+
+        return $this;
+    }
+
+    /**
+     * Get enableByDEPOT
+     *
+     * @return boolean 
+     */
+    public function getEnableByDEPOT()
+    {
+        return $this->enableByDEPOT;
+    }
+	
+	
+	/**
+     * Set enableBySaisi
+     *
+     * @param boolean $enableBySaisi
+     * @return TypeDossier
+     */
+    public function setEnableBySaisi($enableBySaisi)
+    {
+        $this->enableBySaisi = $enableBySaisi;
+
+        return $this;
+    }
+
+    /**
+     * Get enableBySaisi
+     *
+     * @return boolean 
+     */
+    public function getEnableBySaisi()
+    {
+        return $this->enableBySaisi;
     }
 }

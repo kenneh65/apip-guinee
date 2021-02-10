@@ -410,4 +410,27 @@ class Aguipe
     {
         return $this->fonctionSignataire;
     }
+
+    /**
+     * Set numeroImmatriculation
+     *
+     * @param string $numeroImmatriculation
+     * @return Aguipe
+     */
+    public function setNumeroImmatriculation($numeroImmatriculation)
+    {
+        $this->numeroImmatriculation = $numeroImmatriculation;
+
+        return $this;
+    }
+
+    /**
+     * Get numeroImmatriculation
+     *
+     * @return string 
+     */
+    public function getNumeroImmatriculation()
+    {
+        return $this->numeroImmatriculation;
+    }
 }

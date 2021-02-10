@@ -136,7 +136,7 @@ class RepresentantRepository extends EntityRepository {
 				->leftJoin('r.fonction', 'f')
                 ->where('r.dossierDemande = :idd')
                 ->setParameters(array('idd' => $idd));
-        $qb->orderBy('r.id', 'desc');
+        $qb->orderBy('r.id', 'asc');
         $query = $qb->getQuery();
         $results = $query->getResult();
 

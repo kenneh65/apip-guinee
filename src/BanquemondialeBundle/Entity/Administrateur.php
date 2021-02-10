@@ -4,13 +4,22 @@ namespace BanquemondialeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 /**
  * Administrateur
  *
  * @ORM\Table(name="administrateur")
  * @ORM\Entity(repositoryClass="BanquemondialeBundle\Repository\AdministrateurRepository")
  */
+
+//
+//,
+//* uniqueConstraints={
+//    *        @UniqueConstraint(name="cle_unique_administrateur_unique",
+// *            columns={"nom", "prenom" , "dateNaissance" , "lieuNaissance" , "adresse" , "idDossierDemande"})
+// *    }
+// *
 class Administrateur
 {
     /**

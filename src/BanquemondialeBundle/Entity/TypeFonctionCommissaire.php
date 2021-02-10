@@ -21,6 +21,20 @@ class TypeFonctionCommissaire
      */
     private $id;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity="BanquemondialeBundle\Entity\TypeFonctionCommissaireTraduction", mappedBy="typeFonctionCommissaire")
+     */
+    private $typeFonctionCommissaireTraduction;
+
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->typeFonctionCommissaireTraduction = new \Doctrine\Common\Collections\ArrayCollection();
+    }
     /**
      * @var string
      *
@@ -94,4 +108,37 @@ class TypeFonctionCommissaire
 	{
 		return (String)$this->getLibelle();
 	}
+
+    /**
+     * Add typeFonctionCommissaireTraduction
+     *
+     * @param \BanquemondialeBundle\Entity\TypeFonctionCommissaire $typeFonctionCommissaireTraduction
+     * @return TypeFonctionCommissaire
+     */
+    public function addTypeFonctionCommissaireTraduction(\BanquemondialeBundle\Entity\TypeFonctionCommissaire $typeFonctionCommissaireTraduction)
+    {
+        $this->typeFonctionCommissaireTraduction[] = $typeFonctionCommissaireTraduction;
+
+        return $this;
+    }
+
+    /**
+     * Remove typeFonctionCommissaireTraduction
+     *
+     * @param \BanquemondialeBundle\Entity\TypeFonctionCommissaire $typeFonctionCommissaireTraduction
+     */
+    public function removeTypeFonctionCommissaireTraduction(\BanquemondialeBundle\Entity\TypeFonctionCommissaire $typeFonctionCommissaireTraduction)
+    {
+        $this->typeFonctionCommissaireTraduction->removeElement($typeFonctionCommissaireTraduction);
+    }
+
+    /**
+     * Get typeFonctionCommissaireTraduction
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTypeFonctionCommissaireTraduction()
+    {
+        return $this->typeFonctionCommissaireTraduction;
+    }
 }

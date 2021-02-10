@@ -20,9 +20,6 @@ class FormeJuridique
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
-
-   
-	
     /**
      * @var string
      *
@@ -144,7 +141,8 @@ class FormeJuridique
     {
         return $this->formeJuridiqueTraduction;
     }
-	
+
+
 	/**
      * Set actif
      *
@@ -164,6 +162,17 @@ class FormeJuridique
      * @return boolean 
      */
     public function isActif()
+    {
+        return $this->actif;
+    }
+
+
+    /**
+     * Get actif
+     *
+     * @return boolean 
+     */
+    public function getActif()
     {
         return $this->actif;
     }

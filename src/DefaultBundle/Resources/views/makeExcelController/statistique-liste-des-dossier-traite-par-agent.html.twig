@@ -1,0 +1,96 @@
+{% xlsdocument
+    {
+    'category': category,
+    'company': 'APIP-GUINEE',
+    'creator': 'APIP-GUINEE',
+    'defaultStyle': {
+    'font': {
+        'size': 14.0
+    }
+},
+    'description':description,
+    'keywords': 'APIP-GUINEE',
+    'lastModifiedBy': 'APIP-GUINEE',
+    'manager': 'APIP-GUINEE',
+    'security': {
+    'lockRevision': true,
+    'lockStructure': true,
+    'lockWindows': true,
+    'revisionsPassword': 'test',
+    'workbookPassword': 'test'
+},
+    'subject': description,
+    'title': description
+    } %}
+    {% xlssheet description
+        {
+        pageMargins: {
+        top: 1,
+        bottom: 1,
+        left: 0.75,
+        right: 0.75,
+        header: 0.5,
+        footer: 0.5
+    },
+        pageSetup: {
+        fitToHeight: 1,
+        fitToPage: false,
+        fitToWidth: 1,
+        horizontalCentered: false,
+        orientation: 'landscape',
+        paperSize: 9,
+        printArea: 'A1:B1',
+        scale: 100,
+        verticalCentered: false
+    },
+
+        printGridlines: true,
+        rightToLeft: false,
+        rowDimension: {
+        'default': {
+            collapsed: false,
+            outlineLevel: 0,
+            rowHeight: -1,
+            rowIndex: '1',
+            visible: true,
+            xfIndex: 0,
+            zeroHeight:false
+        },
+    },
+        sheetState: 'visible',
+        showGridlines: true,
+        tabColor: 'a1a1e0',
+        zoomScale: 75
+        } %}
+
+
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Agent' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %} {{ user['username'] }} ( {{ user['nom']~' '~user['prenom']}} ){% endxlscell %}
+        {% endxlsrow %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+        {% endxlsrow %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'N°' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Numéro Dossier' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Dénomination' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Forme juridique' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Date'}}{% endxlscell %}
+
+        {% endxlsrow %}
+        {% for ls in liste %}
+            {% xlsrow %}
+                {% xlscell %}{{loop.index}}{% endxlscell %}
+                {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
+                {% xlscell %}{{ ls.denominationSociale|raw}}{% endxlscell %}
+                {% xlscell %}{{ ls.libelle|raw}}{% endxlscell %}
+                {% xlscell %}{{ ls.dateCreation|date('d/m/Y H:s:i' )}}{% endxlscell %}
+            {% endxlsrow %}
+        {% endfor %}
+    {% endxlssheet %}
+{% endxlsdocument %}

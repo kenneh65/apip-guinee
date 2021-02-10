@@ -28,6 +28,56 @@ class NifRepository extends EntityRepository
                 ->setParameters(array('numFormulaire' => $numFormulaire, 'idd' =>  $idd));
         return $db->getQuery()->getResult();
     }
-	
-	
+
+
+    public  function getNifmByPeriode($dateDebut,$dateFin){
+        $em = $this->getEntityManager()->getConnection();
+        if (empty($dateDebut)){
+            $dateDebut=date_format(new \DateTime(),'Y-m-d');
+        }
+        if (empty($dateFin)){
+            $dateFin=date_format(new \DateTime(),'Y-m-d');
+        }
+
+        $sql="SELECT ft.libelle, f.sigle, d.id numeroDossier, d.denominationSociale,d.dateCreation, n.* FROM nif n INNER JOIN dossierdemande d 
+    ON d.id=n.idDossierDemande INNER JOIN formejuridique f ON f.id=d.idFormeJuridique INNER JOIN 
+    formejuridiquetraduction ft ON ft.idformeJuridique=f.id AND ft.idLangue=1
+     WHERE   (CAST( n.date AS DATE )  BETWEEN  cast('$dateDebut' AS DATE) AND  cast('$dateFin' AS DATE))";
+        try {
+            $statement = $em->prepare($sql);
+        } catch (DBALException $e) {
+
+        }
+        $statement->execute();
+        $rccm = $statement->fetchAll();
+        return $rccm;
+    }
+
+
+    public  function getNifmByPeriodeBis($dateDebut,$dateFin,$nomCommercial=null){
+        $em = $this->getEntityManager()->getConnection();
+        if (!empty($nomCommercial)) {
+            $param ="\"%$nomCommercial%\"";
+            $nomCommercial = " AND d.denominationSociale LIKE ".$param;
+        }
+        if (!empty($dateDebut)) {
+            $dateDebut = " AND  CAST( n.date AS DATE ) >=CAST('$dateDebut' AS DATE) ";
+        }
+        if (!empty($dateFin)) {
+            $dateFin = " AND  CAST( n.date AS DATE ) <=CAST('$dateFin' AS DATE) ";
+        }
+
+        $sql="SELECT ft.libelle, f.sigle, d.id numeroDossier, d.denominationSociale,d.dateCreation, n.* FROM nif n
+            INNER JOIN dossierdemande d ON d.id=n.idDossierDemande  INNER JOIN formejuridique f ON f.id=d.idFormeJuridique INNER JOIN 
+    formejuridiquetraduction ft ON ft.idformeJuridique=f.id AND ft.idLangue=1 AND n.statut IS NULL
+  " . $dateDebut . $dateFin .$nomCommercial. " order by d.denominationSociale asc ";
+        try {
+            $statement = $em->prepare($sql);
+        } catch (DBALException $e) {
+
+        }
+        $statement->execute();
+        $rccm = $statement->fetchAll();
+        return $rccm;
+    }
 }

@@ -24,7 +24,7 @@ class Localite
     /**
      * @var string
      *
-     * @ORM\Column(name="code", type="string", length=2, nullable=true)
+     * @ORM\Column(name="code", type="string", length=10, nullable=true)
      */
     private $code;
 
@@ -102,5 +102,51 @@ class Localite
     public function getLibelle()
     {
         return $this->libelle;
+    }
+
+    /**
+     * Set actif
+     *
+     * @param boolean $actif
+     * @return Localite
+     */
+    public function setActif($actif)
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    /**
+     * Get actif
+     *
+     * @return boolean 
+     */
+    public function getActif()
+    {
+        return $this->actif;
+    }
+
+    /**
+     * Set quartier
+     *
+     * @param \BanquemondialeBundle\Entity\Quartier $quartier
+     * @return Localite
+     */
+    public function setQuartier(\BanquemondialeBundle\Entity\Quartier $quartier = null)
+    {
+        $this->quartier = $quartier;
+
+        return $this;
+    }
+
+    /**
+     * Get quartier
+     *
+     * @return \BanquemondialeBundle\Entity\Quartier 
+     */
+    public function getQuartier()
+    {
+        return $this->quartier;
     }
 }

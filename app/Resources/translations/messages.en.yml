@@ -1,6 +1,7 @@
 portal : Portal
 parametrage : Settings
 accueil : Home
+reservation : 'Reserve a company name'
 ajout : Add
 ajouter: Add
 modifier: Update

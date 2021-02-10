@@ -159,4 +159,27 @@ class Circuit
     {
         return $this->pole;
     }
+
+    /**
+     * Set typeDossier
+     *
+     * @param \BanquemondialeBundle\Entity\TypeDossier $typeDossier
+     * @return Circuit
+     */
+    public function setTypeDossier(\BanquemondialeBundle\Entity\TypeDossier $typeDossier = null)
+    {
+        $this->typeDossier = $typeDossier;
+
+        return $this;
+    }
+
+    /**
+     * Get typeDossier
+     *
+     * @return \BanquemondialeBundle\Entity\TypeDossier 
+     */
+    public function getTypeDossier()
+    {
+        return $this->typeDossier;
+    }
 }

@@ -74,9 +74,9 @@ class RepresentantType extends AbstractType
 
 			 ->add('pays', 'entity', array('class' => 'BanquemondialeBundle:PaysTraduction','query_builder' => function (PaysTraductionRepository $formJ) {
 			  $langue = $this->langue;
-			  $idp =$langue->getId();			  
+			  $idp =$langue->getId();
 				return $formJ->getListPaysByLanque($langue->getId());
-				}, 'property' => 'libelle','placeholder' => 'message.selectionner.pays','multiple' => false))
+				}, 'property' =>'libelle','placeholder' => 'message.selectionner.pays','multiple' => false))
 
 			 ->add('fonction', 'entity', array('class' => 'BanquemondialeBundle:FonctionTraduction','query_builder' => function (FonctionTraductionRepository $formJ) {
 			  $langue = $this->langue;

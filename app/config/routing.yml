@@ -1,3 +1,11 @@
+default_detailreservation:
+    resource: "@DefaultBundle/Controller/DetailreservationController.php"
+    type:     annotation
+
+default_reservation:
+    resource: "@DefaultBundle/Controller/reservationController.php"
+    type:     annotation
+
 default_type_operation:
     resource: "@DefaultBundle/Controller/typeOperationController.php"
     type:     annotation
@@ -41,6 +49,9 @@ traduction_route:
     type:     annotation
     prefix : /{_locale}/traduction
 
+# app/config/routing.yml
+_liip_imagine:
+    resource: "@LiipImagineBundle/Resources/config/routing.yaml"
 pageNotFound:
     pattern:  /{path}
     defaults: { _controller: BanquemondialeBundle:PageNotFound:pageNotFound, path: '' }

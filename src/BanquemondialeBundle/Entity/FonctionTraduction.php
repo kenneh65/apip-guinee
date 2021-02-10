@@ -50,7 +50,7 @@ class FonctionTraduction {
     private $fonction;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Langue", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Langue")
      * @ORM\JoinColumn(name="idLangue", referencedColumnName="id")    
      */
     private $langue;

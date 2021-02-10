@@ -3,12 +3,14 @@
 namespace DefaultBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * PeriodeReservation
  *
  * @ORM\Table(name="periode_reservation")
  * @ORM\Entity(repositoryClass="DefaultBundle\Repository\PeriodeReservationRepository")
+ *  @ORM\Table(uniqueConstraints={@UniqueConstraint(name="formeJuridique_periode_unique",columns={"iFormeJuridiqueTraduction","libelle"})})
  */
 class PeriodeReservation
 {
@@ -20,6 +22,12 @@ class PeriodeReservation
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\FormeJuridiqueTraduction",cascade={"persist"}, inversedBy="periodeReservation")
+     * @ORM\JoinColumn(name="iFormeJuridiqueTraduction", referencedColumnName="id")
+     */
+    private $formeJuridiqueTraduction;
 
     /**
      * @var string
@@ -120,5 +128,28 @@ class PeriodeReservation
     public function getNombre()
     {
         return $this->nombre;
+    }
+
+    /**
+     * Set formeJuridiqueTraduction
+     *
+     * @param \BanquemondialeBundle\Entity\FormeJuridiqueTraduction $formeJuridiqueTraduction
+     * @return PeriodeReservation
+     */
+    public function setFormeJuridiqueTraduction(\BanquemondialeBundle\Entity\FormeJuridiqueTraduction $formeJuridiqueTraduction = null)
+    {
+        $this->formeJuridiqueTraduction = $formeJuridiqueTraduction;
+
+        return $this;
+    }
+
+    /**
+     * Get formeJuridiqueTraduction
+     *
+     * @return \BanquemondialeBundle\Entity\FormeJuridiqueTraduction 
+     */
+    public function getFormeJuridiqueTraduction()
+    {
+        return $this->formeJuridiqueTraduction;
     }
 }

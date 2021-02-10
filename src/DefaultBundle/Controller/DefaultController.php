@@ -4,23 +4,35 @@ namespace DefaultBundle\Controller;
 
 use BanquemondialeBundle\Entity\Administration;
 use BanquemondialeBundle\Entity\Documentation;
+use BanquemondialeBundle\Entity\DocumentCollected;
 use BanquemondialeBundle\Entity\DossierDemande;
+use BanquemondialeBundle\Entity\Nif;
 use BanquemondialeBundle\Entity\Quittance;
+use BanquemondialeBundle\Entity\Representant;
 use BanquemondialeBundle\Form\AnnoncePortailSearchType;
 use BanquemondialeBundle\Form\AnnonceurSearchType;
+use BanquemondialeBundle\Form\DossierDemandeDepotType;
 use BanquemondialeBundle\Form\DossierDemandeSearchType;
+use BanquemondialeBundle\Form\DossierDemandeType;
 use BanquemondialeBundle\Form\DossierPoleSearchType;
 use BanquemondialeBundle\Form\RepartitionQuittanceSearchType;
 use BanquemondialeBundle\Form\StatistiqueGrapheType;
 use BanquemondialeBundle\Form\StatistiqueType;
+use BanquemondialeBundle\Repository\FormeJuridiqueRepository;
+use BanquemondialeBundle\Repository\FormeJuridiqueTraductionRepository;
 use DefaultBundle\Entity\CaisseOrange;
 use DefaultBundle\Entity\PaiementOrange;
 use DefaultBundle\Entity\ReglageActivation;
 use DefaultBundle\Entity\Statistique;
 use DefaultBundle\Form\SimulateurSearchType;
+use DefaultBundle\services\suiviStatutDossierService;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Endroid\QrCode\QrCode;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Client;
 use ParametrageBundle\Entity\News;
 use PhpOffice\PhpWord\IOFactory;
@@ -28,12 +40,14 @@ use PhpOffice\PhpWord\PhpWord;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 // Include the requires classes of Phpword
 //include qrcode
@@ -131,17 +145,6 @@ class DefaultController extends Controller
             return new JsonResponse(array('resultat' => '0'));
     }
 
-    public function adminExist()
-    {
-        $em = $this->getDoctrine()->getManager();
-        $users = $em->getRepository("UtilisateursBundle:Utilisateurs")->findAll();
-
-        if (count($users) > 0)
-            return true;
-        else
-            return false;
-    }
-
     /**
      * @Route("/",name="racine")
      */
@@ -155,7 +158,6 @@ class DefaultController extends Controller
      */
     public function accueilAction(Request $request)
     {
-
         if (!$this->adminExist())
             return $this->redirectToRoute('installation');
 
@@ -195,6 +197,17 @@ class DefaultController extends Controller
         }
         //die(dump($guides));
         return $this->render('DefaultBundle:Default:home.html.twig', array('langues' => $lgs, 'guides' => $guides, 'chemin' => $chemin->getNom() . 'Guides\\', 'sliders' => $sliders, 'news' => $news));
+    }
+
+    public function adminExist()
+    {
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository("UtilisateursBundle:Utilisateurs")->findAll();
+
+        if (count($users) > 0)
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -393,6 +406,7 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
+        // die(dump('ok'));
         $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         if (is_object($user) && $user->getFirstLog()) {
@@ -403,6 +417,11 @@ class DefaultController extends Controller
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $pole = $user->getPole();
         $profilName = "";
+        $historiqueRccms = [];
+        $historiqueRccms = $em->getRepository('DefaultBundle:HistoriqueEchangeDNI')->historiqueRccm(null, null, null, null);
+        $nifTraite = $em->getRepository('BanquemondialeBundle:Nif')->findAll();
+        $rccmTraite = $em->getRepository('BanquemondialeBundle:Rccm')->findAll();
+
         $depot = false;
         $retrait = false;
         $nbreDocRetrait = 0;
@@ -435,17 +454,14 @@ class DefaultController extends Controller
                         $idPole = $pole->getId();
                     }
                     $retrait = true;
-
                     $idS = $user->getEntreprise()->getId();
                     $listerRetrait = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPoleRetrait($user, null, $langue->getId(), $idPole, null, 2, $idS);
                     $listerRetraitPartiel = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPartielPoleRetrait($user, null, $langue->getId(), $idPole, null, 2, $idS);
                     $listerRetirer = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPoleRetire($user, null, $langue->getId(), $idPole, null, 2, $idS);
                     $nbreDocRetrait = count($listerRetrait);
-
                     $nbreDocRetraitPartiel = count($listerRetraitPartiel);
                     //die(dump($nbreDocRetrait));
                     $nbreDocRetirer = count($listerRetirer);
-
                     //die(dump($nbreDocRetirer));
                 }
             }
@@ -457,10 +473,14 @@ class DefaultController extends Controller
         $nbreDocSuivi = 0;
         $nbrDocAValider = 0;
         $nbrDocValide = 0;
-        $NombreTotalEnattenteSaisiiInterfaceDGA=0;
-        $NombreTotalEnattenteImmatriculationInterfaceDGA=0;
-        $NombreTotalEnattenteModificationInterfaceDGA=0;
+        $NombreTotalEnattenteSaisiiInterfaceDGA = 0;
+        $NombreTotalEnattenteImmatriculationInterfaceDGA = 0;
+        $NombreTotalEnattenteModificationInterfaceDGA = 0;
 
+        $totalNomcommercialReserver = 0;
+        $totalNomcommercialReserverEncourExpiration = 0;
+        $totalNomcommercialReserverEncourExpirer = 0;
+        $getJour = 5;
         if ($pole && $pole->getSigle() == "AL") {
             $dossierEnCours = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierAnnonceurEncours($user);
             $dossiersDelivre = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierAnnonceurDelivre($user);
@@ -530,6 +550,12 @@ class DefaultController extends Controller
             $listeNbreDossierEncoursByPole = $em->getRepository('BanquemondialeBundle:DocumentCollected')->listeDossiersGroupByPole(1);
             $listeNbreDossierDelivreByPole = $em->getRepository('BanquemondialeBundle:DocumentCollected')->listeDossiersGroupByPole(2);
             $listeNbreDossierEnModifByPole = $em->getRepository('BanquemondialeBundle:DocumentCollected')->listeDossiersGroupByPole(3);
+
+            $totalNomcommercialReserver = $em->getRepository('DefaultBundle:reservation')->findBy(['statut' => true], []);
+            $totalNomcommercialReserverEncourExpiration = $this->get('monservices')->listeReservationEnExpiration();
+            $totalNomcommercialReserverEncourExpirer = $this->get('monservices')->listeReservationExpirer();
+            $getJour = $this->get('monservices')->getJour();
+            $historiqueRccms = $em->getRepository('DefaultBundle:HistoriqueEchangeDNI')->historiqueRccm(null, null, null, null);
         }
         if ($user->getEntreprise() && $user->getProfile() && $user->getProfile()->getDescription() == "help") {
             $listeNbreDossierEncoursByPole = $em->getRepository('BanquemondialeBundle:DocumentCollected')->listeDossiersPoleByAntenne(1, $user->getEntreprise()->getIsSiege(), $user->getEntreprise()->getId());
@@ -539,14 +565,21 @@ class DefaultController extends Controller
             //  $serviceListeRetraipartiel=$this->get('monservices')->getlisteNbreDossierRetraitPartiel($user,null, 1,2, 200, 2 , null);
             //  var_dump(count($serviceListeRetraipartiel));die();
         }
-        $view='DefaultBundle:Default:index.html.twig';
-       if ( $this->get('security.authorization_checker')->isGranted('ROLE_DGA') && !$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')){
+        $view = 'DefaultBundle:Default:index.html.twig';
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_DGA') && !$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
 
-           $view="DefaultBundle:Default:dgaInterface.html.twig";
-           $NombreTotalEnattenteSaisiiInterfaceDGA = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA([],null,null)['ResultqueryattSaisie'];
-           $NombreTotalEnattenteImmatriculationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGA();
-           $NombreTotalEnattenteModificationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteModificationDGA();
-       }
+            $view = "DefaultBundle:Default:dgaInterface.html.twig";
+            $NombreTotalEnattenteSaisiiInterfaceDGA = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA([], null, null)['ResultqueryattSaisie'];
+            $NombreTotalEnattenteImmatriculationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGA();
+            $NombreTotalEnattenteModificationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteModificationDGA();
+        }
+
+//       die(dump($this->getUser()->getUsername()));
+        if ($this->getUser()->getUsername() == 'sidibesuperviseur') {
+            $NombreTotalEnattenteSaisiiInterfaceDGA = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA([], null, null)['ResultqueryattSaisie'];
+            $NombreTotalEnattenteImmatriculationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGA();
+            $NombreTotalEnattenteModificationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteModificationDGA();
+        }
 
         return $this->render($view, array(
             'nbreDocEnCours' => $nbreDocEnCours,
@@ -569,9 +602,16 @@ class DefaultController extends Controller
             'nbreDocDepotModification' => $nbreDocDepotModification,
             'nbrDocAValider' => $nbrDocAValider,
             'nbrDocValide' => $nbrDocValide,
-            'NombreTotalEnattenteSaisiiInterfaceDGA'=>$NombreTotalEnattenteSaisiiInterfaceDGA,
-            'NombreTotalEnattenteImmatriculationInterfaceDGA'=>count($NombreTotalEnattenteImmatriculationInterfaceDGA),
-            'NombreTotalEnattenteModificationInterfaceDGA'=>count($NombreTotalEnattenteModificationInterfaceDGA)
+            'NombreTotalEnattenteSaisiiInterfaceDGA' => $NombreTotalEnattenteSaisiiInterfaceDGA,
+            'NombreTotalEnattenteImmatriculationInterfaceDGA' => count($NombreTotalEnattenteImmatriculationInterfaceDGA),
+            'NombreTotalEnattenteModificationInterfaceDGA' => count($NombreTotalEnattenteModificationInterfaceDGA),
+            'totalNomcommercialReserver' => count($totalNomcommercialReserver),
+            'totalNomcommercialReserverEncourExpiration' => count($totalNomcommercialReserverEncourExpiration),
+            'totalNomcommercialReserverEncourExpirer' => count($totalNomcommercialReserverEncourExpirer),
+            'getJour' => $getJour,
+            'historiqueRccms' => count($historiqueRccms),
+            'nifTraite' => count($nifTraite),
+            'rccmTraite' => count($rccmTraite)
         ));
     }
 
@@ -580,10 +620,11 @@ class DefaultController extends Controller
      * @Route("/{_locale}/admin/suivi-liste-des-dossier-en-attentes-immatriculation/{ids}",name="dossier-en-attentes-immatriculation-dga-interface")
      * @Security("has_role('ROLE_USER')")
      */
-    public function listDossierEnAttenteImmatriculationDGAAction($data = null, $idS = 1) {
+    public function listDossierEnAttenteImmatriculationDGAAction($data = null, $idS = 1)
+    {
         $em = $this->getDoctrine()->getManager();
-       // $user = $this->container->get('security.context')->getToken()->getUser();
-       // $pole = $user->getPole();
+        // $user = $this->container->get('security.context')->getToken()->getUser();
+        // $pole = $user->getPole();
         $idPole = 1;
         $pole = $em->getRepository('ParametrageBundle:Pole')->findOneById($idPole);
         $data = $this->getRequest()->request->get('data');
@@ -595,8 +636,8 @@ class DefaultController extends Controller
         $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam(null, $idCodeLangue, $idPole, 25, $idS);
         if ($request->getMethod() == 'POST') {
             $data = $request->request->all()['dossiersPole'];
-           // die(dump($data));
-            $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam( $data, $idCodeLangue, $idPole, null, $idS);
+            // die(dump($data));
+            $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam($data, $idCodeLangue, $idPole, null, $idS);
         }
 
         $form = $this->createForm(new DossierPoleSearchType(array('langue' => $langue)));
@@ -605,47 +646,65 @@ class DefaultController extends Controller
 
         return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
     }
+
     /**
      * @Route("/{_locale}/admin/suivi-liste-des-dossier-en-attentes-modification/{ids}",name="dossier-en-attentes-modification-dga-interface")
      * @Security("has_role('ROLE_USER')")
      */
-    public function listDossierEnAttenteModificationDGAAction($data = null, $idS = 3) {
+    public function listDossierEnAttenteModificationDGAAction($data = null, $idS = 3)
+    {
         $em = $this->getDoctrine()->getManager();
-//        $user = $this->container->get('security.context')->getToken()->getUser();
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
-       $pole = $em->getRepository('ParametrageBundle:Pole')->findOneById($idPole);
-           //$user->getPole();
-
-//        if ($pole) {
-//            $idPole = $pole->getId();
-//        }
-
-
-        $data = $this->getRequest()->request->get('data');
+        $pole = $em->getRepository('ParametrageBundle:Pole')->findOneById($idPole);
+        // $data = $this->getRequest()->request->get('data');
+        $dateJour = 0;//date_format(new \DateTime(),'Y-m-d');
+        $data = [
+            'numeroDossier' => 0,
+            'denominationSociale' => 0,
+            'dateCreationDebut' => $dateJour,
+            'dateCreationFin' => $dateJour,
+            'formeJuridique' => 0,
+            'typeDossier' => 0,
+            'entreprise' => 0,
+            'gerant' => 0];
         $request = $this->get('request');
-        //$request->setLocale("en");
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $idCodeLangue = $langue->getId();
         $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam(null, $idCodeLangue, $idPole, 25, $idS);
-
         if ($request->getMethod() == 'POST') {
-            $data = $request->request->all()['dossiersPole'];
-            // die(dump($data));
-            $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam( $data, $idCodeLangue, $idPole, null, $idS);
+            $dataTemp = $request->request->all()['dossiersPole'];
+            $data = [
+                'numeroDossier' => empty($dataTemp['numeroDossier']) ? 0 : $dataTemp['numeroDossier'],
+                'denominationSociale' => empty($dataTemp['denominationSociale']) ? 0 : $dataTemp['denominationSociale'],
+                'dateCreationDebut' => empty($dataTemp['dateCreationDebut']) ? $dateJour : $dataTemp['dateCreationDebut'],
+                'dateCreationFin' => empty($dataTemp['dateCreationFin']) ? $dateJour : $dataTemp['dateCreationFin'],
+                'formeJuridique' => empty($dataTemp['formeJuridique']) ? 0 : $dataTemp['formeJuridique'],
+                'typeDossier' => empty($dataTemp['typeDossier']) ? 0 : $dataTemp['typeDossier'],
+                'entreprise' => empty($dataTemp['entreprise']) ? 0 : $dataTemp['entreprise'],
+                'gerant' => empty($dataTemp['gerant']) ? 0 : $dataTemp['gerant']
+            ];
+            $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam($data, $idCodeLangue, $idPole, null, $idS);
         }
-
         $form = $this->createForm(new DossierPoleSearchType(array('langue' => $langue)));
-
         $form->bind($request);
-
-        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
+        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array(
+            'form' => $form->createView(),
+            'listerdemande' => $listerdemande,
+            'langue' => $idCodeLangue,
+            'idp' => $idPole,
+            'idS' => $idS,
+            'pole' => $pole,
+            'data' => $data
+        ));
     }
+
     /**
      * @Route("/{_locale}/admin/suivi-dga-liste-dossier-encour",name="suivi-dga-liste-dossier-encour")
-     * @Security("has_role('ROLE_DGA')")
+     * @Security("has_role('ROLE_USER')")
      */
-    public function listDossierEnCoursAction() {
+    public function listDossierEnCoursAction()
+    {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $profilName = "";
@@ -669,6 +728,7 @@ class DefaultController extends Controller
         return $this->render('DefaultBundle:Default:dgaInterfaceEnAttenteSaisie.html.twig', array('form' => $form->createView(),
             'listerdemande' => $listerdemande['tabResult'], 'langue' => $idLangue, 'profilName' => $profilName));
     }
+
     /**
      * @Route("/{_locale}/detailsDossierPole/{idP}/{idS}",name="detailsDossierPole")
      *
@@ -988,6 +1048,59 @@ class DefaultController extends Controller
         $this->annonceLegalePdfPortailAction($listerdemande);
     }
 
+    public function annonceLegalePdfPortailAction($annonces)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+
+        $typeAnnonce = null;
+        $typeDossier = null;
+        $isQrCode = false;
+        //die(dump($annonces));
+        if (isset($annonces[0]["nif"])) {
+            $textQr = "RCCM:" . $annonces[0]["numRccmEntreprise"] . ", NIF:" . $annonces[0]["nif"];
+            $isQrCode = true;
+        } else {
+            //$textQr = "RCCM:" . $annonces[0]["numRccmEntreprise"];
+            $textQr = "gagagag";
+        }
+        $qrCode = new QrCode($textQr);
+        $qrCode->setSize(180);
+
+
+        //$qrCode = $this->get('endroid.qrcode.factory')->create('QR Code', ['size' => 180]);
+
+        $path = $this->get('kernel')->getRootDir() . '/../web/img/qrcode.png';
+        // Save it to a file
+        $qrCode->writeFile($path);
+
+        if ($annonces) {
+            $typeDossier = $annonces[0]["libelleTypeDossier"];
+        }
+        //die(dump($annonces[0]));
+
+        if ($annonces && strtoupper($annonces[0]["sigleFormeJuridique"]) == 'EI') {
+            $typeAnnonce = "individuel";
+        } else {
+            $typeAnnonce = "commercial";
+        }
+        if ($typeDossier == "Notaire") {
+            //$entreprise = $em->getRepository("BanquemondialeBundle:Entreprise")->findOneByUtilisateur();
+        }
+
+        $html = $this->renderView('DefaultBundle:Default:visualiser-annonces-portail-pdf.html.twig', array('annonces' => $annonces, 'typeAnnonce' => $typeAnnonce, 'typeDossier' => $typeDossier, 'isQrCode' => $isQrCode));
+        $nomFichier = "annonce.pdf"; //cofifier après rccm
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+        //$html2pdf->Output($nomFichier,'D');
+        $html2pdf->Output($nomFichier);
+        exit;
+    }
+
     /**
      * @Route("/{_locale}/nom-commercial",name="recherche_nom_commercial")
      */
@@ -1064,8 +1177,11 @@ class DefaultController extends Controller
         $start = null;
         $length = null;
         $actuels = null;
+        $isReserver = false;
+        if (empty($request->request->get("nomCommercial"))) return $this->redirectToRoute('accueil');
         $resultaRecherNomCommercialUpdate = [];
         if ($request->getMethod() == 'POST') {
+            $isReserver = $this->get('monservices')->isElementExisteInEntity('DefaultBundle:reservation', ['nomCommercial' => $request->request->get("nomCommercial"), 'statut' => true]);
             $nomCommercial = $request->request->get("nomCommercial");
 
             $resultaRecherNomCommercialUpdate = $em->getRepository('BanquemondialeBundle:DossierDemande')->recherNomcommercialUpdate(true, $nomCommercial);
@@ -1078,6 +1194,7 @@ class DefaultController extends Controller
                 }
                 $resultaRecherNomCommercialUpdate = $em->getRepository('BanquemondialeBundle:DossierDemande')->recherNomcommercialUpdate(false, $nomCommercial);
             }
+            //  die(dump($isReserver));
         }
         $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
         $form->bind($request);
@@ -1086,6 +1203,10 @@ class DefaultController extends Controller
         if ($nomUtilise == true) {
             $couleurMessage = 'error';
             $message = $this->get('translator')->trans("nom_commercial_indisponible");
+        }
+        if ($isReserver == true) {
+            $couleurMessage = 'error';
+            $message = 'Désolé ce nom commercial est réservé';
         }
         $this->get('session')->getFlashBag()->add($couleurMessage, $message);
         return $this->render('BanquemondialeBundle:Default:AnnonceLegale/layout/rechercheNomCommercial-update.html.twig', array(
@@ -1097,7 +1218,8 @@ class DefaultController extends Controller
             'searchTerm' => $nomCommercial,
             'langue' => $idCodeLangue,
             'dossiersActuels' => $actuels,
-            'archives' => $resultaRecherNomCommercialUpdate
+            'archives' => $resultaRecherNomCommercialUpdate,
+            'isReserver' => $isReserver
 
         ));
     }
@@ -1136,7 +1258,7 @@ class DefaultController extends Controller
             $lgs [] = $langue->getCode();
         }
         $code = $request->getLocale();
-        /* 		
+        /*
           if ($code == 'fr')
           $contacts = $em->getRepository('ParametrageBundle:Contact')->findAll();
           else
@@ -1317,7 +1439,7 @@ class DefaultController extends Controller
                 }
 
                 //$chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-                //$cheminUpload = $chemin->getNom(); 
+                //$cheminUpload = $chemin->getNom();
                 $cheminUpload = "../web/uploads/";
                 //die(dump($cheminUpload));
                 $temp = $cheminUpload . "logo";
@@ -1460,7 +1582,7 @@ class DefaultController extends Controller
 
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        // adding headers		
+        // adding headers
 
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'statistiques-creation.xlsx'
@@ -1524,7 +1646,7 @@ class DefaultController extends Controller
 
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        // adding headers		
+        // adding headers
 
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'statistiques-repartition-forme.xlsx'
@@ -1598,7 +1720,7 @@ class DefaultController extends Controller
 
         $response = $this->get('phpexcel')->createStreamedResponse($writer);
 
-        // adding headers		
+        // adding headers
 
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'statistiques-repartition-secteur.xlsx'
@@ -1711,6 +1833,34 @@ class DefaultController extends Controller
 
 
         return $this->render('DefaultBundle:Default:annonceur-index.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $langue, 'idp' => $idPole, 'langues' => $lgs, 'idGreffe' => $idGreffe, 'data' => $data));
+    }
+
+    public function annonceLegalePdfAction($annonces)
+    {
+
+        $typeAnnonce = null;
+        $typeDossier = null;
+
+        if ($annonces) {
+            $typeDossier = $annonces[0]["libelleTypeDossier"];
+        }
+        //die(dump($annonces[0]));
+
+        if ($annonces && strtoupper($annonces[0]["sigleFormeJuridique"]) == 'EI') {
+            $typeAnnonce = "individuel";
+        } else {
+            $typeAnnonce = "commercial";
+        }
+
+
+        $html = $this->renderView('DefaultBundle:Default:visualiser-annonces-ei-pdf.html.twig', array('annonces' => $annonces, 'typeAnnonce' => $typeAnnonce, 'typeDossier' => $typeDossier));
+        $nomFichier = "annonce.pdf"; //cofifier après rccm
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+        //$html2pdf->Output($nomFichier,'D');
+        $html2pdf->Output($nomFichier);
+        exit;
     }
 
     /**
@@ -1906,34 +2056,6 @@ class DefaultController extends Controller
         flush();
         readfile($temp_file);
         exit();
-    }
-
-    public function annonceLegalePdfAction($annonces)
-    {
-
-        $typeAnnonce = null;
-        $typeDossier = null;
-
-        if ($annonces) {
-            $typeDossier = $annonces[0]["libelleTypeDossier"];
-        }
-        //die(dump($annonces[0]));
-
-        if ($annonces && strtoupper($annonces[0]["sigleFormeJuridique"]) == 'EI') {
-            $typeAnnonce = "individuel";
-        } else {
-            $typeAnnonce = "commercial";
-        }
-
-
-        $html = $this->renderView('DefaultBundle:Default:visualiser-annonces-ei-pdf.html.twig', array('annonces' => $annonces, 'typeAnnonce' => $typeAnnonce, 'typeDossier' => $typeDossier));
-        $nomFichier = "annonce.pdf"; //cofifier après rccm
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-        //$html2pdf->Output($nomFichier,'D');
-        $html2pdf->Output($nomFichier);
-        exit;
     }
 
     function int_to_words($number)
@@ -2242,59 +2364,6 @@ class DefaultController extends Controller
         }
 
         return $word;
-    }
-
-    public function annonceLegalePdfPortailAction($annonces)
-    {
-
-        $em = $this->getDoctrine()->getManager();
-        $request = $this->get('request');
-        $codLang = $request->getLocale();
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-
-        $typeAnnonce = null;
-        $typeDossier = null;
-        $isQrCode = false;
-        //die(dump($annonces));
-        if (isset($annonces[0]["nif"])) {
-            $textQr = "RCCM:" . $annonces[0]["numRccmEntreprise"] . ", NIF:" . $annonces[0]["nif"];
-            $isQrCode = true;
-        } else {
-            //$textQr = "RCCM:" . $annonces[0]["numRccmEntreprise"];
-            $textQr = "gagagag";
-        }
-        $qrCode = new QrCode($textQr);
-        $qrCode->setSize(180);
-
-
-        //$qrCode = $this->get('endroid.qrcode.factory')->create('QR Code', ['size' => 180]);
-
-        $path = $this->get('kernel')->getRootDir() . '/../web/img/qrcode.png';
-        // Save it to a file
-        $qrCode->writeFile($path);
-
-        if ($annonces) {
-            $typeDossier = $annonces[0]["libelleTypeDossier"];
-        }
-        //die(dump($annonces[0]));
-
-        if ($annonces && strtoupper($annonces[0]["sigleFormeJuridique"]) == 'EI') {
-            $typeAnnonce = "individuel";
-        } else {
-            $typeAnnonce = "commercial";
-        }
-        if ($typeDossier == "Notaire") {
-            //$entreprise = $em->getRepository("BanquemondialeBundle:Entreprise")->findOneByUtilisateur();
-        }
-
-        $html = $this->renderView('DefaultBundle:Default:visualiser-annonces-portail-pdf.html.twig', array('annonces' => $annonces, 'typeAnnonce' => $typeAnnonce, 'typeDossier' => $typeDossier, 'isQrCode' => $isQrCode));
-        $nomFichier = "annonce.pdf"; //cofifier après rccm
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-        //$html2pdf->Output($nomFichier,'D');
-        $html2pdf->Output($nomFichier);
-        exit;
     }
 
     /*
@@ -2616,6 +2685,19 @@ class DefaultController extends Controller
         return $this->render('DefaultBundle:Default:statistiques-periode-graphe-jours.html.twig', array('listerdemande' => $listerdemande, 'tabResult' => $tabResult, 'dateDebut' => $dateDebut, 'dateFin' => $dateFin, 'locale' => $codLang, 'typeGraphe' => $typeGraphe, 'form' => $form->createView()));
     }
 
+    function date_range($first, $last, $step = '+1 day', $output_format = 'd-m-Y')
+    {
+        $dates = array();
+        $current = strtotime($first);
+        $last = strtotime($last);
+        while ($current <= $last) {
+
+            $dates[] = date($output_format, $current);
+            $current = strtotime($step, $current);
+        }
+        return $dates;
+    }
+
     /**
      * @Route("/{_locale}/statistiques-periode-graphe-mois",name="statistiques-periode-graphe-mois")
      */
@@ -2635,12 +2717,12 @@ class DefaultController extends Controller
         $typeGraphe = "column";
         $plageDate = [];
 
-        $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->listEntrepriseParPeriodeGraphe($dateDebut, $dateFin, $plageDate, 'mois');
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->listEntrepriseParPeriodeGraphe(0, $dateDebut, $dateFin, $plageDate, 'mois');
         $listerdemande2 = null;
-
+        ///die(dump($dateDebut));
         if ($request->getMethod() == 'POST') {
             $data = $request->request->all()['statGrapheType'];
-
+            // die(dump($data));
             $dernierJourMois = date('t', strtotime('01-' . $data['dateCreationFin']));
             $dateDebut = '01-' . $data['dateCreationDebut'];
             $dateFin = $dernierJourMois . '-' . $data['dateCreationFin'];
@@ -2650,7 +2732,7 @@ class DefaultController extends Controller
 
             $typeGraphe = $data['typeGraphe'];
 
-            $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->listEntrepriseParPeriodeGraphe($dateDebut, $dateFin, $plageDate, 'mois');
+            $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->listEntrepriseParPeriodeGraphe($data['entreprise'], $dateDebut, $dateFin, $plageDate, 'mois');
             $listerdemande2 = null;
 
             if ($typeGraphe == "line") {
@@ -2705,6 +2787,52 @@ class DefaultController extends Controller
         $form->bind($request);
 
         return $this->render('DefaultBundle:Default:statistiques-periode-graphe-mois.html.twig', array('listerdemande' => $listerdemande, 'listerdemande2' => $listerdemande2, 'tabResult' => $tabResult, 'tabResult2' => $tabResult2, 'dateDebut' => $dateDebut, 'dateFin' => $dateFin, 'locale' => $codLang, 'typeGraphe' => $typeGraphe, 'form' => $form->createView()));
+    }
+
+    public function chiffreToMonth($moisEnChiffre)
+    {
+        $mois = "";
+
+        switch ($moisEnChiffre) {
+            case "01":
+                $mois = $this->get('translator')->trans("janvier");
+                break;
+            case "02":
+                $mois = $this->get('translator')->trans("fevrier");
+                break;
+            case "03":
+                $mois = $this->get('translator')->trans("mars");
+                break;
+            case "04":
+                $mois = $this->get('translator')->trans("avril");
+                break;
+            case "05":
+                $mois = $this->get('translator')->trans("mai");
+                break;
+            case "06":
+                $mois = $this->get('translator')->trans("juin");
+                break;
+            case "07":
+                $mois = $this->get('translator')->trans("juillet");
+                break;
+            case "08":
+                $mois = $this->get('translator')->trans("aout");
+                break;
+            case "09":
+                $mois = $this->get('translator')->trans("septembre");
+                break;
+            case "10":
+                $mois = $this->get('translator')->trans("octobre");
+                break;
+            case "11":
+                $mois = $this->get('translator')->trans("novembre");
+                break;
+            case "12":
+                $mois = $this->get('translator')->trans("decembre");
+                break;
+        }
+
+        return $mois;
     }
 
     /**
@@ -3999,19 +4127,6 @@ class DefaultController extends Controller
         return $this->render('DefaultBundle:Default:statistiques-periode-graphe-annee-cnss.html.twig', array('listerdemande' => $listerdemande, 'tabResult' => $tabResult, 'dateDebut' => $dateDebut, 'dateFin' => $dateFin, 'locale' => $codLang, 'typeGraphe' => $typeGraphe, 'form' => $form->createView()));
     }
 
-    function date_range($first, $last, $step = '+1 day', $output_format = 'd-m-Y')
-    {
-        $dates = array();
-        $current = strtotime($first);
-        $last = strtotime($last);
-        while ($current <= $last) {
-
-            $dates[] = date($output_format, $current);
-            $current = strtotime($step, $current);
-        }
-        return $dates;
-    }
-
     /**
      * @Route("/{_locale}/statistiques-periode-notaire-excel-jours",name="statistiques-periode-notaire-excel-jours")
      */
@@ -4554,52 +4669,6 @@ class DefaultController extends Controller
         exit;
     }
 
-    public function chiffreToMonth($moisEnChiffre)
-    {
-        $mois = "";
-
-        switch ($moisEnChiffre) {
-            case "01":
-                $mois = $this->get('translator')->trans("janvier");
-                break;
-            case "02":
-                $mois = $this->get('translator')->trans("fevrier");
-                break;
-            case "03":
-                $mois = $this->get('translator')->trans("mars");
-                break;
-            case "04":
-                $mois = $this->get('translator')->trans("avril");
-                break;
-            case "05":
-                $mois = $this->get('translator')->trans("mai");
-                break;
-            case "06":
-                $mois = $this->get('translator')->trans("juin");
-                break;
-            case "07":
-                $mois = $this->get('translator')->trans("juillet");
-                break;
-            case "08":
-                $mois = $this->get('translator')->trans("aout");
-                break;
-            case "09":
-                $mois = $this->get('translator')->trans("septembre");
-                break;
-            case "10":
-                $mois = $this->get('translator')->trans("octobre");
-                break;
-            case "11":
-                $mois = $this->get('translator')->trans("novembre");
-                break;
-            case "12":
-                $mois = $this->get('translator')->trans("decembre");
-                break;
-        }
-
-        return $mois;
-    }
-
     /**
      * @Route("/{_locale}/extraction-nbEntreprise-excel",name="extraction-nbEntreprise-excel")
      */
@@ -4680,6 +4749,272 @@ class DefaultController extends Controller
 
         //erreur
         return new JsonResponse(array('resultat' => '0'));
+    }
+
+    public function validerChefGreffeP1($idd, $pole)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $request = $this->get('request');
+        $codLang = "fr";
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+        $cheminDownload = $chemin->getNom();
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
+        $dateRccm = new \DateTime();
+        $dateActuelle = new \DateTime();
+        if ($rccm) {
+            $dateRccm = $rccm->getDate();
+        }
+
+        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
+        $representant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
+        $dateRccm = new \DateTime();
+        if ($rccm) {
+            $dateRccm = $rccm->getDate();
+        }
+
+        $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
+        $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
+        $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
+
+
+        $listeTypeFormalite = $em->getRepository('BanquemondialeBundle:TypeFormaliteRccm')->findBy(array('typeFormulaire' => "P1"));
+        $origine = $em->getRepository('BanquemondialeBundle:OriginePM')->findOneByDossierDemande($idd);
+        $listeTypeOrigine = $em->getRepository('ParametrageBundle:TypeOrigine')->findBySiPersonnePhysique(true);
+        $activiteAnterieure = $em->getRepository('BanquemondialeBundle:ActiviteAnterieure')->findOneByDossierDemande($idd);
+        $personneEngageurs = $em->getRepository('BanquemondialeBundle:PersonneEngageur')->getPersEngageursByDossierDemande($idd, $langue->getId());
+        $conjoints = $em->getRepository('BanquemondialeBundle:Conjoint')->findBy(array('representant' => $representant[0]['id']));
+
+
+        $afficherSignature = 0;
+        $afficherQRCodeGreffe = 0;
+        $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
+
+        $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
+        if ($parametrageSignature) {
+            $afficherSignature = $parametrageSignature->getIsSignatureVisible();
+            $afficherQRCodeGreffe = $parametrageSignature->getIsQRVisible();
+            $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
+        }
+
+        if ($afficherQRCodeGreffe) {
+            $baseUrl = $em->getRepository('ParametrageBundle:Chemins')->find(3)->getNom();
+            //$key = "numeroDossier=".$dossierDemande->getNumeroDossier()."&rccm=".$rccm->getNumRccmEntreprise();
+            $key = "numero=" . $dossierDemande->getId();
+            $keyCodee = $this->crypter($key);
+
+            //$parametres = "/fr/verification-document-rccm?key=".urlencode($keyCodee);
+            $parametres = "/fr/verif?key=" . urlencode($keyCodee);
+
+            if ($representant[0]) {
+                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . " GERANT: " . strtoupper($representant[0]['prenom']) . "\n\n " . strtoupper($representant[0]['nom']) . "\n\n " . $baseUrl . $parametres;
+            } else {
+                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . "\n\n " . $baseUrl . $parametres;
+            }
+            //$textQr = $baseUrl.$parametres;
+
+            $qrCode = new QrCode($textQr);
+            $qrCode->setSize(180);
+            //$qrCode = $this->get('endroid.qrcode.factory')->create('QR Code', ['size' => 180]);
+            $path = $this->get('kernel')->getRootDir() . '/../web/img/qrcodegreffe.png';
+            // Save it to a file
+            $qrCode->writeFile($path);
+        }
+
+
+        $temp = $cheminDownload . $idd . '\\';
+        if (!is_dir($temp)) {
+            mkdir($temp);
+        }
+
+        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserChefGreffeP1.html.twig', array('idd' => $idd, 'dd' => $dossierDemande, 'rep' => $representant[0], 'listeTypeOrigine' => $listeTypeOrigine, 'origine' => $origine,
+            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, 'rccm' => $rccm,
+            'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
+            'activitePrincipale' => $activitePrincipale, 'activiteSecondaire' => $activiteSecondaire,
+            'activiteSecondaire2' => $activiteSecondaire2, 'afficherSignature' => $afficherSignature,
+            'afficherQRCodeGreffe' => $afficherQRCodeGreffe, 'libelleSignatureGreffe' => $libelleSignatureGreffe, 'documentValide' => true));
+
+        $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), 'RCCM');
+        $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . ".pdf";
+
+
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+
+
+        $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
+
+
+        $dossierDemande->setDateValidationChefGreffe($dateActuelle);
+        $dossierDemande->setStatutValidationChefGreffe(2);
+        $em->persist($dossierDemande);
+        $em->flush();
+    }
+
+    function crypter($maChaineACrypter)
+    {
+        //$maCleDeCryptage = md5($maCleDeCryptage);
+        $maCleDeCryptage = "Xy14o!%14OR021$*45;+0)=Hh(+-**At";
+        $letter = -1;
+        $newstr = "";
+        $strlen = strlen($maChaineACrypter);
+        for ($i = 0; $i < $strlen; $i++) {
+            $letter++;
+            if ($letter > 31) {
+                $letter = 0;
+            }
+            $neword = ord($maChaineACrypter{$i}) + ord($maCleDeCryptage{$letter});
+            if ($neword > 255) {
+                $neword -= 256;
+            }
+            $newstr .= chr($neword);
+        }
+        return base64_encode($newstr);
+    }
+
+    public function validerChefGreffeG1($idd, $pole)
+    {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $pole = $user->getPole();
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
+        if ($pole) {
+            $idPole = $pole->getId();
+        }
+        $em = $this->getDoctrine()->getManager();
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+
+        $dateActuelle = new \DateTime();
+
+        $representant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($idd, $langue->getId());
+        $leRepresentant = $em->getRepository('BanquemondialeBundle:Representant')->findOneBy(array('dossierDemande' => $idd));
+        $associe = $em->getRepository('BanquemondialeBundle:Associe')->findBy(array('dossierDemande' => $idd));
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneBy(array('dossierDemande' => $idd));
+        $typeF = null;
+        if ($rccm) {
+            $typeF = $em->getRepository('BanquemondialeBundle:TypeFormaliteRccm')->find($rccm->getTypeFormaliteRccm());
+        }
+
+        $numSequentiel = "";
+        if ($rccm) {
+            $tableau = explode('.', $rccm->getNumRccmFormalite());
+            if ($tableau) {
+                $numSequentiel = ($tableau[3]) ? "/RCCM/" . $tableau[2] . "/" . $tableau[3] : "";
+            }
+        }
+
+        $dossier = $em->getRepository('BanquemondialeBundle:dossierDemande')->find($idd);
+        $activites = "";
+        if ($dossier->getSecteurActivite()) {
+            $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getSecteurActivite()));
+            if ($activitePrincipale) {
+                $activites = $activites . $activitePrincipale->getLibelle() . ";";
+            }
+            $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getActiviteSecondaire()));
+            if ($activiteSecondaire) {
+                $activites = $activites . $activiteSecondaire->getLibelle() . ";";
+            }
+            $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getActiviteSecondaire2()));
+            if ($activiteSecondaire2) {
+                $activites = $activites . $activiteSecondaire2->getLibelle();
+            }
+
+            if ($dossier->getActiviteSociale()) {
+                $activites = $activites . $dossier->getActiviteSociale() . ";";
+            }
+        }
+        $lesActivites = strtoupper($activites);
+        $formJ = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getLibelleFormeJuridiqueByLanque($langue->getId(), $dossier->getFormeJuridique());
+        $secAct = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getSecteurActivite()));
+        //die(dump($secAct));
+        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+        $cheminDownload = $chemin->getNom();
+
+
+        $profilCreateur = $dossier->getUtilisateur()->getProfile();
+        if ($profilCreateur && $profilCreateur->getDescription() == "saisi") {
+            if ($dossier->getTypeDossier()->getLibelle() == "Notaire") {
+                $soussigne = $dossier->getSoussigne();
+            } else {
+                if ($representant) {
+                    $firstRep = $representant[0];
+                    //die(dump($firstRep));
+                    $civilite = "M.";
+                    if ($firstRep['genre'] == "Femme") {
+                        $civilite = "Mme.";
+                    }
+                    $soussigne = $civilite . " " . $firstRep['prenom'] . " " . $firstRep['nom'] . ", " . $firstRep['libelleFonction'];
+                }
+            }
+        }
+
+
+        $afficherSignature = 0;
+        $afficherQRCodeGreffe = 0;
+        $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
+
+        $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
+        if ($parametrageSignature) {
+            $afficherSignature = $parametrageSignature->getIsSignatureVisible();
+            $afficherQRCodeGreffe = $parametrageSignature->getIsQRVisible();
+            $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
+        }
+        if ($afficherQRCodeGreffe) {
+            $baseUrl = $em->getRepository('ParametrageBundle:Chemins')->find(3)->getNom();
+            $key = "numero=" . $dossier->getId();
+            $keyCodee = $this->crypter($key);
+
+            $parametres = "/fr/verif?key=" . urlencode($keyCodee);
+
+            if ($representant[0]) {
+                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . " GERANT: " . strtoupper($representant[0]['prenom']) . "\n\n " . strtoupper($representant[0]['nom']) . "\n\n " . $baseUrl . $parametres;
+            } else {
+                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . "\n\n " . $baseUrl . $parametres;
+            }
+            //$textQr = $baseUrl.$parametres;
+
+            $qrCode = new QrCode($textQr);
+            $qrCode->setSize(180);
+            //$qrCode = $this->get('endroid.qrcode.factory')->create('QR Code', ['size' => 180]);
+            $path = $this->get('kernel')->getRootDir() . '/../web/img/qrcodegreffe.png';
+            // Save it to a file
+            $qrCode->writeFile($path);
+        }
+
+        $temp = $cheminDownload . $idd . '\\';
+        if (!is_dir($temp)) {
+            mkdir($temp);
+        }
+
+
+        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserChefGreffeG1.html.twig', array('idd' => $idd, 'representant' => $representant
+        , 'activites' => $lesActivites, 'dossier' => $dossier, 'formeJ' => $formJ, 'secAct' => $secAct, 'associe' => $associe,
+            'afficherSignature' => $afficherSignature, 'afficherQRCodeGreffe' => $afficherQRCodeGreffe, 'libelleSignatureGreffe' => $libelleSignatureGreffe
+        , "numSequentiel" => $numSequentiel, 'rccm' => $rccm, 'typeF' => $typeF, 'leRepresentant' => $leRepresentant, 'soussigne' => $soussigne
+        , 'documentValide' => true));
+
+
+        $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), 'RCCM');
+        $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . ".pdf";
+
+
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+
+
+        $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
+
+
+        $dossier->setDateValidationChefGreffe($dateActuelle);
+        $dossier->setStatutValidationChefGreffe(2);
+        $em->persist($dossier);
+        $em->flush();
+
+
     }
 
     public function validerChefGreffeM0($idd, $pole)
@@ -4802,7 +5137,7 @@ class DefaultController extends Controller
 
     public function enregistrerP1($idd, $pole)
     {
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -4850,251 +5185,6 @@ class DefaultController extends Controller
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function validerChefGreffeP1($idd, $pole)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $request = $this->get('request');
-        $codLang = "fr";
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-        $cheminDownload = $chemin->getNom();
-        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
-        $dateRccm = new \DateTime();
-        $dateActuelle = new \DateTime();
-        if ($rccm) {
-            $dateRccm = $rccm->getDate();
-        }
-
-        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
-        $representant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
-        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
-        $dateRccm = new \DateTime();
-        if ($rccm) {
-            $dateRccm = $rccm->getDate();
-        }
-
-        $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
-        $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
-        $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
-
-
-        $listeTypeFormalite = $em->getRepository('BanquemondialeBundle:TypeFormaliteRccm')->findBy(array('typeFormulaire' => "P1"));
-        $origine = $em->getRepository('BanquemondialeBundle:OriginePM')->findOneByDossierDemande($idd);
-        $listeTypeOrigine = $em->getRepository('ParametrageBundle:TypeOrigine')->findBySiPersonnePhysique(true);
-        $activiteAnterieure = $em->getRepository('BanquemondialeBundle:ActiviteAnterieure')->findOneByDossierDemande($idd);
-        $personneEngageurs = $em->getRepository('BanquemondialeBundle:PersonneEngageur')->getPersEngageursByDossierDemande($idd, $langue->getId());
-        $conjoints = $em->getRepository('BanquemondialeBundle:Conjoint')->findBy(array('representant' => $representant[0]['id']));
-
-
-        $afficherSignature = 0;
-        $afficherQRCodeGreffe = 0;
-        $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
-
-        $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
-        if ($parametrageSignature) {
-            $afficherSignature = $parametrageSignature->getIsSignatureVisible();
-            $afficherQRCodeGreffe = $parametrageSignature->getIsQRVisible();
-            $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
-        }
-
-        if ($afficherQRCodeGreffe) {
-            $baseUrl = $em->getRepository('ParametrageBundle:Chemins')->find(3)->getNom();
-            //$key = "numeroDossier=".$dossierDemande->getNumeroDossier()."&rccm=".$rccm->getNumRccmEntreprise();
-            $key = "numero=" . $dossierDemande->getId();
-            $keyCodee = $this->crypter($key);
-
-            //$parametres = "/fr/verification-document-rccm?key=".urlencode($keyCodee);
-            $parametres = "/fr/verif?key=" . urlencode($keyCodee);
-
-            if ($representant[0]) {
-                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . " GERANT: " . strtoupper($representant[0]['prenom']) . "\n\n " . strtoupper($representant[0]['nom']) . "\n\n " . $baseUrl . $parametres;
-            } else {
-                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . "\n\n " . $baseUrl . $parametres;
-            }
-            //$textQr = $baseUrl.$parametres;
-
-            $qrCode = new QrCode($textQr);
-            $qrCode->setSize(180);
-            //$qrCode = $this->get('endroid.qrcode.factory')->create('QR Code', ['size' => 180]);
-            $path = $this->get('kernel')->getRootDir() . '/../web/img/qrcodegreffe.png';
-            // Save it to a file
-            $qrCode->writeFile($path);
-        }
-
-
-        $temp = $cheminDownload . $idd . '\\';
-        if (!is_dir($temp)) {
-            mkdir($temp);
-        }
-
-        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserChefGreffeP1.html.twig', array('idd' => $idd, 'dd' => $dossierDemande, 'rep' => $representant[0], 'listeTypeOrigine' => $listeTypeOrigine, 'origine' => $origine,
-            'pole' => $pole, 'listeTypeFormalite' => $listeTypeFormalite, 'dateRccm' => $dateRccm, 'rccm' => $rccm,
-            'activiteAnterieure' => $activiteAnterieure, 'personneEngageurs' => $personneEngageurs, 'conjoints' => $conjoints,
-            'activitePrincipale' => $activitePrincipale, 'activiteSecondaire' => $activiteSecondaire,
-            'activiteSecondaire2' => $activiteSecondaire2, 'afficherSignature' => $afficherSignature,
-            'afficherQRCodeGreffe' => $afficherQRCodeGreffe, 'libelleSignatureGreffe' => $libelleSignatureGreffe, 'documentValide' => true));
-
-        $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), 'RCCM');
-        $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . ".pdf";
-
-
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-
-
-        $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
-
-
-        $dossierDemande->setDateValidationChefGreffe($dateActuelle);
-        $dossierDemande->setStatutValidationChefGreffe(2);
-        $em->persist($dossierDemande);
-        $em->flush();
-    }
-
-    public function validerChefGreffeG1($idd, $pole)
-    {
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
-        if ($pole) {
-            $idPole = $pole->getId();
-        }
-        $em = $this->getDoctrine()->getManager();
-        $request = $this->get('request');
-        $codLang = $request->getLocale();
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-
-        $dateActuelle = new \DateTime();
-
-        $representant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($idd, $langue->getId());
-        $leRepresentant = $em->getRepository('BanquemondialeBundle:Representant')->findOneBy(array('dossierDemande' => $idd));
-        $associe = $em->getRepository('BanquemondialeBundle:Associe')->findBy(array('dossierDemande' => $idd));
-        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneBy(array('dossierDemande' => $idd));
-        $typeF = null;
-        if ($rccm) {
-            $typeF = $em->getRepository('BanquemondialeBundle:TypeFormaliteRccm')->find($rccm->getTypeFormaliteRccm());
-        }
-
-        $numSequentiel = "";
-        if ($rccm) {
-            $tableau = explode('.', $rccm->getNumRccmFormalite());
-            if ($tableau) {
-                $numSequentiel = ($tableau[3]) ? "/RCCM/" . $tableau[2] . "/" . $tableau[3] : "";
-            }
-        }
-
-        $dossier = $em->getRepository('BanquemondialeBundle:dossierDemande')->find($idd);
-        $activites = "";
-        if ($dossier->getSecteurActivite()) {
-            $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getSecteurActivite()));
-            if ($activitePrincipale) {
-                $activites = $activites . $activitePrincipale->getLibelle() . ";";
-            }
-            $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getActiviteSecondaire()));
-            if ($activiteSecondaire) {
-                $activites = $activites . $activiteSecondaire->getLibelle() . ";";
-            }
-            $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getActiviteSecondaire2()));
-            if ($activiteSecondaire2) {
-                $activites = $activites . $activiteSecondaire2->getLibelle();
-            }
-
-            if ($dossier->getActiviteSociale()) {
-                $activites = $activites . $dossier->getActiviteSociale() . ";";
-            }
-        }
-        $lesActivites = strtoupper($activites);
-        $formJ = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getLibelleFormeJuridiqueByLanque($langue->getId(), $dossier->getFormeJuridique());
-        $secAct = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('langue' => $langue->getId(), 'secteurActivite' => $dossier->getSecteurActivite()));
-        //die(dump($secAct));                   
-        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-        $cheminDownload = $chemin->getNom();
-
-
-        $profilCreateur = $dossier->getUtilisateur()->getProfile();
-        if ($profilCreateur && $profilCreateur->getDescription() == "saisi") {
-            if ($dossier->getTypeDossier()->getLibelle() == "Notaire") {
-                $soussigne = $dossier->getSoussigne();
-            } else {
-                if ($representant) {
-                    $firstRep = $representant[0];
-                    //die(dump($firstRep));
-                    $civilite = "M.";
-                    if ($firstRep['genre'] == "Femme") {
-                        $civilite = "Mme.";
-                    }
-                    $soussigne = $civilite . " " . $firstRep['prenom'] . " " . $firstRep['nom'] . ", " . $firstRep['libelleFonction'];
-                }
-            }
-        }
-
-
-        $afficherSignature = 0;
-        $afficherQRCodeGreffe = 0;
-        $libelleSignatureGreffe = "Me Alseny Fofana Greffier en chef du TPI de Kaloum";
-
-        $parametrageSignature = $em->getRepository('DefaultBundle:ReglageActivation')->findFirst();
-        if ($parametrageSignature) {
-            $afficherSignature = $parametrageSignature->getIsSignatureVisible();
-            $afficherQRCodeGreffe = $parametrageSignature->getIsQRVisible();
-            $libelleSignatureGreffe = $parametrageSignature->getLibelleSignatureGreffe();
-        }
-        if ($afficherQRCodeGreffe) {
-            $baseUrl = $em->getRepository('ParametrageBundle:Chemins')->find(3)->getNom();
-            $key = "numero=" . $dossier->getId();
-            $keyCodee = $this->crypter($key);
-
-            $parametres = "/fr/verif?key=" . urlencode($keyCodee);
-
-            if ($representant[0]) {
-                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . " GERANT: " . strtoupper($representant[0]['prenom']) . "\n\n " . strtoupper($representant[0]['nom']) . "\n\n " . $baseUrl . $parametres;
-            } else {
-                $textQr = "RCCM: " . $rccm->getNumRccmEntreprise() . "\n\n " . $baseUrl . $parametres;
-            }
-            //$textQr = $baseUrl.$parametres;
-
-            $qrCode = new QrCode($textQr);
-            $qrCode->setSize(180);
-            //$qrCode = $this->get('endroid.qrcode.factory')->create('QR Code', ['size' => 180]);
-            $path = $this->get('kernel')->getRootDir() . '/../web/img/qrcodegreffe.png';
-            // Save it to a file
-            $qrCode->writeFile($path);
-        }
-
-        $temp = $cheminDownload . $idd . '\\';
-        if (!is_dir($temp)) {
-            mkdir($temp);
-        }
-
-
-        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserChefGreffeG1.html.twig', array('idd' => $idd, 'representant' => $representant
-        , 'activites' => $lesActivites, 'dossier' => $dossier, 'formeJ' => $formJ, 'secAct' => $secAct, 'associe' => $associe,
-            'afficherSignature' => $afficherSignature, 'afficherQRCodeGreffe' => $afficherQRCodeGreffe, 'libelleSignatureGreffe' => $libelleSignatureGreffe
-        , "numSequentiel" => $numSequentiel, 'rccm' => $rccm, 'typeF' => $typeF, 'leRepresentant' => $leRepresentant, 'soussigne' => $soussigne
-        , 'documentValide' => true));
-
-
-        $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), 'RCCM');
-        $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . ".pdf";
-
-
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-
-
-        $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
-
-
-        $dossier->setDateValidationChefGreffe($dateActuelle);
-        $dossier->setStatutValidationChefGreffe(2);
-        $em->persist($dossier);
-        $em->flush();
-
-
-    }
-
     /**
      * @Route("/{_locale}/verif",name="verification-document-rccm")
      */
@@ -5139,27 +5229,6 @@ class DefaultController extends Controller
         }
 
         return $this->render('DefaultBundle:Default:verification-document-rccm.html.twig', array('langues' => $lgs, 'dossierRccm' => $dossierRccm, 'gerant' => $gerant));
-    }
-
-    function crypter($maChaineACrypter)
-    {
-        //$maCleDeCryptage = md5($maCleDeCryptage);
-        $maCleDeCryptage = "Xy14o!%14OR021$*45;+0)=Hh(+-**At";
-        $letter = -1;
-        $newstr = "";
-        $strlen = strlen($maChaineACrypter);
-        for ($i = 0; $i < $strlen; $i++) {
-            $letter++;
-            if ($letter > 31) {
-                $letter = 0;
-            }
-            $neword = ord($maChaineACrypter{$i}) + ord($maCleDeCryptage{$letter});
-            if ($neword > 255) {
-                $neword -= 256;
-            }
-            $newstr .= chr($neword);
-        }
-        return base64_encode($newstr);
     }
 
     function decrypter($maChaineADecrypter)
@@ -5289,7 +5358,7 @@ class DefaultController extends Controller
      * @Route("/{datedebut}/{datefin}/{entreprise}/{poleChoisi}/{formeJuridique}/{modePaiement}/{idLangue}/statistiques-de-caisse-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistiques-de-caisse-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:Default:statistiques-de-caisse-excel.xls.twig")
      */
-    public function brouillardCaisseEnExcelAction($datedebut, $datefin, $entreprise, $poleChoisi, $formeJuridique, $modePaiement, $idLangue)
+    public function brouillardCaisseEnExcelAction($datedebut, $datefin, $gerant, $entreprise, $poleChoisi, $formeJuridique, $modePaiement, $idLangue)
     {
         $em = $this->getDoctrine()->getManager();
         $montantTotal = 0;
@@ -5336,6 +5405,43 @@ class DefaultController extends Controller
             'modePaiement' => $modePaiement,
             'entreprise' => $entreprise,
             'nomCaisse' => $nomCaisse);
+    }
+
+    /**
+     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{formeJuridique}/{typeDossier}/{gerant}/{entreprise}/{idS}/{idLangue}/dossierEnmodification-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="dossierEnmodification-excel", methods={"GET","POST"})
+     * @Template("DefaultBundle:Default:dossierEnmodification-excel.xls.twig")
+     */
+    public function dossierEnmodificationEnExcelAction($numeroDossier, $denominationSociale, $dateCreationDebut,
+                                                       $dateCreationFin, $formeJuridique, $typeDossier, $gerant, $entreprise,
+                                                       $idS, $idLangue)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $limit = null;
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
+        $data = [
+            'numeroDossier' => $numeroDossier,
+            'denominationSociale' => $denominationSociale,
+            'dateCreationDebut' => $dateCreationDebut,
+            'dateCreationFin' => $dateCreationFin,
+            'formeJuridique' => $formeJuridique,
+            'typeDossier' => $typeDossier,
+            'gerant' => $gerant,
+            'entreprise' => $entreprise];
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam($data, $idLangue, $idPole, $limit, $idS);
+        // die(dump($listerdemande));
+        return [
+            'liste' => $listerdemande
+        ];
+    }
+
+    /**
+     * @Route("/excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="liste-dossiers-deposer-by-periode-en-excel", methods={"GET","POST"})
+     * @Template("DefaultBundle:StatistiqueExcel:dossier_deposer_by_periode_excel.xls.twig")
+     */
+    public function dossierDeposerByPeriodeExelAction()
+    {
+        //  $statDepot = $this->get('suivistatutdossierservice')->getDossierDepot($dateDebut, $dateFin);
+        return $this->render('DefaultBundle:StatistiqueExcel:dossier_deposer_by_periode_excel.xls.twig');
     }
 
     /**
@@ -5392,28 +5498,38 @@ class DefaultController extends Controller
                     'codeLang' => $codLang
                 ), $sessionData);
 //        die(dump($customer));
-            $amount = 500;
-            // $sessionData['montantTotalFacture'];
+            $pourcentage = 0.02;
+            $amount = $sessionData['montantTotalFacture'] * $pourcentage + $sessionData['montantTotalFacture'];
+            // die(dump($amount));
             $user = $this->get('security.token_storage')->getToken()->getUser();
             $paiementOrange = new PaiementOrange();
             $orderIder = $this->get('monServices')->genrateReferancefactureOrange();
-            $omWeb = $this->get('monServices')->webPayement($customer['denominationSociale'], $amount, $orderIder);
-            $paiementOrange
-                ->setAmount($amount)
-                ->setPayToken($omWeb['webPayment']['pay_token'])
-                ->setOrderId($omWeb['transactionStatus']['order_id'])
-                ->setStatus($omWeb['transactionStatus']['status'])
-                ->setTxnid($omWeb['transactionStatus']['txnid'])
-                ->setUser($user)
-                ->setCustomer($customer);
-            $em->persist($paiementOrange);
-            $em->flush();
-            if (!$session->has('sessionOrderId')) {
-                $session->set('sessionOrderId', $omWeb['transactionStatus']['order_id']);
-                $session->set('sessionPayToken', $omWeb['webPayment']['pay_token']);
-                $session->set('sessionAmount', $amount);
+            // $customer['denominationSociale']
+            $omWeb = $this->get('monServices')->webPayement('APIP-GUINEE', $amount, $orderIder, 'returning-payement-orange-money');
+            if (isset($omWeb['webPayment']['pay_token'])) {
+                $paiementOrange
+                    ->setAmount($amount)
+                    ->setPayToken($omWeb['webPayment']['pay_token'])
+                    ->setOrderId($omWeb['transactionStatus']['order_id'])
+                    ->setStatus($omWeb['transactionStatus']['status'])
+                    ->setTxnid($omWeb['transactionStatus']['txnid'])
+                    ->setUser($user)
+                    ->setNumeroDossier($sessionIdq)
+                    ->setCustomer($customer);
+                $em->persist($paiementOrange);
+                if (!$session->has('sessionOrderId')) {
+                    $session->set('sessionOrderId', $omWeb['transactionStatus']['order_id']);
+                    $session->set('sessionPayToken', $omWeb['webPayment']['pay_token']);
+                    $session->set('sessionAmount', $amount);
+                    $em->flush();
+                    return new RedirectResponse($omWeb['webPayment']['payment_url']);
+                }
+            } else {
+                $errr = 'Error: ' . $errr = ($this->get('monservices')->fixtags($this->get('monServices')->get_string_between(json_encode($omWeb['webPayment']), 'description', '\n')));
+                // die(dump($errr));
+                $this->get('session')->getFlashBag()->add('echecSMS', $errr);
+                return $this->redirectToRoute('confirmation-payement-orange-money');
             }
-            return new RedirectResponse($omWeb['webPayment']['payment_url']);
         } else {
             $this->get('session')->getFlashBag()->add('echecSMS', 'Impossible de lancer le paiement par orange money problème lie à la connexion internet');
             return $this->redirectToRoute('confirmation-payement-orange-money');
@@ -5421,14 +5537,27 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/{_locale}/admin/confirmation-payement-orange-money",name="confirmation-payement-orange-money")
+     * @Route("/{_locale}/apip/confirmation-payement-orange-money",name="confirmation-payement-orange-money")
      */
     public function confirmationPayementOrangeMoneyAction(Request $request)
     {
-        //$em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
+        $langues = $em->getRepository("BanquemondialeBundle:Langue")->findAll();
+        $lgs = array();
+        $reservation = [];
+        $secondVerification = null;
+        $message = '';
+        foreach ($langues as $langue) {
+            $lgs [] = $langue->getCode();
+        }
         $referer = $this->getRequest()->headers->get('referer');
         return $this->render('DefaultBundle:Default:confirm-om-payement.html.twig', array(
-            'referer' => $referer
+            'referer' => $referer,
+            'langues' => $lgs,
+            'resulta' => $secondVerification ?: null,
+            'nomCommercial' => $request->request->get("search"),
+            'reservation' => $reservation,
+            'message' => $message
         ));
     }
 
@@ -5437,6 +5566,7 @@ class DefaultController extends Controller
      */
     public function returningPayementOrange(Request $request)
     {
+        // die(dump($request));
         $em = $this->getDoctrine()->getManager();
         $session = $request->getSession();
         $sessionData = $session->get('sessionData');
@@ -5490,18 +5620,132 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/{_locale}/admin/test-payement-orange-money",name="test-payement-orange-money")
+     * @Route("/{_locale}/admin/confirmation-payement-pay-card",name="confirmation-payement-pay-card")
+     */
+    public function confirmationPayementPaycard(Request $request)
+    {
+        if ($this->get('monServices')->pingIPServer() == true) {
+            $em = $this->getDoctrine()->getManager();
+            $session = $request->getSession();
+            $session->remove('sessionOrderId');
+            $session->remove('sessionPayToken');
+            $session->remove('sessionAmount');
+            $sessionData = $session->get('sessionData');
+            $sessionIdq = $session->get('sessionIdq');
+            $codLang = $session->get('codLang');
+            $customer = array_merge(
+                array(
+                    'denominationSociale' => $sessionData['denominationSociale'],
+                    'numeroDossier' => $sessionData['numeroDossier'],
+                    'idq' => $sessionIdq,
+                    'codeLang' => $codLang
+                ), $sessionData);
+
+            $pourcentage = 0.02;
+            $amount = 500;// $sessionData['montantTotalFacture'] * $pourcentage + $sessionData['montantTotalFacture'];
+            //  die(dump($amount));
+            $initietedDate = date_format(new \DateTime(), 'Y-m-d H:i:s');
+            $user = $this->get('security.token_storage')->getToken()->getUser();
+            $paiementOrange = new PaiementOrange();
+            $orderIder = $this->get('monServices')->genrateReferancefactureOrange();
+            $paiementOrange
+                ->setAmount($amount)
+                ->setPayToken($orderIder)
+                ->setOrderId($orderIder)
+                ->setStatus("INIT")
+                ->setTxnid(null)
+                ->setUser($user)
+                ->setNumeroDossier($sessionIdq)
+                ->setCustomer($customer)
+                ->setInitiateDate(new \DateTime($initietedDate));
+            $em->persist($paiementOrange);
+            if (!$session->has('sessionOrderId')) {
+                $session->set('sessionOrderId', $orderIder);
+                $session->set('sessionPayToken', $orderIder);
+                $session->set('sessionAmount', $amount);
+                $em->flush();
+            }
+        } else {
+            $this->get('session')->getFlashBag()->add('echecSMS', 'Impossible de lancer le paiement par PayCard problème lie à la connexion internet');
+            return $this->redirectToRoute('confirmation-payement-pay-card');
+        }
+        $baseUrl = $this->get('monservices')->getBaseUrl();
+        $secondaireUrl = $this->generateUrl("returning-payement-pay-card");
+        $returnUrl = $baseUrl . $secondaireUrl;
+        return $this->render('DefaultBundle:Default:confirm-om-payement-payCard.html.twig', [
+            'amount' => $amount,
+            'description' => "APIP PAYCARD",
+            'orderId' => $orderIder,
+            'PayementId' => $paiementOrange->getId(),
+            'initietedDate' => $initietedDate,
+            'returnUrl' => $returnUrl
+        ]);
+    }
+
+    /**
+     * @Route("/{_locale}/test-payement-orange-money",name="test-payement-orange-money")
      */
     public function testPayementOrange(Request $request)
     {
+        $this->get('paycardservice')->relogin();
+        return $this->redirectToRoute('reporting_quittance');
+//        $status = $this->get('monservices')->getStatusPayement('S', 216750, 'v1uyye2luf4p4vombbkjjbigujkaycbydxnuiz3apvh24etdoncmpn2uiu2lzzrf');
+//        var_dump($status);
+//        die();
+//        return 1;
+    }
 
-//        $session = $request->getSession();
-//        $sessionData = $session->get('sessionData');
-//        $sessionIdq = $session->get('sessionIdq');
-//        $codLang = $session->get('codLang');
-        $this->get('monservices')->SmsOrangetest();
-        var_dump('ok');die();
-        return 1;
+    /**
+     * @Route("/{_locale}/admin/returning-payement-pay-card",name="returning-payement-pay-card")
+     */
+    public function returningPayementPaycard(Request $request)
+    {
+
+//        $transactionReference=$request->get('transactionReference');
+//        $statusPayement = $this->get('paycardservice')->checkPayCarStatus($request,$transactionReference);
+        // die(dump($statusPayement));
+        //   $this->validatePayCardPayement($request);
+        return $this->redirectToRoute('reporting_quittance');
+    }
+
+    public function validatePayCardPayement(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $session = $request->getSession();
+        $sessionData = $session->get('sessionData');
+        $sessionIdq = $session->get('sessionIdq');
+        $codLang = $session->get('codLang');
+        // die(dump($sessionData));
+        $sessionOrderId = $session->get('sessionOrderId');
+        $sessionPayToken = $session->get('sessionPayToken');
+        $sessionAmount = $session->get('sessionAmount');
+        $transactionReference = $request->get('transactionReference');
+        $statusPayement = $this->get('paycardservice')->checkPayCarStatus($request, $transactionReference);
+        $paiementOrange = $em->getRepository('DefaultBundle:PaiementOrange')->findOneByOrderId($sessionOrderId);
+        $tabStatus = array(
+            'SUCCESS' => 0);
+        if ($statusPayement->code == $tabStatus['SUCCESS']) {
+            $this->get('monservices')->returnSuccessPayementOrange($sessionData, $sessionIdq, $codLang);
+            $paiementOrange->setStatus('SUCCESS');
+            $paiementOrange->setEndDate(new \Datetime());
+            $em->persist($paiementOrange);
+            $em->flush();
+            $errorMessage = "le paiement est effectué";
+            $this->get('session')->getFlashBag()->add('successStatus', $errorMessage);
+            /// Supression  variables de session
+            $session->remove('sessionData');
+            $session->remove('sessionIdq');
+            $session->remove('codLang');
+
+            $session->remove('sessionOrderId');
+            $session->remove('sessionPayToken');
+            $session->remove('sessionAmount');
+            return $this->redirectToRoute('reporting_quittance');
+            // // die(dump($errorMessage));
+        } else {
+            return $this->redirectToRoute('traiter_quittance', array('idq' => $sessionIdq));
+        }
+
     }
 
     /**
@@ -5515,5 +5759,1006 @@ class DefaultController extends Controller
         // die(dump($data));
         return ['persone' => ['name' => 'Kante Mohamed', 'Genre' => 'Masculin', 'Age' => 27, 'Adresse' => 'Lambayi']];
     }
+
+    /**
+     *
+     * @Route("/{_locale}/sent-sms-email-when-depot-dossier-if-reservation", name="sent-sms-email-when-depot-dossier-if-reservation")
+     * @Method({"GET", "POST"})
+     */
+    public function sendSMSEmailtoPromoteur(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $data = $request->get('data');
+        $reservation = $em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['id' => $data]);
+        $this->get('monservices')->sendSMSandEmail('DefaultBundle:Reservation:email.html.twig', $reservation->getEmail(), $reservation->getTelephone(), 'Bonjour Mr/Mme ' . $reservation->getNom() . ' ' . $reservation->getPrenom() . ' votre code de validation est: ' . $reservation->getValidationCode());
+        $this->get('monservices')->SmstoPromoteur($reservation);
+        return new JsonResponse(array('data' => $reservation));
+    }
+
+    /**
+     * @Route("/{_locale}/admin/creation-dossier-du-nom-commercial-reserver",name="creation-dossier-du-nom-commercial-reserver")
+     */
+    public function depotAction(Request $request)
+    {
+        $message = '';
+        $creationdemande = new DossierDemande();
+        $em = $this->getDoctrine()->getManager();
+        $reservation = $em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['id' => $request->get('inputData')]);
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $idAguipe = $em->getRepository('ParametrageBundle:Pole')->findOneBySigle('AGUIPE');
+
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $idl = $langue->getId();
+        $date = new \DateTime();
+        $secondVerification = null;
+        $isNomCommercialReserved = false;
+        $formJuridiques = $em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getListFormeJuridiqueByLanque(1);
+        $form = $this->createForm(new DossierDemandeDepotType(array('langue' => $langue, 'typOpTraduit' => null, 'formeJTraduit' => null)), $creationdemande);
+        $form
+            ->add('nomCommercial', TextType::class, array(
+                'data' => $reservation->getNomCommercial()
+            ))
+            ->add('denominationSociale', TextType::class, array(
+                'data' => $reservation->getNomCommercial()
+            ))
+            ->add('emailPromoteur', TextType::class, array(
+                'data' => $reservation->getEmail()
+            ))
+            ->add('telephonePromoteur', TextType::class, array(
+                'data' => $reservation->getTelephone()
+            ))
+            ->add('email', TextType::class, array(
+                'data' => $reservation->getEmail()
+            ))
+            ->add('adresseSiege', TextType::class, array(
+                'data' => $reservation->getAdresse()
+            ))
+            ->add('formeJuridique', 'entity', array(
+                'class' => 'BanquemondialeBundle:FormeJuridique',
+                'data' => $reservation->getFormeJuridique(),
+                'query_builder' => function (FormeJuridiqueRepository $formJ) {
+                    return $formJ->getListFormeJuridiqueByCodeLanque(1);
+                }, 'property' => 'formeJuridiqueTraduction[0]',
+            ));
+        if ($request->getMethod() == 'POST') {
+            $this->removeReservation($reservation);
+            $denominationSociale = $request->request->get('banquemondialebundle_dossierDemandeDepot')['denominationSociale'];
+            $firstVefication = $this->get('monservices')->verificationNomCommercial($request, $denominationSociale);
+            if ($firstVefication == true) {
+                $secondVerification = true;
+                $message = 'Désolé ce nom commercial est déjà  en utilisation';
+                $this->get('session')->getFlashBag()->add('error', $message);
+                return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message));
+                //  return $this->redirectToRoute('depot_new');
+            } else {
+                $secondVerification = $this->get('monservices')->verificationNomCommercialReservation($request, $denominationSociale);
+                if ($secondVerification) {
+                    $isNomCommercialReserved = true;
+                    $message = 'Désolé ce nom commercial est déjà  réserve';
+                    $this->get('session')->getFlashBag()->add('error', $message);
+                    $reservation = $em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['nomCommercial' => $denominationSociale]);
+                    return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => '', 'isNomCommercialReserved' => $isNomCommercialReserved, 'reservation' => $reservation));
+
+                    //   return $this->redirectToRoute('depot_new');
+
+                }
+            }
+            $profilSaisi = $em->getRepository('UtilisateursBundle:Profile')->findOneByDescription('saisi');
+            if ($profilSaisi) {
+                $firstUserAgentSaisi = $em->getRepository('UtilisateursBundle:Utilisateurs')->findOneBy(array('profile' => $profilSaisi->getId(), 'pole' => $user->getPole()->getId(), 'entreprise' => $user->getEntreprise()->getId()));
+                if (!$firstUserAgentSaisi) {
+                    $message = $this->get('translator')->trans("aucun_agent_saisi_defini_pour_structure");
+
+                    return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message));
+                }
+            }
+            $isAguipe = $request->get('isAguipe');
+            $form->bind($request);
+            if ($form->isValid()) {
+                $creationdemande->setUtilisateurDepot($user);
+                $creationdemande->setStatut(-1);
+                $creationdemande->setEnActivite(false);
+                $creationdemande->setDateCreation($date);
+                $pays = $em->getRepository('BanquemondialeBundle:Pays')->findOneByResidence(true);
+                $creationdemande->setPays($pays);
+                $em->persist($creationdemande);
+                $em->flush();
+                $numeroDossier = 'GU-CE-' . strtoupper($creationdemande->getPays()->getCode()) . sprintf("%08d", $creationdemande->getId());
+                $creationdemande->setNumeroDossier($numeroDossier);
+                $em->flush();
+                //gerer le dirigeant
+                $representant = new Representant();
+                $representant->setNom($request->get('nom'));
+                $representant->setPrenom($request->get('prenom'));
+                // $representant->setDateDeNaissance(new \DateTime($request->get('dateNaissance')));
+                $representant->setDateDeNaissance(new \DateTime(date_format(new \DateTime($request->get('dateNaissance')), 'd-m-Y')));
+                $representant->setAdresse($request->get('adresse'));
+                $representant->setTelephone($request->get('telephone'));
+                $representant->setDossierDemande($creationdemande);
+                $representant->setGp(true);
+                $em->persist($representant);
+                $email = $request->get('banquemondialebundle_dossierDemandeDepot')['email'];
+                $phoneNumber = $request->get('telephone');
+                $em->flush();
+                //fin gestion dirigeant
+                //gerer document collected
+                $idDossier = $creationdemande->getId();
+                //die(dump($idDossier));
+                $typeOperation = $creationdemande->getTypeOperation();
+                $idTypeOp = $typeOperation->getId();
+                $formeJuridique = $creationdemande->getFormeJuridique();
+                $idFormeJ = $formeJuridique->getId();
+                //die(dump($idFormeJ));
+                $listDocumentForCollected = $em->getRepository('BanquemondialeBundle:Circuit')->findByTypeOpAndFormeJurique($idTypeOp, $idFormeJ, $creationdemande->getTypeDossier()->getId());
+                foreach ($listDocumentForCollected as $collected) {
+                    if (($idAguipe == $collected->getPole()) && ($isAguipe == null)) {
+
+                    } else {
+                        $docCollected = new DocumentCollected();
+                        $docCollected->setPole($collected->getPole());
+                        $docCollected->setOrdre($collected->getOrdre());
+                        $docCollected->setDossierDemande($creationdemande);
+                        $em->persist($docCollected);
+                        $em->flush();
+                    }
+                }
+                //mettre le dossier en cors caisse
+                $poleCaisse = $em->getRepository('ParametrageBundle:Pole')->getPoleCaisse();
+                $documentCaisse = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('dossierDemande' => $idDossier, 'pole' => $poleCaisse->getId()));
+                $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
+                //die(dump($documentCaisse));
+                if ($documentCaisse) {
+                    $documentCaisse->setStatutTraitement($statutEncours);
+                    $documentCaisse->setDateSoumission($date);
+                    $em->persist($documentCaisse);
+                    $em->flush();
+
+                    $this->get('monservices')->ajoutQuittance($idDossier);
+                }
+                $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+                $cheminUpload = $chemin->getNom();
+
+                $temp = $cheminUpload . $idDossier . '\\';
+                if (!is_dir($temp)) {
+                    mkdir($temp);
+                }
+                $translated = $this->get('translator')->trans('depot.message_ajouter');
+                $this->get('session')->getFlashBag()->add('info', $translated);
+                //$documentCaisse->set
+                //fin mise a jour caisse
+
+                //// Envoi du SMS////////////////
+                $this->get('monServices')->SmsOrange($this->get('monServices')->formatPhoneNumber($phoneNumber), $representant, 'depot');
+                //// Envoi de l'Email ////////////////
+                $this->get('monServices')->EnvoiMessage($representant, $email, 'depot');
+                return new RedirectResponse($this->container->get('router')->generate('lister_depot', array('idd' => 0)));
+                //return new RedirectResponse($this->container->get('router')->generate('representant_listerrepresentant', array('id' => 0, 'idd' => $creationdemande->getId())));
+            }
+        }
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot_nomReserver.html.twig', array('form' => $form->createView(), 'message' => $message, 'isNomCommercialReserved' => $isNomCommercialReserved, 'reservation' => $reservation));
+        // return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message));
+    }
+
+    public function removeReservation($reservation)
+    {
+        $detailReservation = $reservation->getDetailReservation();
+        foreach ($detailReservation as $det) {
+            // $this->deleteElementById('DefaultBundle\Entity\detailReservation',$det->getId());
+            $this->get('monservices')->updateStatus('DefaultBundle\Entity\detailReservation', $det->getId(), false);
+        }
+        // $this->deleteElementById('DefaultBundle\Entity\reservation',$reservation->getId());
+        $this->get('monservices')->updateStatus('DefaultBundle\Entity\reservation', $reservation->getId(), false);
+
+    }
+
+    /**
+     * @Route("/{_locale}/admin/notaire-creation-dossier-du-nom-commercial-reserver",name="notaire-creation-dossier-du-nom-commercial-reserver")
+     */
+    public function depotNotaireAction(Request $request)
+    {
+        $message = '';
+        $creationdemande = new DossierDemande();
+        $em = $this->getDoctrine()->getManager();
+        $reservation = $em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['id' => $request->get('inputData')]);
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $secondVerification = null;
+        $thirdVerification = null;
+        $isNomCommercialReserved = false;
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        //$idLangue=$em->getRepository('BanquemondialeBundle:Langue')->findById($codLang);
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $idl = $langue->getId();
+        $pays = $em->getRepository('BanquemondialeBundle:Pays')->findOneBy(array('residence' => true));
+        $form = $this->createForm(new DossierDemandeType(array('idP' => $user->getPole()->getId(), 'sgleP' => $user->getPole()->getSigle(), 'langue' => $langue, 'lpays' => $pays,
+            'typOpTraduit' => null, 'formeJTraduit' => null, 'secteurTraduit' => null, 'secteurTraduit2' => null, 'secteurTraduit3' => null,
+            'categorieTraduit' => null, 'paysTraduit' => null, 'pref' => null, 'sousP' => null)), $creationdemande);
+        $form
+            ->add('nomCommercial', TextType::class, array(
+                'data' => $reservation->getNomCommercial()
+            ))
+            ->add('denominationSociale', TextType::class, array(
+                'data' => $reservation->getNomCommercial()
+            ))
+            ->add('emailPromoteur', TextType::class, array(
+                'data' => $reservation->getEmail()
+            ))
+            ->add('telephone2', TextType::class, array(
+                'data' => $reservation->getTelephone()
+            ))
+            ->add('email', TextType::class, array(
+                'data' => $reservation->getEmail()
+            ))
+            ->add('adresseSiege', TextType::class, array(
+                'data' => $reservation->getAdresse()
+            ))
+            ->add('formeJuridique', 'entity', array(
+                'class' => 'BanquemondialeBundle:FormeJuridique',
+                'data' => $reservation->getFormeJuridique(),
+                'query_builder' => function (FormeJuridiqueRepository $formJ) {
+                    return $formJ->getListFormeJuridiqueByCodeLanque(1);
+                }, 'property' => 'formeJuridiqueTraduction[0]',
+            ));
+
+        if ($request->getMethod() == 'POST') {
+            $this->removeReservation($reservation);
+            $denominationSociale = $request->request->get('banquemondialebundle_dossierDemande')['denominationSociale'];
+            // die(dump($denominationSociale));
+            $firstVefication = $this->get('monservices')->verificationNomCommercial($request, $denominationSociale);
+            $thirdVerification = $this->get('monservices')->verificationNomCommercialDossierDemande($request, $denominationSociale);
+            $fouthVerification = $this->get('monservices')->verificationNomCommercialArchiveNomCommerciale($request, $denominationSociale);
+            if ($firstVefication == true || $thirdVerification == true || $fouthVerification == true) {
+                $secondVerification = true;
+                $message = 'Désolé ce nom commercial est déjà  en utilisation';
+                $this->get('session')->getFlashBag()->add('error', $message);
+                return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => '', 'isNomCommercialReserved' => $isNomCommercialReserved));
+
+            } else {
+                $secondVerification = $this->get('monservices')->verificationNomCommercialReservation($request, $denominationSociale);
+                if ($secondVerification) {
+                    $isNomCommercialReserved = true;
+                    $message = 'Désolé ce nom commercial est déjà  réserve';
+                    $this->get('session')->getFlashBag()->add('error', $message);
+                    $reservation = $em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['nomCommercial' => $denominationSociale, 'statut' => true]);
+                    return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => '', 'isNomCommercialReserved' => $isNomCommercialReserved, 'reservation' => $reservation));
+                }
+            }
+
+            $form->bind($request);
+            $denomExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getDenominationSociale());
+            if ($denomExist) {
+                $translated = $this->get('translator')->trans('denomination_exist');
+                $form->get('denominationSociale')->addError(new FormError($translated));
+            }
+            $nomComExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getNomCommercial());
+            if ($nomComExist) {
+                $translated = $this->get('translator')->trans('nom_commercial_exist');
+                $form->get('nomCommercial')->addError(new FormError($translated));
+            }
+            if ($form->isValid()) {
+                $creationdemande->setUtilisateur($user);
+                $em->persist($creationdemande);
+                $em->flush();
+                return new RedirectResponse($this->container->get('router')->generate('representant_listerrepresentant', array('id' => 0, 'idd' => $creationdemande->getId())));
+            }
+        }
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => $message, 'isNomCommercialReserved' => $isNomCommercialReserved));
+    }
+
+    function deleteElementById($entity, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $element = $em->getRepository($entity)->findOneById($id);
+        $em->remove($element);
+        $em->flush();
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/historique-envoi-rccm-dni", name="historique-envoi-rccm-dni")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function historiquesRccmAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $numDossier = $request->get('numDossier');
+        $denomination = $request->get('denomination');
+        if (!empty($request->get('dateDebut'))) {
+            $dateDebut = date_format(new \DateTime($request->get('dateDebut')), 'Y-m-d');
+        } else {
+            $dateDebut = null;
+        }
+        if (!empty($request->get('dateFin'))) {
+
+            $dateFin = date_format(new \DateTime($request->get('dateFin')), 'Y-m-d');
+        } else {
+            $dateFin = null;
+        }
+        $historiqueRccms = $em->getRepository('DefaultBundle:HistoriqueEchangeDNI')->historiqueRccm($numDossier, $denomination, $dateDebut, $dateFin);
+        $unique_arr = $historiqueRccms;// $this->uniqueArray($historiqueRccms, 'NumeroDossier');
+        return $this->render('DefaultBundle:historiqueRccm:index.html.twig', array(
+            'historiqueRccms' => $unique_arr, 'datedebut' => $dateDebut, 'datefin' => $dateFin,
+            'nomcom' => $denomination, 'numdos' => $numDossier
+        ));
+    }
+
+    /**
+     * @param $array
+     * @param $column
+     * @return array
+     */
+    function uniqueArray($array, $column)
+    {
+        $unique_arr = array_unique(array_column($array, $column));
+        return array_values(array_intersect_key($array, $unique_arr));
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/resend-historique-envoi-rccm-dni", name="resend-historique-envoi-rccm-dni")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function resendRccmAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $choixhistoriqueRccm = $request->get('choixhistoriqueRccm');
+        // die(dump($choixhistoriqueRccm));
+        if ($request->getMethod() == 'POST') {
+            if (count($choixhistoriqueRccm) > 0) {
+//die(dump($choixhistoriqueRccm));
+                foreach ($choixhistoriqueRccm as $re) {
+                    $historiqueRccm = $em->getRepository('DefaultBundle:HistoriqueEchangeDNI')->findOneById($re);
+                    $historiqueRccm->setStatut(true);
+                    $em->persist($historiqueRccm);
+                    $em->flush();
+                    $this->forward('ParametrageBundle:TraitementPole:sendRccm', ['idd' => $historiqueRccm->getDossierDemande()->getId()]);
+                }
+                $this->get('session')->getFlashBag()->add('successStatus', $this->get('monservices')->messageSucces());
+                return $this->redirectToRoute('historique-envoi-rccm-dni');
+            }
+        }
+        return $this->redirectToRoute('historique-envoi-rccm-dni');
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/update-Secteur-NonValide", name="update-Secteur-NonValide")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function updateSecteurNonValideAction(Request $request)
+    {
+        $this->get('monservices')->UpdateSecteurActiviteNonValid();
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/searche-folder-to-move", name="searche-folder-to-move")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function searcheFolderAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $userSaisi = $em->getRepository('UtilisateursBundle\Entity\Utilisateurs')->findBy(['entreprise' => 2, 'profile' => 2], ['username' => 'asc']);
+        $userDepot = $em->getRepository('UtilisateursBundle\Entity\Utilisateurs')->findBy(['entreprise' => 2, 'profile' => 1], ['username' => 'asc']);
+        $searche = "";
+        $folders = [];
+        if ($request->getMethod() == 'POST') {
+            $searche = $request->get('search');
+            $folders = $em->getRepository('BanquemondialeBundle\Entity\DossierDemande')->searcheMoveFolder($searche);
+        }
+        return $this->render('DefaultBundle:moveFolder:searcheFolder.html.twig',
+            [
+                'dossiers' => $folders,
+                'userSaisi' => $userSaisi,
+                'userDepot' => $userDepot,
+                'searche' => $searche,
+
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/move-folder", name="move-folder")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function moveFolderAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $numDossierselect = $request->get('numDossierselect');
+        $idUserSaisi = $request->get('userSaisi');
+        $idUserDepot = $request->get('userDepot');
+        $motif = $request->get('motif');
+        $circuitdossier = $request->get('circuitdossier');
+        if ($request->getMethod() == 'POST') {
+            $dossierDemeande = $em->getRepository('BanquemondialeBundle\Entity\DossierDemande')->findOneBy(['id' => $numDossierselect], []);
+            $documentColleted = $em->getRepository('BanquemondialeBundle\Entity\DocumentCollected')->findOneBy(['dossierDemande' => $dossierDemeande, 'pole' => 1], []);
+            $userSaisi = $em->getRepository('UtilisateursBundle\Entity\Utilisateurs')->findOneBy(['id' => $idUserSaisi]);
+            $userDepot = $em->getRepository('UtilisateursBundle\Entity\Utilisateurs')->findOneBy(['id' => $idUserDepot]);
+            if ($circuitdossier == 0 /* envoyer vers agent depot*/) {
+                $dossierDemeande->setStatut(-2);
+                $dossierDemeande->setUtilisateurDepot($userDepot);
+                $dossierDemeande->setUtilisateur($userSaisi);
+                // die(dump($motif));
+                $documentColleted->setMotif(empty($motif) ? " " : $motif);
+                $dossierDemeande->setMotif($motif);
+                $documentColleted->setStatutTraitement(null);
+                $em->persist($dossierDemeande);
+                $em->persist($documentColleted);
+                $em->flush();
+                $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $dossierDemeande->getId()]);
+                $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
+                $this->get('session')->getFlashBag()->add('successStatus', 'Dossier envoyé avec succès au dépôt chez l\'agent ' . $userDepot->getUsername());
+            } elseif ($circuitdossier == 1 /* envoyer vers agent saisi*/) {
+                $statutTraitementModifier = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(3);
+                $dossierDemeande->setStatut(3);
+                $dossierDemeande->setUtilisateur($userSaisi);
+                $dossierDemeande->setMotif($motif);
+
+                $documentColleted->setMotif($motif);
+                $documentColleted->setStatutTraitement($statutTraitementModifier);
+                $documentColleted->setDateDerniereModification(new \DateTime());
+                $em->persist($dossierDemeande);
+                $em->persist($documentColleted);
+                $em->flush();
+                $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $dossierDemeande->getId()]);
+
+                $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
+                $this->get('session')->getFlashBag()->add('successStatus', 'Dossier envoyé avec succès à la saisie chez l\'agent ' . $userSaisi->getUsername());
+            } elseif ($circuitdossier == 2 /* envoyer vers agent greff*/) {
+                $statutTraitementModifier = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
+                $documentColleted->setMotif($motif);
+                $documentColleted->setStatutTraitement($statutTraitementModifier);
+                $em->persist($documentColleted);
+                $em->flush();
+                $this->get('session')->getFlashBag()->add('successStatus', 'Dossier envoyé avec succès chez le greff ');
+
+            } else {
+                // $this->get('session')->getFlashBag()->add('successStatus', 'Dossier envoyé avec succès chez le greff ');
+            }
+        }
+        return $this->redirectToRoute('searche-folder-to-move');
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/get-disponibilite-rccm-by-periode", name="get-disponibilite-rccm-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getDisponibilteRccmAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $dateDebut = $dateFin = date_format(new \DateTime(), 'Y-m-d');
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->getRccmByPeriode($dateDebut, $dateFin);
+        if ($request->getMethod() == 'POST') {
+            $dateDebut = date_format(new  \DateTime($request->get('dateDebut')), 'Y-m-d');
+            $dateFin = date_format(new  \DateTime($request->get('dateFin')), 'Y-m-d');
+            $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->getRccmByPeriode($dateDebut, $dateFin);
+        }
+        return $this->render('DefaultBundle:historiqueRccm:disponibiliteRccm.html.twig',
+            [
+                'rccmRecu' => $rccm,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+
+
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/get-disponibilite-nif-by-periode", name="get-disponibilite-nif-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getDisponibilteNifAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $dateDebut = $dateFin = date_format(new \DateTime(), 'Y-m-d');
+        $rccm = $em->getRepository('BanquemondialeBundle:Nif')->getNifmByPeriode($dateDebut, $dateFin);
+        if ($request->getMethod() == 'POST') {
+            $dateDebut = date_format(new  \DateTime($request->get('dateDebut')), 'Y-m-d');
+            $dateFin = date_format(new  \DateTime($request->get('dateFin')), 'Y-m-d');
+            $rccm = $em->getRepository('BanquemondialeBundle:Nif')->getNifmByPeriode($dateDebut, $dateFin);
+        }
+        return $this->render('DefaultBundle:historiqueRccm:disponibiliteNif.html.twig',
+            [
+                'NifRecu' => $rccm,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+
+
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-rccm-by-periode", name="liste-rccm-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getRccmTraiterAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $dateDebut = date_format(new  \DateTime($request->get('dateDebut')), 'Y-m-d');
+        $dateFin = date_format(new  \DateTime($request->get('dateFin')), 'Y-m-d');
+        $nomCommercial = $request->get('nomCommercial');
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->getRccmByPeriodeBis($dateDebut, $dateFin, $nomCommercial);
+        if ($request->getMethod() == 'POST') {
+            $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->getRccmByPeriodeBis($dateDebut, $dateFin, $nomCommercial);
+        }
+        return $this->render('DefaultBundle:historiqueRccm:liste-Rccm.html.twig',
+            ['rccmRecu' => $rccm,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'nomCommercial' => $nomCommercial
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-nif-by-periode", name="liste-nif-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getNifTraiterAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $nomCommercial = $request->get('nomCommercial');
+        $dateDebut = date_format(new  \DateTime($request->get('dateDebut')), 'Y-m-d');
+        $dateFin = date_format(new  \DateTime($request->get('dateFin')), 'Y-m-d');
+        $nif = $em->getRepository('BanquemondialeBundle:Nif')->getNifmByPeriodeBis($dateDebut, $dateFin, $nomCommercial);
+        if ($request->getMethod() == 'POST') {
+            $nif = $em->getRepository('BanquemondialeBundle:Nif')->getNifmByPeriodeBis($dateDebut, $dateFin, $nomCommercial);
+        }
+        return $this->render('DefaultBundle:historiqueRccm:liste-nif.html.twig',
+            ['nifRecu' => $nif,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'nomCommercial' => $nomCommercial
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/traitement-rccm-pysique-recu", name="traitement-rccm-pysique-recu")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function traitementRccmAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $choixRccm = $request->get('choixRccm');
+        if ($request->getMethod() == 'POST') {
+            if (count($choixRccm) > 0) {
+                foreach ($choixRccm as $re) {
+                    $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneById($re);
+                    $rccm->setStatut(true);
+                    $rccm->setDateObtentionRccm(new \DateTime());
+                    $em->persist($rccm);
+                    $em->flush();
+                }
+                $this->get('session')->getFlashBag()->add('successStatus', $this->get('monservices')->messageSucces());
+                return $this->redirectToRoute('liste-rccm-by-periode');
+            }
+        }
+        return $this->redirectToRoute('liste-rccm-by-periode');
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/traitement-nif-pysique-recu", name="traitement-nif-pysique-recu")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function traitementNifAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $choixNif = $request->get('choixNif');
+        if ($request->getMethod() == 'POST') {
+            if (count($choixNif) > 0) {
+                foreach ($choixNif as $re) {
+                    $nif = $em->getRepository('BanquemondialeBundle:Nif')->findOneById($re);
+                    $nif->setStatut(true);
+                    $nif->setDateObtentionNif(new \DateTime());
+                    $em->persist($nif);
+                    $em->flush();
+                }
+                $this->get('session')->getFlashBag()->add('successStatus', $this->get('monservices')->messageSucces());
+                return $this->redirectToRoute('liste-nif-by-periode');
+            }
+        }
+        return $this->redirectToRoute('liste-nif-by-periode');
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/statistique-journaliere-des-dossiers", name="statistique-journaliere-des-dossiers")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function tabStatistiqueJournaliereDossierAction(Request $request)
+    {
+        //  $em = $this->getDoctrine()->getManager();
+        $dateDebut = $dateFin = date_format(new \DateTime(), 'Y-m-d');
+        $statDepot = $this->get('suivistatutdossierservice')->getDossierDepot($dateDebut, $dateFin);
+        $statCaisse = $this->get('suivistatutdossierservice')->getAndsetStatQuittance('get', null, $dateDebut, $dateFin);
+        $statSaisie = $this->get('suivistatutdossierservice')->getAndsetStatSaisie('get', null, $dateDebut, $dateFin);
+        $statGreff = $this->get('suivistatutdossierservice')->getAndsetStatRccm('get', null, $dateDebut, $dateFin);
+        $tranfertDNI = $this->get('suivistatutdossierservice')->getDossierTransmitDNI($dateDebut, $dateFin);
+        $statRetait = $this->get('suivistatutdossierservice')->getAndsetStatRetrait('get', null, $dateDebut, $dateFin);
+        $RccmNifLogique = $this->get('suivistatutdossierservice')->getRccmNifLogique($dateDebut, $dateFin);
+        $RccmNifPhysique = $this->get('suivistatutdossierservice')->getRccmNifPhysique($dateDebut, $dateFin);
+        if ($request->getMethod() == 'POST') {
+            $dateDebut = date_format(new \DateTime($request->get('dateDebut')), 'Y-m-d');
+            $dateFin = date_format(new \DateTime($request->get('dateFin')), 'Y-m-d');
+            $statDepot = $this->get('suivistatutdossierservice')->getDossierDepot($dateDebut, $dateFin);
+            $statCaisse = $this->get('suivistatutdossierservice')->getAndsetStatQuittance('get', null, $dateDebut, $dateFin);
+            $statSaisie = $this->get('suivistatutdossierservice')->getAndsetStatSaisie('get', null, $dateDebut, $dateFin);
+            $statGreff = $this->get('suivistatutdossierservice')->getAndsetStatRccm('get', null, $dateDebut, $dateFin);
+            $tranfertDNI = $this->get('suivistatutdossierservice')->getDossierTransmitDNI($dateDebut, $dateFin);
+            $statRetait = $this->get('suivistatutdossierservice')->getAndsetStatRetrait('get', null, $dateDebut, $dateFin);
+            $RccmNifLogique = $this->get('suivistatutdossierservice')->getRccmNifLogique($dateDebut, $dateFin);
+            $RccmNifPhysique = $this->get('suivistatutdossierservice')->getRccmNifPhysique($dateDebut, $dateFin);
+
+        }
+        return $this->render('DefaultBundle:statistiqueDossiers:tableau-statistique-dossier.html.twig',
+            [
+                'statDepot' => $statDepot,
+                'statCaisse' => $statCaisse,
+                'statSaisie' => $statSaisie,
+                'statGreff' => $statGreff,
+                'statTranfertDNI' => $tranfertDNI,
+                'statRetrait' => $statRetait,
+                'RccmNifLogique' => $RccmNifLogique,
+                'RccmNifPhysique' => $RccmNifPhysique,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-deposer-par-periode-/{dateDebut}/{dateFin}", name="statistique-journaliere-liste-des-dossiers-deposer-par-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function dossierDeposerByPeriode($dateDebut, $dateFin)
+    {
+        $statDepot = $this->get('suivistatutdossierservice')->getDossierDepot($dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-deposer-by-periode.html.twig',
+            ['statDepot' => $statDepot,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-quittancer-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-des-dossiers-quittancer-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function dossierQuittancerOrNotByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $statCaisse = $this->get('suivistatutdossierservice')->getAndsetStatQuittance('get', null, $dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-quittancer-by-periode.html.twig',
+            ['statCaisse' => $statCaisse,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-saisie-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-des-dossiers-saisie-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function dossierSaisieOrNotByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $statSaisie = $this->get('suivistatutdossierservice')->getAndsetStatSaisie('get', null, $dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-saisie-by-periode.html.twig',
+            ['statSaisie' => $statSaisie,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-immatriculer-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-des-dossiers-immatriculer-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function dossierImmatriculerOrNotByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $statGreff = $this->get('suivistatutdossierservice')->getAndsetStatRccm('get', null, $dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-greffe-by-periode.html.twig',
+            ['statGreff' => $statGreff,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-transfert-dni-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-des-dossiers-transfert-dni-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function dossierTransmitDNIOrNotByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $tranfertDNI = $this->get('suivistatutdossierservice')->getDossierTransmitDNI($dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-transfert-dni-by-periode.html.twig',
+            ['statTranfertDNI' => $tranfertDNI,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-retoure-logique-rccm-nif-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-des-dossiers-retoure-logique-rccm-nif-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function retourLogiqueRccmNifByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $RccmNifLogique = $this->get('suivistatutdossierservice')->getRccmNifLogique($dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-retoure-logique-rccm-nif.html.twig',
+            ['RccmNifLogique' => $RccmNifLogique,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-des-dossiers-retoure-physique-rccm-nif-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-des-dossiers-retoure-physique-rccm-nif-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function retourPhysiqueRccmNifByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $RccmNifPhysique = $this->get('suivistatutdossierservice')->getRccmNifPhysique($dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-des-dossiers-retoure-physique-rccm-nif.html.twig',
+            [
+                'RccmNifPhysique' => $RccmNifPhysique,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-retrait-dossiers-by-periode-/{dateDebut}/{dateFin}/{choix}", name="statistique-journaliere-liste-retrait-dossiers-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function retraitDossierOrNotByPeriode($dateDebut, $dateFin, $choix)
+    {
+        $statRetait = $this->get('suivistatutdossierservice')->getAndsetStatRetrait('get', null, $dateDebut, $dateFin);
+        return $this->render('DefaultBundle:statistiqueDossiers:liste-retrait-dossiers-by-periode.html.twig',
+            ['statRetrait' => $statRetait,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/statistique-generale-dossier-en-circuit", name="statistique-generale-dossier-en-circuit")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function StatistiqueGeneraleCircuitDossierByPeriodeAction(Request $request)
+    {
+        $dateDebut = $dateFin = date_format(new \DateTime(), 'Y-m-d');
+        $statGenerale = $this->get('suivistatutdossierservice')->getStatistiqueGeneralCircuitDossier($dateDebut, $dateFin);
+        if ($request->getMethod() == 'POST') {
+            $dateDebut = date_format(new \DateTime($request->get('dateDebut')), 'Y-m-d');
+            $dateFin = date_format(new \DateTime($request->get('dateFin')), 'Y-m-d');
+            $statGenerale = $this->get('suivistatutdossierservice')->getStatistiqueGeneralCircuitDossier($dateDebut, $dateFin);
+        }
+        return $this->render('DefaultBundle:statistiqueDossiers:statistique-generale-dossier-en-circuit.html.twig',
+            [
+                'statGenerale' => $statGenerale,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/liste-nif-and-rccm-by-periode", name="liste-nif-and-rccm-by-periode")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getNifAndRccmTraiterAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $nomCommercial = $request->get('nomCommercial');
+        $dateDebut = date_format(new  \DateTime($request->get('dateDebut')), 'Y-m-d');
+        $dateFin = date_format(new  \DateTime($request->get('dateFin')), 'Y-m-d');
+        $nif = $em->getRepository('BanquemondialeBundle:Nif')->getNifmByPeriodeBis($dateDebut, $dateFin, $nomCommercial);
+        if ($request->getMethod() == 'POST') {
+            $nif = $em->getRepository('BanquemondialeBundle:Nif')->getNifmByPeriodeBis($dateDebut, $dateFin, $nomCommercial);
+        }
+        return $this->render('DefaultBundle:historiqueRccm:liste-nif-and-rccm.html.twig',
+            ['nifRecu' => $nif,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'nomCommercial' => $nomCommercial
+            ]
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/test-mise-a-jour-repertoire-entreprise", name="test-mise-a-jour-repertoire-entreprise")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function updateRepEntrepriseAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $dossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findOneById(31706);
+        $dosseirRep = $this->get('monservices')->getRepEntreprisData($dossier);
+        header("Access-Control-Allow-Origin: *");
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Methods:POST");
+        $jsonData = $dosseirRep;
+        $curl = "http://192.168.20.166/Analytise/public/api/envoidonneapi";
+        $ch = curl_init($curl);
+        $options = array(
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => $jsonData,
+            CURLOPT_CONNECTTIMEOUT => 120,
+            CURLOPT_TIMEOUT => 120,
+        );
+        curl_setopt_array($ch, $options);
+        $resultTo = curl_exec($ch); // Getting jSON result string
+        die(dump($resultTo));
+        curl_close($ch);
+
+
+        return $this->render('DefaultBundle:historiqueRccm:liste-nif-and-rccm.html.twig',
+            []
+        );
+    }
+
+    /**
+     *
+     * @Route("/{_locale}/statistique-dossier-saisie-journaliere", name="statistique-dossier-saisie-journaliere")
+     * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function statistiqueDossierSaisieAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        // $data = $this->getRequest()->request->get('data');
+        $dateJour = date_format(new \DateTime(), 'Y-m-d');
+        $data = [
+            'numeroDossier' => 0,
+            'denominationSociale' => 0,
+            'dateCreationDebut' => $dateJour,
+            'dateCreationFin' => $dateJour,
+            'formeJuridique' => 0,
+        ];
+        $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findStatistiqueDossierSaisieBy($data, $user->getId());
+        $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
+        $form->bind($request);
+        if ($request->getMethod() == 'POST') {
+            $dataTemp = $request->request->all()['dossierEncours'];
+            $data = [
+                'numeroDossier' => empty($dataTemp['numeroDossier']) ? 0 : $dataTemp['numeroDossier'],
+                'denominationSociale' => empty($dataTemp['denominationSociale']) ? 0 : $dataTemp['denominationSociale'],
+                'dateCreationDebut' => empty($dataTemp['dateCreationDebut']) ? $dateJour : $dataTemp['dateCreationDebut'],
+                'dateCreationFin' => empty($dataTemp['dateCreationFin']) ? $dateJour : $dataTemp['dateCreationFin'],
+                'formeJuridique' => empty($dataTemp['formeJuridique']) ? 0 : $dataTemp['formeJuridique'],
+            ];
+            $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findStatistiqueDossierSaisieBy($data, $user->getId());
+        }
+
+        return $this->render('DefaultBundle:Default:statistique-dossier-saisie.html.twig', array(
+                'listDossier' => $listDossier,
+                'form' => $form->createView(),
+                'data' => $data
+            )
+        );
+    }
+    /**
+     *
+     * @Route("/{_locale}/statistique-de-suivie-de-dossoers-par-agent", name="statistique_de_suivie_de_dossoers_par_agent")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function statistiqueDeSuiviDeDossierParAgentAction(Request $request)
+    {
+        $dateDebut = $dateFin = date_format(new \DateTime(), 'Y-m-d');
+        $em = $this->getDoctrine()->getManager();
+        $choix = 0;
+        $stat = $em->getRepository('BanquemondialeBundle:DossierDemande')->getStatistiqueSuiviDossierParAgentBydate($dateDebut, $dateFin, $choix);
+        if ($request->getMethod() == 'POST') {
+            $choix = $request->get('service');
+            $dateDebut = date_format(new \DateTime($request->get('dateDebut')), 'Y-m-d');
+            $dateFin = date_format(new \DateTime($request->get('dateFin')), 'Y-m-d');
+        if ($choix==1or $choix==2 or $choix==3) {
+            $stat = $em->getRepository('BanquemondialeBundle:DossierDemande')->getStatistiqueSuiviDossierParAgentBydate($dateDebut, $dateFin, $choix);
+        }
+            elseif ($choix == 4) {
+                $stat = $this->get('suivistatutdossierservice')->getAndsetStatRccm('get', null, $dateDebut, $dateFin);
+               /// die(dump($stat));
+            }
+            elseif ($choix == 5) {
+                $stat = $this->get('suivistatutdossierservice')->getAndsetStatRetrait('get', null, $dateDebut, $dateFin);
+
+        }
+
+        }
+        return $this->render('DefaultBundle:Default:statistique-de-suivie-de-dossoers-par-agent.html.twig',
+            [
+                'userListe' => $stat,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix' => $choix
+            ]
+        );
+    }
+
+
+    /**
+     *
+     * @Route("/{_locale}/statistique-liste-des-dossier-traite-par-agent/{userId}/{service}/{dateDebut}/{dateFin}/", name="statistique-liste-des-dossier-traite-par-agent")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function listeDossiersTraiterParAgentAction(Request $request,$userId,$service,$dateDebut,$dateFin)
+    {
+        $em=$this->getDoctrine()->getManager();
+        $stat = $em->getRepository('BanquemondialeBundle:DossierDemande')->getDossiersTraiteByAgentByServiceBydate($userId,$service,$dateDebut,$dateFin);
+        return $this->render('DefaultBundle:Default:statistique-liste-des-dossier-traite-par-agent.html.twig',
+            [
+                'listeDossiers' => $stat,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'choix'=>$service,
+                'user'=>$user=$this->get('monservices')->getUserById($userId)
+            ]
+        );
+    }
+
+
 
 }

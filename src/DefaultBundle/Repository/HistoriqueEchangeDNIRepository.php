@@ -2,6 +2,8 @@
 
 namespace DefaultBundle\Repository;
 
+use Cassandra\Date;
+use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -12,14 +14,71 @@ use Doctrine\ORM\EntityRepository;
  */
 class HistoriqueEchangeDNIRepository extends EntityRepository
 {
-    public function findLastDataSent($numDosier) {
-        $query = $this->createQueryBuilder('h')               
-                ->where('h.numeroDossier=:num')
-                ->setMaxResults(1)
-                ->setParameters(array('num' => $numDosier))
-                ->orderBy('h.id','Desc');
+    public function findLastDataSent($numDosier)
+    {
+        $query = $this->createQueryBuilder('h')
+            ->where('h.numeroDossier=:num')
+            ->setMaxResults(1)
+            ->setParameters(array('num' => $numDosier))
+            ->orderBy('h.id', 'Desc');
         $historique = $query->getQuery()->getOneOrNullResult();
-        //die(dump($infoPoleSuivant));
+        return $historique;
+    }
+
+
+    public function historiqueRccm($numDossier = null, $denomination = null, $d1 = null, $d2 = null)
+    {
+        $em = $this->getEntityManager()->getConnection();
+        $ifnumDossier = "";
+        $ifDateBetween = "";
+        $ifdenominationSociale = "";
+        if (!empty($numDossier)) {
+            $ifnumDossier = "AND  h.NumeroDossier LIKE " . "'%" . $numDossier . "%'";
+        }
+        if (!empty($denomination)) {
+            $ifdenominationSociale = " AND  d.denominationSociale LIKE " . "'%" . $denomination . "%'";
+        }
+        if ($d1 < $d2) {
+            $dateDebut = $d1;
+            $dateFin = $d2;
+        } elseif ($d2 < $d1) {
+            $dateDebut = $d2;
+            $dateFin = $d1;
+        } elseif ($d1 = $d2) {
+            $dateDebut = $d2;
+            $dateFin = null;
+        } else {
+            $dateDebut = null;
+            $dateFin = null;
+        }
+        // $dateDebut=$dateFin;
+        if (!empty($dateDebut) && !empty($dateFin)) {
+            $ifDateBetween = " AND h.DateEnvoiRccm BETWEEN " . "'" . $dateDebut . "'" . " AND  " . "'" . $dateFin . "'";
+        }
+        elseif (!empty($dateDebut) && empty($dateFin)) {
+            $ifDateBetween = " AND h.DateEnvoiRccm <= " . "'" . $dateDebut . "'";
+        }
+        elseif (empty($dateDebut) && !empty($dateFin)) {
+            $ifDateBetween = " AND h.DateEnvoiRccm  >= " . "'" . $dateFin . "'";
+        }
+        elseif (empty($dateDebut) && empty($dateFin)) {
+            $ifDateBetween = "";
+        }
+        $codeDNIAPIP = "('DNI00','DNI08','008','APIP00') ";
+        $sql = " SELECT  d.denominationSociale denominationSociale, h.* FROM historiqueechangedni h INNER JOIN dossierdemande d ON d.id=h.idDossierDemande WHERE h.codeRetourDNI IN " . $codeDNIAPIP . $ifDateBetween . $ifnumDossier . $ifdenominationSociale . "  AND h.statut IS NULL
+         UNION   SELECT  d.denominationSociale denominationSociale, h.* FROM historiqueechangedni h INNER JOIN dossierdemande d ON d.id=h.idDossierDemande WHERE h.codeRetourDNI IS NULL " . $ifDateBetween . $ifnumDossier . $ifdenominationSociale .
+            "  AND  h.statut IS NULL    ORDER BY DateEnvoiRccm DESC ,denominationSociale ASC, codeRetourDNI ASC ";
+        try {
+            $statement = $em->prepare($sql);
+        }
+        catch (DBALException $e) {
+
+        }
+
+        // $statement->bindValue('denominationSociale', $param);dd
+        $statement->execute();
+        $historique = $statement->fetchAll();
+        // die(dump($historique));
         return $historique;
     }
 }

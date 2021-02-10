@@ -183,7 +183,7 @@ class PieceJointeRepository extends EntityRepository {
 	public function findPieceAssocie($idd, $idTypeOp, $idFormeJ, $idLangue) {
         $queryAss = $this->getEntityManager()->createQueryBuilder()->from('BanquemondialeBundle\Entity\Representant', 'r')
                         ->leftJoin('r.dossierDemande', 'dd')->select('r')->addSelect('dd')->where('dd.id =:idd')->setParameter('idd', $idd);
-        $listAss = $queryAss->getQuery()->getResult();	
+        $listAss = $queryAss->getQuery()->getResult();
         $tabResult = array();
 		$i = 0;
         foreach ($listAss as $associe) {
@@ -196,7 +196,7 @@ class PieceJointeRepository extends EntityRepository {
                         ->setParameters(array('idtp' => $idTypeOp, 'idfj' => $idFormeJ, 'idFct' => $associe->getFonction()->getId()));
 				
                 $results = $qb->getQuery()->getResult();
-                
+
                 foreach ($results as $result) {
                     $doc = $result->getDocument();
                     $tabResult[$i]['idDoc'] = $doc->getId();
@@ -217,8 +217,10 @@ class PieceJointeRepository extends EntityRepository {
 				
             }	
 				
-        }	
+        }
+       // die(dump($tabResult));
 		return $tabResult;
+
     }
 
     public function rechercherPieceAJoindre($idTypeOperation, $idFormeJuridique, $idDocument, $idFonction, $idLangue) {

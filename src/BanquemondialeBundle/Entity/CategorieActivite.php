@@ -138,4 +138,14 @@ class CategorieActivite
     {
         return $this->actif;
     }
+
+    /**
+     * Get actif
+     *
+     * @return boolean 
+     */
+    public function getActif()
+    {
+        return $this->actif;
+    }
 }

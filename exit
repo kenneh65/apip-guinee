@@ -1,0 +1,29 @@
+[33mcommit 535482dbd4a5cf95f948c061c03d86bf03bd5454[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: kenneh <kenneh65@gmail.com>
+Date:   Wed Jul 1 10:18:48 2020 +0000
+
+    optimisation et correction des buge
+
+[33mcommit 0d04e719029690d52fe554072e6f4f6aff152edd[m
+Author: kenneh <kenneh65@gmail.com>
+Date:   Thu Jun 25 00:37:17 2020 +0000
+
+    mise en place importation excel dans l'interface caisse
+
+[33mcommit e67eed8562c7d66298015577a017307d1a5e90f3[m
+Author: kenneh <kenneh65@gmail.com>
+Date:   Wed Jun 24 00:42:37 2020 +0000
+
+    Verification de la connection internet avant la trasaction par orange money
+
+[33mcommit 0e2e59f60c5922e1b091fafa2acfcaee5174dc39[m
+Author: kenneh <kenneh65@gmail.com>
+Date:   Tue Jun 23 20:38:11 2020 +0000
+
+    integration orange Money
+
+[33mcommit a482512fec4a3088713ca7743d76814462a74276[m
+Author: kenneh <kenneh65@gmail.com>
+Date:   Tue Jun 23 20:08:28 2020 +0000
+
+    mise a jour : (nom_comerciale,envoie SMS, Email ,Interface Retrait,..)

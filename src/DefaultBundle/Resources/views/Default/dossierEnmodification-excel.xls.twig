@@ -1,0 +1,98 @@
+{% xlsdocument
+    {
+    'category': 'Dossiers en Modif',
+    'company': 'APIP-GUINEE',
+    'creator': 'APIP-GUINEE',
+    'defaultStyle': {
+    'font': {
+        'size': 14.0
+    }
+},
+    'description': 'Dossiers en Modifications',
+    'keywords': 'APIP-GUINEE',
+    'lastModifiedBy': 'APIP-GUINEE',
+    'manager': 'Test manager',
+    'security': {
+    'lockRevision': true,
+    'lockStructure': true,
+    'lockWindows': true,
+    'revisionsPassword': 'test',
+    'workbookPassword': 'test'
+},
+    'subject': 'Dossiers en Modifications',
+    'title': 'Dossiers en Modifications'
+    } %}
+    {% xlssheet 'Dossiers en Modifications'
+        {
+            pageMargins: {
+            top: 1,
+            bottom: 1,
+            left: 0.75,
+            right: 0.75,
+            header: 0.5,
+            footer: 0.5
+        },
+            pageSetup: {
+            fitToHeight: 1,
+            fitToPage: false,
+            fitToWidth: 1,
+            horizontalCentered: false,
+            orientation: 'landscape',
+            paperSize: 9,
+            printArea: 'A1:B1',
+            scale: 100,
+            verticalCentered: false
+        },
+
+            printGridlines: true,
+            rightToLeft: false,
+            rowDimension: {
+            'default': {
+                collapsed: false,
+                outlineLevel: 0,
+                rowHeight: -1,
+                rowIndex: '1',
+                visible: true,
+                xfIndex: 0,
+                zeroHeight:false
+            },
+        },
+            sheetState: 'visible',
+            showGridlines: true,
+            tabColor: 'a1a1e0',
+            zoomScale: 75
+        } %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+        {% endxlsrow %}
+
+            {% xlsrow %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Numéro Dossier' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Dénomination' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Forme juridique' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Type dossier' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Structure / Antenne' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Premier gérant' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Agent de dépôt' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Agent de saisi' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Date réception' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Motif' }}{% endxlscell %}
+            {% endxlsrow %}
+            {% for ls in liste %}
+                {% xlsrow %}
+                    {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
+                    {% xlscell %}{{ ls.denominationSociale}}{% endxlscell %}
+                    {% xlscell %}{{ ls.libelleFormeJ}}{% endxlscell %}
+                    {% xlscell %}{{ ls.typDossier}}{% endxlscell %}
+                    {% xlscell %}{{ ls.structure}}{% endxlscell %}
+                    {% xlscell %}{{ ls.gerant}}{% endxlscell %}
+                    {% xlscell %}{{ ls.agentDepot}}{% endxlscell %}
+                    {% xlscell %}{{ ls.agentSaisi}}{% endxlscell %}
+                    {% xlscell %}{{ ls.dateSoumission|date('d-m-Y')}}{% endxlscell %}
+                    {% xlscell %}{{ ls.motif}}{% endxlscell %}
+
+                {% endxlsrow %}
+            {% endfor %}
+    {% endxlssheet %}
+{% endxlsdocument %}

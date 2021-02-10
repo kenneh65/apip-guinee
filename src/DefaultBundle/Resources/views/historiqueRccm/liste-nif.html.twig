@@ -21,23 +21,27 @@
         </div>
     </div>
     <div class="">
-        <h3>Situation des RCCM physiques re&ccedil;us et non encore  trait&eacute;s</h3>
+        <h3>NIF physiques re&ccedil;us</h3>
         <form  method="POST">
             <div class="row well">
-                <div class="col-lg-4">
+                <div class="col-lg-3">
+                    D&eacute;nomination   <input value="{{ nomCommercial}}" placeholder="{{ 'D&eacute;nomination ,Nom commercial'|raw }}" name="nomCommercial" class="form-control input-sm" type="text">
+                </div>
+
+                <div class="col-lg-3">
                  Du   <input value="{{ dateDebut}}" placeholder="Date debut" name="dateDebut" class="form-control input-sm" type="date">
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                  au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
                 </div>
-                <div class="col-lg-4"><br>
-                           <button formaction="{{ path('liste-rccm-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                <div class="col-lg-3"><br>
+                           <button formaction="{{ path('liste-nif-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
                 </div>
             </div>
         <div class="row">
             <div class="modal-footer"><br>
                 <div class="col-lg-12">
-                    <button formaction="{{ path('traitement-rccm-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception rccm physique
+                    <button formaction="{{ path('traitement-nif-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception nif physique
                     </button>
                 </div>
             </div>
@@ -48,31 +52,31 @@
                     <tr>
                         <th>
                             <input id="checkAll"  style="display: inline-block" name="checkAll" class="checkAll checkbox" type="checkbox"/>
-                            <label for="checkAll">Tout ({{ rccmRecu|length }})</label>
+                            <label for="checkAll">Tout ({{ nifRecu|length }})</label>
                         </th>
                         <th>Num.dossier</th>
                         <th>Dénomination</th>
                         <th>Forme juridiquee</th>
-                        <th>RCCM</th>
+                        <th>NIF</th>
                         <th>Date creation dossier</th>
-                        <th>Date traitement RCCM</th>
+                        <th>Date traitement NIF</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for rccm in rccmRecu %}
+                    {% for nif in nifRecu %}
                         <tr>
                             <td class="col-lg-1">
                                 <div class="pretty p-default">{{ loop.index }}
-                                    <input class="choixEleves" name="choixRccm[]" type="checkbox"
-                                           value="{{ rccm.id }}"/>
+                                    <input class="choixEleves" name="choixNif[]" type="checkbox"
+                                           value="{{ nif.id }}"/>
                                 </div>
                             </td>
-                            <td>{{ rccm.numeroDossier }}</td>
-                            <td>{{ rccm.denominationSociale }}</td>
-                            <td>{{ rccm.libelle }} ({{ rccm.sigle }})</td>
-                            <td>{{ rccm.numRccmFormalite }}</td>
-                            <td>{{ rccm.dateCreation|date('d/m/Y') }}</td>
-                            <td>{{ rccm.date|date('d/m/Y') }}</td>
+                            <td>{{ nif.numeroDossier }}</td>
+                            <td>{{ nif.denominationSociale }}</td>
+                            <td>{{ nif.libelle }} ({{ nif.sigle }})</td>
+                            <td>{{ nif.numeroIdentificationFiscale }}</td>
+                            <td>{{ nif.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ nif.date|date('d/m/Y') }}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -86,7 +90,7 @@
         <div class="row">
             <div class="modal-footer">
                 <div class="col-lg-12">
-                    <button formaction="{{ path('traitement-rccm-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception rccm physique
+                    <button formaction="{{ path('traitement-nif-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception nif physique
                     </button>
                 </div>
             </div>

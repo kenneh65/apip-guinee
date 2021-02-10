@@ -127,10 +127,15 @@
             </div>
 
             <div class="table-responsive" style="width:100%">
+                <a target="_blank" href="{{ path('dossierEnmodification-excel',{'numeroDossier':data['numeroDossier'],'denominationSociale':data['denominationSociale'],'dateCreationDebut':(data['dateCreationDebut']==0)?0:data['dateCreationDebut']|date('d-m-Y'),'dateCreationFin':(data['dateCreationFin']==0)?0:data['dateCreationFin']|date('d-m-Y'),'formeJuridique':data['formeJuridique'],'typeDossier':data['typeDossier'],'gerant':data['gerant'],'entreprise':data['entreprise'],'idS':idS,'idLangue':langue}) }}">
+                    <button type="button" class="pull-right btn btn-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                    </button>
+                </a>
                 <table id="dossiers" class="table table-bordered">
                     <thead>
                     <tr>
-                        <th></th>
+{#                        <th></th>#}
                         <th>{%trans%}numero_dossier{%endtrans %}</th>
                         <th>{%trans%}denomination{%endtrans %}</th>
                         <th>{%trans%}forme_juridique{%endtrans %}</th>
@@ -138,18 +143,20 @@
                         <th>{{'structure_appartenance'|trans}}</th>
                         <th>{%trans%}premier_gerant{%endtrans %}</th>
                         {%if pole and pole.sigle=="GF"%}
+                            <th>{%trans%}Agent de dépôt{%endtrans %}</th>
                             <th>{%trans%}agent_saisi{%endtrans %}</th>
                         {%endif%}
                         <th>{{'date_reception'|trans}}</th>
                         {% if idS==2 %}<th>{{'date_delivrance'|trans}}</th>{%endif%}
                         {% if idS==2 %}<th>{{'duree_traitement'|trans}}</th>{%endif%}
+                        {% if idS==3 %}<th>{{'Motif'}}</th>{%endif%}
                     </tr>
                     </thead>
                     {% for a in listerdemande %}
                         <tr {%if a.orange%} style="color:orange"{%elseif a.red%}style="color:red"{%endif%}>
-                            <td>
-                                <span class='glyphicon glyphicon-folder-close' style="color: green"></span>
-                            </td>
+{#                            <td>#}
+{#                                <span class='glyphicon glyphicon-folder-close' style="color: green"></span>#}
+{#                            </td>#}
                             <td>
                                 {{ a.numeroDossier }}
                             </td>
@@ -159,14 +166,15 @@
                             <td>{{a.structure}}</td>
                             <td>{{ a.gerant }}</td>
                             {%if pole and pole.sigle=="GF"%}
+                                <td>{{ a.agentDepot }}</td>
                                 <td>{{ a.agentSaisi }}</td>
                             {%endif%}
                             <td>{% if a.dateSoumission %}{{ a.dateSoumission|date('d-m-Y H:i:s') }}{%else%}-{% endif %}</td>
                             {% if idS==2 %}<td>{% if a.dateDelivrance %}{{ a.dateDelivrance|date('d-m-Y H:i:s') }}{%else%}-{% endif %}</td>
                             {%endif%}
                             {% if idS==2 %}<td>{{a.duree}} j</td>{%endif%}
+                            {% if idS==3 %}<td>{{a.motif}}</td>{%endif%}
                         </tr>
-
                     {% endfor %}
                 </table>
             </div>

@@ -249,4 +249,27 @@ class RepartitionQuittance
         return $this->entreprise;
     }
 	
+
+    /**
+     * Set modePaiement
+     *
+     * @param \BanquemondialeBundle\Entity\ModePaiement $modePaiement
+     * @return RepartitionQuittance
+     */
+    public function setModePaiement(\BanquemondialeBundle\Entity\ModePaiement $modePaiement = null)
+    {
+        $this->modePaiement = $modePaiement;
+
+        return $this;
+    }
+
+    /**
+     * Get modePaiement
+     *
+     * @return \BanquemondialeBundle\Entity\ModePaiement 
+     */
+    public function getModePaiement()
+    {
+        return $this->modePaiement;
+    }
 }

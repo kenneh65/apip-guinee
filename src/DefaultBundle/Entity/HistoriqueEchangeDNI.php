@@ -29,6 +29,13 @@ class HistoriqueEchangeDNI
     private $numeroDossier;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="statut", type="boolean", nullable=true)
+     */
+    private $statut;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="DateEnvoiRccm", type="datetime")
@@ -298,5 +305,28 @@ class HistoriqueEchangeDNI
     public function getContenuDataRecu()
     {
         return $this->contenuDataRecu;
+    }
+
+    /**
+     * Set statut
+     *
+     * @param boolean $statut
+     * @return HistoriqueEchangeDNI
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get statut
+     *
+     * @return boolean 
+     */
+    public function getStatut()
+    {
+        return $this->statut;
     }
 }

@@ -74,7 +74,7 @@ class Quittance {
     /**
      * @var string
      * 
-     * @ORM\Column(name="numeroQuittance", type="string", length=250, unique=true)
+     * @ORM\Column(name="numeroQuittance", type="string", length=250, unique=true, nullable=true)
      */
     private $numeroQuittance;
 
@@ -165,6 +165,15 @@ class Quittance {
      * @ORM\JoinColumn(name="idSousPrefecture", referencedColumnName="id")
      */
     private $sousPrefecture;
+	
+	
+	/**
+     * @var bool
+     *
+     * @ORM\Column(name="isPaid", type="boolean", options={"default":false})
+     */
+    private $isPaid;
+	
 
     /**
      * Get id
@@ -598,5 +607,53 @@ class Quittance {
     public function getMotif()
     {
         return $this->motif;
+    }
+
+    /**
+     * Set sousPrefecture
+     *
+     * @param \BanquemondialeBundle\Entity\SousPrefectureCommune $sousPrefecture
+     * @return Quittance
+     */
+    public function setSousPrefecture(\BanquemondialeBundle\Entity\SousPrefectureCommune $sousPrefecture = null)
+    {
+        $this->sousPrefecture = $sousPrefecture;
+
+        return $this;
+    }
+
+    /**
+     * Get sousPrefecture
+     *
+     * @return \BanquemondialeBundle\Entity\SousPrefectureCommune 
+     */
+    public function getSousPrefecture()
+    {
+        return $this->sousPrefecture;
+    }
+	
+
+
+    /**
+     * Set isPaid
+     *
+     * @param boolean $isPaid
+     * @return Quittance
+     */
+    public function setIsPaid($isPaid)
+    {
+        $this->isPaid = $isPaid;
+
+        return $this;
+    }
+
+    /**
+     * Get isPaid
+     *
+     * @return boolean 
+     */
+    public function getIsPaid()
+    {
+        return $this->isPaid;
     }
 }

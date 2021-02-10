@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="">
-        <h3>Veuillez rechercher la disponiblite RCCM</h3>
+        <h3>Veuillez rechercher la disponiblite NIF</h3>
         <form  method="POST">
             <div class="row well">
                 <div class="col-lg-4">
@@ -31,7 +31,7 @@
                  au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
                 </div>
                 <div class="col-lg-4"><br>
-                           <button formaction="{{ path('get-disponibilite-rccm-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                           <button formaction="{{ path('get-disponibilite-nif-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
                 </div>
             </div>
         </form>
@@ -39,23 +39,23 @@
                 <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
                     <tr>
-                        <th>Num. dossier</th>
+                        <th>Num.dossier</th>
                         <th>Dénomination</th>
-                        <th>Form Juridique</th>
-                        <th>RCCM</th>
-                        <th>Date creation</th>
-                        <th>Date rccm</th>
+                        <th>Forme juridique</th>
+                        <th>NIF</th>
+                        <th>Date creation dossier</th>
+                        <th>Date traitement Nif</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for rccm in rccmRecu %}
+                    {% for nif in NifRecu %}
                         <tr>
-                            <td>{{ rccm.numeroDossier }}</td>
-                            <td>{{ rccm.denominationSociale }}</td>
-                            <td>{{ rccm.libelle }} ({{ rccm.sigle }})</td>
-                            <td>{{ rccm.numRccmFormalite }}</td>
-                            <td>{{ rccm.dateCreation|date('d/m/Y') }}</td>
-                            <td>{{ rccm.date|date('d/m/Y') }}</td>
+                            <td>{{ nif.numeroDossier }}</td>
+                            <td>{{ nif.denominationSociale }}</td>
+                            <td>{{ nif.libelle }} ({{ nif.sigle }})</td>
+                            <td>{{ nif.numeroIdentificationFiscale }}</td>
+                            <td>{{ nif.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ nif.date|date('d/m/Y') }}</td>
                         </tr>
                     {% else %}
                         <tr>

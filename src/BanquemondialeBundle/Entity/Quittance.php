@@ -101,7 +101,7 @@ class Quittance {
 
     /**
      * @var \DateTime
-     * @Assert\Date()
+     * @Assert\DateTime()
      *
      * @ORM\Column(name="dateFacturation", type="datetime")
      */
@@ -109,7 +109,7 @@ class Quittance {
 
     /**
      * @var \DateTime
-     * @Assert\Date()
+     * @Assert\DateTime()
      *
      * @ORM\Column(name="datePaiement", type="datetime", nullable=true)
      */
@@ -339,7 +339,7 @@ class Quittance {
      */
     public function setDatePaiement($datePaiement) {
         $this->datePaiement = $datePaiement;
-
+       // die(dump($datePaiement));
         return $this;
     }
 

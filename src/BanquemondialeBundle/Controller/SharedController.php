@@ -26,13 +26,15 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
  * @author fgueye
  */
 class SharedController extends Controller {
-
     public function indexAction() {
         $message = '';
         $creationdemande = new DossierDemande();
         $em = $this->getDoctrine()->getManager();
         $request = $this->get('request');
         $codLang = $request->getLocale();
+        $secondVerification = null;
+        $thirdVerification=null;
+        $isNomCommercialReserved=false;
         $user = $this->container->get('security.context')->getToken()->getUser();
         //$idLangue=$em->getRepository('BanquemondialeBundle:Langue')->findById($codLang);
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
@@ -42,36 +44,50 @@ class SharedController extends Controller {
             'typOpTraduit' => null, 'formeJTraduit' => null, 'secteurTraduit' => null, 'secteurTraduit2' => null, 'secteurTraduit3' => null,
             'categorieTraduit' => null, 'paysTraduit' => null,'pref'=>null,'sousP'=>null)), $creationdemande);
         if ($request->getMethod() == 'POST') {
-       //die(dump($form));
-            $form->bind($request);
-    //die(dump($creationdemande)); 
-            $denomExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getDenominationSociale());
+            $denominationSociale=$request->request->get('banquemondialebundle_dossierDemande')['denominationSociale'];
+           // die(dump($denominationSociale));
+            $firstVefication = $this->get('monservices')->verificationNomCommercial($request,$denominationSociale);
+            $thirdVerification = $this->get('monservices')->verificationNomCommercialDossierDemande($request,$denominationSociale);
+            $fouthVerification = $this->get('monservices')->verificationNomCommercialArchiveNomCommerciale($request,$denominationSociale);
+            if ($firstVefication == true||$thirdVerification==true||$fouthVerification==true) {
+                $secondVerification = true;
+                $message='Désolé ce nom commercial est déjà  en utilisation';
+                $this->get('session')->getFlashBag()->add('error', $message);
+                return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => '','isNomCommercialReserved'=>$isNomCommercialReserved));
 
+            }
+            else {
+                $secondVerification = $this->get('monservices')->verificationNomCommercialReservation($request,$denominationSociale);
+                if ($secondVerification) {
+                    $isNomCommercialReserved=true;
+                    $message='Désolé ce nom commercial est déjà  réserve';
+                    $this->get('session')->getFlashBag()->add('error', $message);
+                    $reservation=$em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['nomCommercial'=>$denominationSociale,'statut'=>true]);
+                    return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => '','isNomCommercialReserved'=>$isNomCommercialReserved,'reservation'=>$reservation));
+                }
+            }
+
+            $form->bind($request);
+            $denomExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getDenominationSociale());
             if ($denomExist) {
                 $translated = $this->get('translator')->trans('denomination_exist');
                 $form->get('denominationSociale')->addError(new FormError($translated));
-                //die('denom exist');
             }
-
             $nomComExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getNomCommercial());
-
             if ($nomComExist) {
                 $translated = $this->get('translator')->trans('nom_commercial_exist');
                 $form->get('nomCommercial')->addError(new FormError($translated));
             }
-
-
             if ($form->isValid()) {
                 $creationdemande->setUtilisateur($user);
+                $creationdemande->setDateCreation(new  \DateTime());
                 $em->persist($creationdemande);
                 $em->flush();
-
                 return new RedirectResponse($this->container->get('router')->generate('representant_listerrepresentant', array('id' => 0, 'idd' => $creationdemande->getId())));
             }
         }
-        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => $message));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/index.html.twig', array('form' => $form->createView(), 'message' => $message,'isNomCommercialReserved'=>$isNomCommercialReserved));
     }
-
     public function depotAction() {
         $message = '';
         $creationdemande = new DossierDemande();
@@ -84,8 +100,32 @@ class SharedController extends Controller {
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $idl = $langue->getId();
         $date = new \DateTime();
+        $secondVerification = null;
+        $thirdVerification=null;
+        $isNomCommercialReserved=false;
         $form = $this->createForm(new DossierDemandeDepotType(array('langue' => $langue, 'typOpTraduit' => null, 'formeJTraduit' => null)), $creationdemande);
         if ($request->getMethod() == 'POST') {
+            $denominationSociale=$request->request->get('banquemondialebundle_dossierDemandeDepot')['denominationSociale'];
+            $firstVefication = $this->get('monservices')->verificationNomCommercial($request,$denominationSociale);
+            $thirdVerification = $this->get('monservices')->verificationNomCommercialDossierDemande($request,$denominationSociale);
+            $fouthVerification = $this->get('monservices')->verificationNomCommercialArchiveNomCommerciale($request,$denominationSociale);
+
+            if ($firstVefication == true||$thirdVerification==true||$fouthVerification==true) {
+                $secondVerification = true;
+                $message='Désolé ce nom commercial est déjà  en utilisation';
+                $this->get('session')->getFlashBag()->add('error', $message);
+                return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => '','isNomCommercialReserved'=>$isNomCommercialReserved));
+            }
+            else {
+                $secondVerification = $this->get('monservices')->verificationNomCommercialReservation($request,$denominationSociale);
+                if ($secondVerification) {
+                    $isNomCommercialReserved=true;
+                    $message='Désolé ce nom commercial est déjà  réserve';
+                    $this->get('session')->getFlashBag()->add('error', $message);
+                    $reservation=$em->getRepository('DefaultBundle\Entity\reservation')->findOneBy(['nomCommercial'=>$denominationSociale,'statut'=>true]);
+                    return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => '','isNomCommercialReserved'=>$isNomCommercialReserved,'reservation'=>$reservation));
+                }
+            }
             $profilSaisi = $em->getRepository('UtilisateursBundle:Profile')->findOneByDescription('saisi');
             if ($profilSaisi) {
                 $firstUserAgentSaisi = $em->getRepository('UtilisateursBundle:Utilisateurs')->findOneBy(array('profile' => $profilSaisi->getId(), 'pole' => $user->getPole()->getId(), 'entreprise' => $user->getEntreprise()->getId()));
@@ -95,29 +135,9 @@ class SharedController extends Controller {
                     return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message));
                 }
             }
-
             $isAguipe = $request->get('isAguipe');
-            //$data = $request->request->all()['banquemondialebundle_dossierDemandeDepot'];
-            //die(dump($request->get('nom')));
             $form->bind($request);
-
-//            $denomExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getDenominationSociale());
-
-//            if ($denomExist) {
-//                $translated = $this->get('translator')->trans('denomination_exist');
-//                $form->get('denominationSociale')->addError(new FormError($translated));
-//                //die('denom exist');
-//            }
-
-//            $nomComExist = $em->getRepository('ParametrageBundle:ArchiveNomCommerciaux')->findByDenominationSociale($creationdemande->getNomCommercial());
-
-//            if ($nomComExist) {
-//                $translated = $this->get('translator')->trans('nom_commercial_exist');
-//                $form->get('nomCommercial')->addError(new FormError($translated));
-//            }
-
             if ($form->isValid()) {
-                //$creationdemande->setUtilisateur($user);
                 $creationdemande->setUtilisateurDepot($user);
                 $creationdemande->setStatut(-1);
                 $creationdemande->setEnActivite(false);
@@ -175,12 +195,10 @@ class SharedController extends Controller {
                     $documentCaisse->setDateSoumission($date);
                     $em->persist($documentCaisse);
                     $em->flush();
-
                     $this->ajoutQuittance($idDossier);
                 }
                 $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
                 $cheminUpload = $chemin->getNom();
-
                 $temp = $cheminUpload . $idDossier . '\\';
                 if (!is_dir($temp)) {
                     mkdir($temp);
@@ -198,9 +216,9 @@ class SharedController extends Controller {
                 //return new RedirectResponse($this->container->get('router')->generate('representant_listerrepresentant', array('id' => 0, 'idd' => $creationdemande->getId())));
             }
         }
-        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message,'isNomCommercialReserved'=>$isNomCommercialReserved));
+        // return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/depot.html.twig', array('form' => $form->createView(), 'message' => $message));
     }
-
     public function editDossierAction($idd) {
         $em = $this->getDoctrine()->getManager();
         //$user = $this->container->get('security.context')->getToken()->getUser();
@@ -282,7 +300,7 @@ class SharedController extends Controller {
         if ($request->getMethod() == 'POST') {
             $form->bind($request);
             //die(dump($creationdemande));
-            if ($form->isValid()) {
+            if ($form->isSubmitted()) {
                 //$creationdemande->setUtilisateur($user);
                 /* if(profilName=="saisi")
                   {
@@ -298,10 +316,10 @@ class SharedController extends Controller {
                 //die(dump($form->getErrorsAsString()));
             }
         }
+       // die(dump($form->get('formeJuridique')->getData()->getId()));
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/editer.html.twig', array('form' => $form->createView(), 'idd' => $idd,
-                    'dd' => $creationdemande, 'profilName' => $profilName, 'ssRequis' => $ssRequis));
+                    'dd' => $creationdemande, 'profilName' => $profilName, 'ssRequis' => $ssRequis,'selectFormJurique'=>$form->get('formeJuridique')->getData()->getId()));
     }
-
     public function listDossierEnCoursAction($idd = null) {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -334,8 +352,7 @@ class SharedController extends Controller {
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierEncours.html.twig', array('form' => $form->createView(),
                     'listerdemande' => $listerdemande, 'langue' => $idLangue, 'profilName' => $profilName));
     }
-
-    public function listerDossierDiasporaAction() {
+    public function listerDossierDiasporaAction(Request $request) {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $profilName = "";
@@ -344,7 +361,7 @@ class SharedController extends Controller {
             $profilName = $profil;
         }
         $data = NULL;
-        $request = $this->get('request');
+     //   $request = $this->get('request');
         //$request->setLocale("en");
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
@@ -364,30 +381,41 @@ class SharedController extends Controller {
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierDiaspora.html.twig', array('form' => $form->createView(),
                     'listerdemande' => $listerdemande, 'langue' => $idLangue, 'profilName' => $profilName));
     }
-
     public function listDossierDepotAction($idd = null) {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
-        $data = NULL;
+        $dateJour=0;//date_format(new \DateTime(),'Y-m-d');
+        $data=[
+            'numeroDossier'=>0,
+            'denominationSociale'=>0,
+            'dateCreationDebut'=>$dateJour,
+            'dateCreationFin'=>$dateJour,
+            'formeJuridique'=>0
+        ];
         $request = $this->get('request');
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $idLangue = $langue->getId();
         $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDemandeDossierDeposesByParametres(null, $idLangue, $user->getId(), 25, -1);
-
         if ($request->getMethod() == 'POST') {
-            $data = $request->request->all()['dossierEncours'];
+            $dataTemp = $request->request->all()['dossierEncours'];
+            $data=[
+                'numeroDossier'=>empty($dataTemp['numeroDossier'])?0:$dataTemp['numeroDossier'],
+                'denominationSociale'=>empty($dataTemp['denominationSociale'])?0:$dataTemp['denominationSociale'],
+                'dateCreationDebut'=>empty($dataTemp['dateCreationDebut'])?$dateJour:$dataTemp['dateCreationDebut'],
+                'dateCreationFin'=>empty($dataTemp['dateCreationFin'])?$dateJour:$dataTemp['dateCreationFin'],
+                'formeJuridique'=>empty($dataTemp['formeJuridique'])?0:$dataTemp['formeJuridique']
+            ];
             $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDemandeDossierDeposesByParametres($data, $idLangue, $user->getId(), null, -1);
         }
-
         //$form = $this->container->get('form.factory')->create(new DossierDemandeSearchType(), array('langue' => $langue));
         $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
-
         $form->bind($request);
-
-        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierDepot.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idLangue));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierDepot.html.twig', array(
+            'form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idLangue,
+            'data'=>$data
+        ));
     }
-
     public function listDossierDepotModificationAction($idd = null) {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -411,7 +439,6 @@ class SharedController extends Controller {
 
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierDepotModification.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idLangue));
     }
-
     public function listDossierRetraitAction($idd = null) {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $idS = $user->getEntreprise()->getId();
@@ -444,7 +471,6 @@ class SharedController extends Controller {
 
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierRetrait.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => 2, 'statutRetrait' => 1));
     }
-
     public function listDossierRetraitPartielAction($idd = null) {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $idS = $user->getEntreprise()->getId();
@@ -477,13 +503,22 @@ class SharedController extends Controller {
 
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierRetraitPartiel.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => 2, 'statutRetrait' => 2));
     }
-
     public function listDossierRetirerAction($idd = null) {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $idS = $user->getEntreprise()->getId();
         $em = $this->getDoctrine()->getManager();
 
-        $data = $this->getRequest()->request->get('data');
+        $dateJour=0;
+        $data=[
+            'numeroDossier'=>0,
+            'denominationSociale'=>0,
+            'dateCreationDebut'=>$dateJour,
+            'dateCreationFin'=>$dateJour,
+            'formeJuridique'=>0,
+            'typeDossier'=>0,
+            'entreprise'=>0,
+            'gerant'=>0,
+        ];
         $request = $this->get('request');
         //$request->setLocale("en");
         $codLang = $request->getLocale();
@@ -499,7 +534,17 @@ class SharedController extends Controller {
         $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPoleRetire($user, null, $idCodeLangue, $idPole, 25, 2, $idS);
         //die(dump($idPole));
         if ($request->getMethod() == 'POST') {
-            $data = $request->request->all()['dossiersPole'];
+            $dataTemp = $request->request->all()['dossiersPole'];
+            $data=[
+                'numeroDossier'=>empty($dataTemp['numeroDossier'])?0:$dataTemp['numeroDossier'],
+                'denominationSociale'=>empty($dataTemp['denominationSociale'])?0:$dataTemp['denominationSociale'],
+                'dateCreationDebut'=>empty($dataTemp['dateCreationDebut'])?$dateJour:$dataTemp['dateCreationDebut'],
+                'dateCreationFin'=>empty($dataTemp['dateCreationFin'])?$dateJour:$dataTemp['dateCreationFin'],
+                'formeJuridique'=>empty($dataTemp['formeJuridique'])?0:$dataTemp['formeJuridique'],
+                'typeDossier'=>empty($dataTemp['typeDossier'])?0:$dataTemp['typeDossier'],
+                'entreprise'=>empty($dataTemp['entreprise'])?0:$dataTemp['entreprise'],
+                'gerant'=>empty($dataTemp['gerant'])?0:$dataTemp['gerant'],
+            ];
             $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPoleRetire($user, $data, $idCodeLangue, $idPole, null, 2, $idS);
         }
 
@@ -507,9 +552,15 @@ class SharedController extends Controller {
 
         $form->bind($request);
 
-        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierRetirer.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => 2, 'statutRetrait' => 3));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierRetirer.html.twig', array(
+            'form' => $form->createView(),
+            'listerdemande' => $listerdemande,
+            'langue' => $idCodeLangue,
+            'idp' => $idPole, 'idS' => 2,
+            'statutRetrait' => 3,
+            'data'=>$data
+        ));
     }
-
     public function editDepotAction($idd) {
         $em = $this->getDoctrine()->getManager();
         $request = $this->get('request');
@@ -618,7 +669,6 @@ class SharedController extends Controller {
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/editDepot.html.twig', array('form' => $form->createView(), 'message' => $message,
                     'representant' => $representant, 'aguipeExit' => $aguipeExit, 'docCaisse' => $documentCaisse, 'dossierDemande' => $dossierDemande));
     }
-
     public function suivreDossierAction() {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -627,8 +677,6 @@ class SharedController extends Controller {
         $codLang = $request->getLocale();
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierSuiviByParametres(null, $langue->getId(), $user->getId(), 25, -2);
-
-
         if ($request->getMethod() == 'POST') {
             $data = $request->request->all()['dossierEncours'];
             $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierSuiviByParametres($data, $langue->getId(), $user->getId(), null, -2);
@@ -721,7 +769,6 @@ class SharedController extends Controller {
             return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/collectDocument.html.twig', array('listDocument' => $listDocumentForCollected, 'idd' => $idd, 'listPoleCocher' => $listPoleCocher, 'nbreCocher' => $nbreC, 'profilName' => $profilName));
         }
     }
-
     public function retraitDossierAction($idd = null) {
         $postUrl='retraitDossier';
         $em = $this->getDoctrine()->getManager();
@@ -760,19 +807,20 @@ class SharedController extends Controller {
                                 }
                             }
                         }
-                        //> Mise a jour statut Retrait l'ors d'une retrait
-                        $demande->setStatusRetrait(false);
+                        //> Mise a jour statut Retrait l'ors d'un retrait
+                        $demande->setStatusRetrait(true);
                         $em->persist($demande);
                         $em->flush();
+                        $this->get('suivistatutdossierservice')->getAndsetStatRetrait('set',$idd,null,null);
                     }
                 }
                 //// Envoi du SMS////////////////
                 $this->get('monServices')->SmsOrange($phoneNumber, $representant[0], 'retrait');
                 //// Envoi de l'Email ////////////////
                 ///
-                if (!empty($representant[0]->getEmail())) {
-                    $this->get('monServices')->EnvoiMessage($representant[0], $representant[0]->getEmail(), 'retrait');
-                }
+//                if (!empty($representant[0]->getEmail())) {
+//                    $this->get('monServices')->EnvoiMessage($representant[0], $representant[0]->getEmail(), 'retrait');
+//                }
 				$listDocumentCollected = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDocumentsRetires($idd);
 				$listDocumentNotCollected = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDocumentsCreesNonRetires($idd);
 				//die(dump(count($listDocumentCollected)." et ".count($listDocumentNotCollected)));
@@ -804,7 +852,6 @@ class SharedController extends Controller {
             ));
         }
     }
-
     public function retraitDossierPartielAction($idd = null) {
         $postUrl='retraitDossierPartiel';
         $em = $this->getDoctrine()->getManager();
@@ -869,7 +916,6 @@ class SharedController extends Controller {
 					$this->get('session')->getFlashBag()->add('info', $translated);
 					return $this->redirectToRoute('lister_retrait_partiel');//listDossierRetirerAction
 				}
-
             }
             //$listDocDelivres=$em->getRepository('BanquemondialeBundle:FormulaireDelivre')->getListFormulaireDelivre($idd, $langue);
             return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/retraitDossier.html.twig', array(
@@ -880,7 +926,6 @@ class SharedController extends Controller {
             ));
         }
     }
-
     public function retirerDossierAction($idd = null) {
         $em = $this->getDoctrine()->getManager();
         $request = $this->get('request');
@@ -894,7 +939,6 @@ class SharedController extends Controller {
 //fin
 
         if (isset($idd)) {
-			
 			/*
             if ($request->getMethod() == 'POST') {
 
@@ -928,7 +972,6 @@ class SharedController extends Controller {
             return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/retirerDossier.html.twig', array('listDocument' => $listDocumentForCollected, 'listDocumentNotCollected' => $listDocumentNotCollected, 'idd' => $idd));
         }
     }
-
     public function capitalSocialAction($idd = null) {
         $message = '';
         $em = $this->getDoctrine()->getManager();
@@ -1007,9 +1050,11 @@ class SharedController extends Controller {
         $em = $this->getDoctrine()->getManager();
         $request = $this->get('request');
         $dossierDemande = $em->find('BanquemondialeBundle:DossierDemande', $idd);
+
         $idFormeJ = $dossierDemande->getFormeJuridique()->getId();
         $idTypeOp = $dossierDemande->getTypeOperation()->getId();
         $codLang = $request->getLocale();
+
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang)->getId();
         $listPieceEntreprise = $em->getRepository('BanquemondialeBundle:PieceJointe')->findByPieceEntreprise($idTypeOp, $idFormeJ, $langue);
 
@@ -1031,10 +1076,7 @@ class SharedController extends Controller {
                 }
             }
         }
-
-
         $listPieceAdmin = $em->getRepository('BanquemondialeBundle:PieceJointe')->findPieceAssocie($idd, $idTypeOp, $idFormeJ, $langue);
-
         if ($listPieceAdmin) {
             foreach ($listPieceAdmin as &$pieceAdmin) {
                 $fichierJoint = $em->getRepository('BanquemondialeBundle:CollectionPieceJointe')->findOneBy(array('dossierDemande' => $dossierDemande, 'document' => $pieceAdmin['idDoc'], 'representant' => $pieceAdmin['idAssocie']));
@@ -1059,7 +1101,9 @@ class SharedController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
-
+                    $quittance=$em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande'=>$idd]);
+                   // die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
                     $message2 = $this->get('translator')->trans('par_la_saisi');
@@ -1076,7 +1120,8 @@ class SharedController extends Controller {
                     //fin mise a jour caisse
                     return new RedirectResponse($this->container->get('router')->generate('suivreDossier', array('idd' => 0)));
                 }
-            } else {
+            }
+            else {
                 if ($_FILES) {
                     //verification taille
                     foreach ($_FILES['file']['tmp_name'] as $key => $tmp_name) {
@@ -1180,10 +1225,18 @@ class SharedController extends Controller {
                         $tmp = '';
                     }
                 }
+                $this->get('suivistatutdossierservice')->getAndsetStatSaisie('set',$dossierDemande->getId(),null,null);
                 return new RedirectResponse($this->container->get('router')->generate('pieceJointe', array('idd' => $idd)));
             }
         }
-        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/pieceJointe.html.twig', array('listPieceEntreprise' => $listPieceEntreprise, 'idd' => $idd, 'dd' => $dossierDemande, 'message' => $message, 'listPieceAdmin' => $listPieceAdmin, 'statutDossier' => $statutDossier, 'cheminUpload' => $cheminUpload, 'profilName' => $profilName));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/pieceJointe.html.twig',
+            array('listPieceEntreprise' => $listPieceEntreprise, 'idd' => $idd,
+                'dd' => $dossierDemande,
+                'message' => $message,
+                'listPieceAdmin' => $listPieceAdmin,
+                'statutDossier' => $statutDossier,
+                'cheminUpload' => $cheminUpload,
+                'profilName' => $profilName));
     }
     public function fraisDossierAction($idd = null) {
         $em = $this->getDoctrine()->getManager();
@@ -1283,11 +1336,7 @@ class SharedController extends Controller {
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $creationdossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
         $idFormeJ = $creationdossier->getFormeJuridique()->getId();
-
-
         $pole = $user->getPole();
-
-
         /* if ($pole != null) {
           $documents = $creationdossier->getDocumentCollectedPole($pole, $user);
           if (sizeof($documents) != 0) {
@@ -1313,10 +1362,7 @@ class SharedController extends Controller {
         if (!$nextRte) {
             $nextRte = 'traiterDossier';
         }
-
-
         $routeAvant = $em->getRepository('ParametrageBundle:EtapeCreation')->getEtapePoleRouteBefore($currentRoute, $idFormeJ);
-
         $motif = $creationdossier->getMotifModification($pole);
 
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/creationDossierPole.html.twig', array(
@@ -1328,27 +1374,45 @@ class SharedController extends Controller {
     public function listDossierPoleAction($data = null, $idS = 1) {
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-
         $pole = $user->getPole();
-
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
         if ($pole) {
             $idPole = $pole->getId();
         }
-
         $em = $this->getDoctrine()->getManager();
-        $data = $this->getRequest()->request->get('data');
         $request = $this->get('request');
         //$request->setLocale("en");
         $codLang = $request->getLocale();
-
         $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
         $idCodeLangue = $langue->getId();
-
+        $dateJour=0;
+        $data=[
+            'numeroDossier'=>0,
+            'denominationSociale'=>0,
+            'dateCreationDebut'=>$dateJour,
+            'dateCreationFin'=>$dateJour,
+            'dateDelivranceDebut'=>$dateJour,
+            'dateDelivranceFin'=>$dateJour,
+            'formeJuridique'=>0,
+            'typeDossier'=>0,
+            'entreprise'=>0,
+            'gerant'=>0,
+        ];
         $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPole($user, null, $idCodeLangue, $idPole, 25, $idS);
-
         if ($request->getMethod() == 'POST') {
-            $data = $request->request->all()['dossiersPole'];
+            $dataTemp = $request->request->all()['dossiersPole'];
+            $data=[
+                'numeroDossier'=>empty($dataTemp['numeroDossier'])?0:$dataTemp['numeroDossier'],
+                'denominationSociale'=>empty($dataTemp['denominationSociale'])?0:$dataTemp['denominationSociale'],
+                'dateCreationDebut'=>empty($dataTemp['dateCreationDebut'])?$dateJour:$dataTemp['dateCreationDebut'],
+                'dateCreationFin'=>empty($dataTemp['dateCreationFin'])?$dateJour:$dataTemp['dateCreationFin'],
+                'dateDelivranceDebut'=>empty($dataTemp['dateDelivranceDebut'])?$dateJour:$dataTemp['dateDelivranceDebut'],
+                'dateDelivranceFin'=>empty($dataTemp['dateDelivranceFin'])?$dateJour:$dataTemp['dateDelivranceFin'],
+                'formeJuridique'=>empty($dataTemp['formeJuridique'])?0:$dataTemp['formeJuridique'],
+                'typeDossier'=>empty($dataTemp['typeDossier'])?0:$dataTemp['typeDossier'],
+                'entreprise'=>empty($dataTemp['entreprise'])?0:$dataTemp['entreprise'],
+                'gerant'=>empty($dataTemp['gerant'])?0:$dataTemp['gerant'],
+            ];
             $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPole($user, $data, $idCodeLangue, $idPole, null, $idS);
         }
 
@@ -1356,7 +1420,15 @@ class SharedController extends Controller {
 
         $form->bind($request);
 
-        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierPole.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierPole.html.twig', array(
+            'form' => $form->createView(),
+            'listerdemande' => $listerdemande,
+            'langue' => $idCodeLangue,
+            'idp' => $idPole,
+            'idS' => $idS,
+            'pole' => $pole,
+            'data' => $data,
+        ));
     }
 	public function listDossierAValiderChefGreffeAction($data = null, $idS = 1) {
 
@@ -1989,14 +2061,14 @@ class SharedController extends Controller {
             //Au moins une donnée
             $numeroDossier = 'GU-CE-' . strtoupper($dossierDemande->getPays()->getCode()) . sprintf("%08d", $idd);
             $date = new \DateTime();
-
             if ($dossierDemande->getStatut() == 3) {
                 $dossierDemande->setStatut(1);
-
                 $em->persist($dossierDemande);
             } else {
                 $dossierDemande->setStatut(1);
-                $dossierDemande->setDateCreation($date);
+               if(empty( $dossierDemande->getDateCreation())){
+                   $dossierDemande->setDateCreation($date);
+               }
                 //$dossierDemande->setDateValidation($date);               
                 //$dossierDemande->setStatutValidation(1);
                 //$dossierDemande->setUtilisateurValidation($user);
@@ -2175,16 +2247,16 @@ class SharedController extends Controller {
                 //Au moins une donnée
                 $numeroDossier = 'GU-CE-' . strtoupper($dossierDemande->getPays()->getCode()) . sprintf("%08d", $idd);
                 $date = new \DateTime();
-
                 if ($dossierDemande->getStatut() == 3) {
                     $dossierDemande->setStatut(1);
-
                     $em->persist($dossierDemande);
                 } else {
                     $dossierDemande->setStatut(1);
                     $dossierDemande->setNumeroDossier($numeroDossier);
-                    $dossierDemande->setDateCreation($date);
-
+                    if (empty($dossierDemande->getDateCreation())){
+                        $dossierDemande->setDateCreation($date);
+                    }
+                    $this->get('suivistatutdossierservice')->getAndsetStatSaisie('set',$idd,null,null);
                     $em->persist($dossierDemande);
                 }
                 $em->flush();
@@ -2265,6 +2337,7 @@ class SharedController extends Controller {
                         }
 
                         $em->flush();
+                        $this->get('suivistatutdossierservice')->getAndsetStatSaisie('set',$idd,null,null);
                         $translated = $this->get('translator')->trans('message_soumission_succes_dossier_numero') . " " . $numeroDossier;
                     }
 
@@ -2279,7 +2352,8 @@ class SharedController extends Controller {
                     }
 
                     //fin generation d'une facturation
-                } else {
+                }
+                else {
                     $profil = $dossierDemande->getUtilisateur()->getProfile();
                     if ($profil) {
                         $descrip = $profil->getDescription();
@@ -2289,7 +2363,6 @@ class SharedController extends Controller {
                             $this->ajoutQuittance($idd);
                         }
                     }
-
                     foreach ($listDemandeEnmodification as $docEnModifcation) {
                         $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
                         $docEnModifcation->setStatutTraitement($statutEncours);
@@ -2303,6 +2376,7 @@ class SharedController extends Controller {
                         $notif = $this->container->get('utilisateurs.notification');
                         $notif->notifier($message . ' ' . $dossierDemande->getNumeroDossier(), $docEnModifcation->getPole()->getUtilisateur()->get(0), $objet);
                     }
+                    $this->get('suivistatutdossierservice')->getAndsetStatSaisie('set',$idd,null,null);
                     $em->flush();
                     $translated = $this->get('translator')->trans('message_soumission_succes_dossier_numero') . " " . $numeroDossier;
                 }
@@ -2517,8 +2591,8 @@ class SharedController extends Controller {
                     $documentCollected->setStatutTraitement($statutTraitementModifier);
                     $em->persist($documentCollected);
 
-                    $dossierDemande->setStatut(3);
-                    $em->persist($dossierDemande);
+                    $dossier->setStatut(3);
+                    $em->persist($dossier);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
                 }

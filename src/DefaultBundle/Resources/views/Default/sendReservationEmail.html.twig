@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+<body>
+<div>
+    <img controls controlsList="nodownload" style="width: 100%" src="https://synergui.apipguinee.com/banniereemail.jpg"
+         alt=" GUICHET UNIQUE  DE LINVESTISSEUR"/>
+</div>
+{% if operation=='renouvelement' %}
+    <p style="font-size: 14px">
+        Bonjour Monsieur/Madame {{ reservation.reservation.nom~" "~reservation.reservation.prenom }} ,<br> La
+        reservation de votre nom commercial <strong>{{ reservation.reservation.nomCommercial }}</strong>
+        sera expire le {{ reservation.reservation.dateFin|date('d-m-Y') }} <br>
+        Veillez cliquer sur le lien suivant pour le renouveler <a
+                href="{{ app.request.getSchemeAndHttpHost()~path('renouvelement-reservation_new', { 'id': reservation.reservation.id }) }}">Renouverler </a>
+    </p>
+{% elseif operation=='reservation' %}
+    <p style="font-size: 14px">
+        Bonjour Monsieur/Madame {{ reservation.reservation.nom~" "~reservation.reservation.prenom }} ,<br> Votre nom
+        commercial <strong>{{ reservation.reservation.nomCommercial }}</strong> a été réservé avec succès pour une
+        période de
+        <strong>
+            {% if reservation.PeriodeReservation.nombre>0 %}
+            {{ reservation.PeriodeReservation.nombre~' mois' }}
+            {% else %}
+                {{ reservation.PeriodeReservation.libelle }}
+            {% endif %}
+        </strong>
+    </p>
+{% endif %}
+</body>
+</html>

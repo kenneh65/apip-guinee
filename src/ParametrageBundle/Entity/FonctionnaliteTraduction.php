@@ -35,7 +35,7 @@ class FonctionnaliteTraduction
     private $langue;
     
      /**
-     * @ORM\ManyToOne(targetEntity="ParametrageBundle\Entity\Fonctionnalite",inversedBy="fonctionnaliteTraduction")
+     * @ORM\ManyToOne(targetEntity="ParametrageBundle\Entity\Fonctionnalite",inversedBy="fonctionnaliteTraductions")
       * @ORM\JoinColumn(name="idFonctionnalite", referencedColumnName="id")
       */
     private $fonctionnalite;

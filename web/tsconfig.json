@@ -1,0 +1,85 @@
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwidXNlcm5hbWUiOiJkbnNpIiwibm9tIjoiZG5zaSIsInByZW5vbSI6ImRuc2kiLCJlbWFpbCI6ImRuc2lAZG5zaS5jb20iLCJ0ZWxlcGhvbmUiOiI2NjY0NDQ1NTUiLCJyb2xlcyI6WyJVU0VSIl0sImlhdCI6MTU4MzE1NjczNCwiZXhwIjoxNjE0NjkyNzM0fQ.oO-zq_MVWV2cnWyqdw9f0tseu78-_Q5pDFD9DkOfSLU",
+  "numero_dossier": "GU-CE-GN00022248",
+  "nom_entreprise": "COMPAGNIE GUINEENNE DE SERVICES-GIE",
+  "sigle": "CGS",
+  "type_entreprise": "personne morale",
+  "type_rccm": "GIE",
+  "email": "compagnieguineennedeservices@gmail.com",
+  "telephone": "(+224) 622 8 95 16",
+  "commune": {
+    "code": "020103",
+    "libelle": "MATAM"
+  },
+  "quartier": {
+    "code": "02010307",
+    "libelle": "COLÉAH CENTRE"
+  },
+  "rccm": "GN.TCC.2020.B.02163",
+  "date_rccm": "2020-03-02",
+  "type_demande": "D'UN GROUPEMENT D'INTERET  ECONOMIQUE",
+  "renseignement_relatif_groupement": {
+    "denomination": "COMPAGNIE GUINEENNE DE SERVICES-GIE",
+    "sigle": "CGS",
+    "adresse": "CONAKRY-CONAKRY-MATAM",
+    "adresse_siege": "RESIDENCE 2000 C/MATAM-CONAKRY",
+    "forme_juridique": "Groupement d'Intèrêt Economique",
+    "capital_social": "",
+    "duree": 99
+  },
+  "renseignement_relatif_activite": {
+    "groupe_activite_principale": {
+      "code": "5100",
+      "libelle": "BATIMENT ET TRAVAUX PUBLICS"
+    },
+    "activite_principale": {
+      "code": "5110",
+      "libelle": "CONSTRUCTION"
+    },
+    "groupe_activite_secondaire_1": {
+      "code": "",
+      "libelle": ""
+    },
+    "activite_secondaire_1": {
+      "code": "",
+      "libelle": ""
+    },
+    "groupe_activite_secondaire_2": {
+      "code": "",
+      "libelle": ""
+    },
+    "activite_secondaire_2": {
+      "code": "",
+      "libelle": ""
+    },
+    "date_debut": "2020-03-02",
+    "nb_salaries": 3
+  },
+  "membre_tenus_indefiniment_personnellement": [],
+  "renseignements_relatifs_aux_administrateurs": [
+    {
+      "nom": "SOUMAORO",
+      "prenoms": "N'FALY",
+      "date_naissance": "1956-11-26",
+      "lieu_naissance": "BEYLA",
+      "adresse": "SIMBAYA I C/MATOTO",
+      "fonction": "Administrateur Général"
+    },
+    {
+      "nom": "KABA",
+      "prenoms": "ABDOURAHAMANE",
+      "date_naissance": "1967-07-06",
+      "lieu_naissance": "ABIDJAN/RCI",
+      "adresse": "MANQUEPAS C/KALOUM",
+      "fonction": "Administrateur Général Adjoint"
+    },
+    {
+      "nom": "CONDE",
+      "prenoms": "ISMAEL",
+      "date_naissance": "1959-05-27",
+      "lieu_naissance": "DUBREKA",
+      "adresse": "NONGO C/RATOMA",
+      "fonction": "Administrateur Général Adjoint"
+    }
+  ]
+}

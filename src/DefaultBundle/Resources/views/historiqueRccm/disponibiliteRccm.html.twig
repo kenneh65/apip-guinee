@@ -21,48 +21,41 @@
         </div>
     </div>
     <div class="">
-        <h3>Veuillez rechercher un dossier</h3>
+        <h3>Veuillez rechercher la disponiblite RCCM</h3>
         <form  method="POST">
             <div class="row well">
                 <div class="col-lg-4">
-                    <input value="{{ searche }}" placeholder="Dénomination" name="search" class="form-control input-sm" type="text">
+                 Du   <input value="{{ dateDebut}}" placeholder="Date debut" name="dateDebut" class="form-control input-sm" type="date">
                 </div>
-                <div class="col-lg-3">
-                           <button formaction="{{ path('searche-folder-to-move') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                <div class="col-lg-4">
+                 au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-4"><br>
+                           <button formaction="{{ path('get-disponibilite-rccm-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
                 </div>
             </div>
         </form>
             <div class="table-responsive">
-                <table class="table table-responsive table-hover table-condensed table-bordered">
+                <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
                     <tr>
-                        <th>Num. dossier</th>
+                        <th>Num.dossier</th>
                         <th>Dénomination</th>
-                        <th>Agent de dépôt</th>
-                        <th>Agent de saisie</th>
-                        <th>Actions</th>
+                        <th>Forme juridiquee</th>
+                        <th>RCCM</th>
+                        <th>Date creation dossier</th>
+                        <th>Date traitement RCCM</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for dossier in dossiers %}
+                    {% for rccm in rccmRecu %}
                         <tr>
-                            <td>{{ dossier.id }}</td>
-                            <td>{{ dossier.denominationSociale }}</td>
-                            <td>{{ dossier.idUserDepot }}</td>
-                            <td>{{ dossier.idUtilisateur }}</td>
-                            <td>
-                                <button
-                                        onclick=""
-                                        type="button"
-                                        class="btn btn-primary btnMoveFolder"
-                                        data-toggle="modal"
-                                        numDossier="{{ dossier.id  }}"
-                                        idUtilisateur="{{ dossier.idUtilisateur }}"
-                                        idUserDepot="{{ dossier.idUserDepot }}"
-                                        data-target="#exampleModal" >
-                                    Modifier
-                                </button>
-                            </td>
+                            <td>{{ rccm.numeroDossier }}</td>
+                            <td>{{ rccm.denominationSociale }}</td>
+                            <td>{{ rccm.libelle }} ({{ rccm.sigle }})</td>
+                            <td>{{ rccm.numRccmFormalite }}</td>
+                            <td>{{ rccm.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ rccm.date|date('d/m/Y') }}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -74,96 +67,36 @@
                 </table>
             </div>
     </div>
-    <!-- modal sizes end -->
-    <script type="text/javascript" src="{{ asset('jquery-3.2.1.js') }}"></script>
-    <script type="text/javascript">
-        $('.btnMoveFolder').on('click', function () {
-         $("#userDepot").val($(this).attr('idUserDepot'));
-         $("#userSaisi").val($(this).attr('idUtilisateur'));
-         $("#numDossierselect").val($(this).attr('numDossier'));
-        });
-        $(document).ready(function () {
-            $("#circuitdossier").on('change', function () {
-                if ($(this).val()=='0'){
-                    $("#userDepot").attr('disabled',false);
-                    $("#userSaisi").attr('disabled',false);
-                }
-                else if ($(this).val()=='1'){
-                    $("#userDepot").attr('disabled',true);
-                    $("#userSaisi").attr('disabled',false);
-                }
-                else if ($(this).val()=='2'){
-                    $("#userDepot").attr('disabled',true);
-                    $("#userSaisi").attr('disabled',true);
-                }
-            });
-        });
+
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery-1.12.4.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery.dataTables.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+
+
+    <script type="text/javaScript">
+        $(document).ready(function() {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+            $('#datatable').DataTable({"language": {
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                }});} );
     </script>
-    <script>
-        $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-    </script>
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Demande de modification</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form  method="post">
-                    <div class="modal-body">
-
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <label for="">Circuit de dossier</label>
-                                <select  class="form-control input-sm" name="circuitdossier" id="circuitdossier">
-                                    <option value="0">Envoyer au dépot</option>
-                                    <option value="1">Envoyer &agrave; la Saisie</option>
-                                    <option value="2">Envoyer chez le Greffe</option>
-                                </select>
-                                <input type="hidden" id="numDossierselect" name="numDossierselect">
-                                <br>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <label for="">Motif</label>
-                                <textarea required style="height: 100px" class="form-control" name="motif" id="motif" cols="10" rows="10"></textarea>
-                                <br>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <label for="">Agent de dépôt</label>
-                                <select class="form-control input-sm" name="userDepot" id="userDepot">
-                                    {% for d in userDepot %}
-                                        <option value="{{ d.id }}">{{ d.username|capitalize }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-lg-6">
-                                <label for="">Agent de saisi</label>
-                                <select class="form-control input-sm" name="userSaisi" id="userSaisi">
-                                    {% for s in userSaisi %}
-                                        <option value="{{ s.id }}">{{s.username|capitalize}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                        <button formaction="{{ path('move-folder') }}" type="submit" class="btn btn-primary">Valider</button>
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
 {% endblock %}

@@ -25,8 +25,8 @@ class FormulaireGie
      * @Assert\NotBlank()
      * @Assert\NotNull()
 	 * @Assert\Length(
-     *      max = 100,
-     *      maxMessage = "Le nom entreprise ne doit pas depasser 100 characteres"
+     *      max = 255,
+     *      maxMessage = "Le nom entreprise ne doit pas depasser 255 characteres"
      * )
      */
     private $nom_entreprise; /*-denominationSociale-*/
@@ -38,8 +38,8 @@ class FormulaireGie
      * @Assert\NotBlank()
      * @Assert\NotNull()
 	 * @Assert\Length(
-     *      max = 100,
-     *      maxMessage = "Le sigle ne doit pas depasser 100 characteres"
+     *      max = 255,
+     *      maxMessage = "Le sigle ne doit pas depasser 255 characteres"
      * )     
      */
     private $sigle;
@@ -83,8 +83,8 @@ class FormulaireGie
      * @Assert\NotBlank()
      * @Assert\NotNull()
      * @Assert\Length(
-     *      max = 50,
-     *      maxMessage = "Le numero de telephone ne doit pas depasser 50 characteres"
+     *      max = 255,
+     *      maxMessage = "Le numero de telephone ne doit pas depasser 255 characteres"
      * )     
      */
     private $telephone;   

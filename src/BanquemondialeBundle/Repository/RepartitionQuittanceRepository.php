@@ -18,26 +18,23 @@ class RepartitionQuittanceRepository extends EntityRepository {
                 ->select('IDENTITY(a.pole)', 'SUM(a.montantVerse)')
                 ->leftJoin('a.dossierDemande', 'd')
                 ->groupBy('a.pole');
+        if (!empty($modePaiement)) {
+            $query->andWhere('(a.modePaiement)=:modePaiement')
+                ->setParameter('modePaiement', $modePaiement);
+        }
 
 		if ( !empty($entreprise)) {
 			$query->andWhere('a.entreprise =:entreprise ')
 			->setParameter('entreprise', $entreprise);
         }
-		if (!empty($modePaiement)) {
-			$query->andWhere('IDENTITY(a.modePaiement)=:modePaiement')
-			->setParameter('modePaiement', $modePaiement);
-        }
-
         if ($dateDebut != '') {
             $query->andWhere('DATE_DIFF(a.datePaiement,:dateDebut)>=0')
-                    ->setParameter('dateDebut', new DateTime($dateDebut));
+                    ->setParameter('dateDebut', date_format(new DateTime($dateDebut),'Y-m-d'));
         }
-
         if ($dateFin != '') {
             $query->andWhere('DATE_DIFF(a.datePaiement,:dateFin)<=0')
-                    ->setParameter('dateFin', new DateTime($dateFin));
+                    ->setParameter('dateFin',date_format( new DateTime($dateFin),'Y-m-d'));
         }
-
         if (($dateDebut == '') && ($dateFin == '')) {
             $today = date('Y-m-d');
             $query->andWhere('DATE_DIFF(a.datePaiement,:dateFin)<=0')
@@ -45,28 +42,20 @@ class RepartitionQuittanceRepository extends EntityRepository {
             $query->andWhere('DATE_DIFF(a.datePaiement,:dateDebut)>=0')
                     ->setParameter('dateDebut', new DateTime($today));
         }
-
         if (!empty($idPole)) {
             $query->andWhere('a.pole = :pole')->setParameter('pole', $idPole);
         }
-
         if ( !empty($formeJuridique)) {
             $query->andWhere('d.formeJuridique = :formeJuridique')->setParameter('formeJuridique', $formeJuridique);
         }
-
         $query->orderBy('a.id', 'desc');
-
+       // die(dump($query));
         $results = $query->getQuery()->getResult();
-		//die(dump($entreprise));
 
-        //die(dump($query->getQuery()));
         $tabResult = array();
         $i = 0;
         foreach ($results as $result) {
-
-			
 			$pole = $this->getEntityManager()->getRepository('ParametrageBundle:Pole')->find($result['1']);
-			
 			if(strtoupper($pole->getSigle()) != "CNSS" && strtoupper($pole->getSigle()) != "CT")
 			{
 				$tabResult[$i]['pole'] = $pole->getNom();

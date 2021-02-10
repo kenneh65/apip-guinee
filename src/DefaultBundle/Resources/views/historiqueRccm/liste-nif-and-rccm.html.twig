@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                <div style="color: white;background:green"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                <div style="color: white;background:#ff5a2f"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="">
+        <h3>RCCM/NIF physiques re&ccedil;us</h3>
+        <form  method="POST">
+            <div class="row well">
+                <div class="col-lg-3">
+                    D&eacute;nomination   <input value="{{ nomCommercial}}" placeholder="{{ 'D&eacute;nomination ,Nom commercial'|raw }}" name="nomCommercial" class="form-control input-sm" type="text">
+                </div>
+
+                <div class="col-lg-3">
+                    Du   <input value="{{ dateDebut}}" placeholder="Date debut" name="dateDebut" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-3">
+                    au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
+                </div>
+                <div class="col-lg-3"><br>
+                    <button formaction="{{ path('liste-nif-and-rccm-by-periode') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="modal-footer"><br>
+                    <div class="col-lg-12">
+                        <button formaction="{{ path('traitement-nif-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception nif physique
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+
+                        <th class="text-center">
+                            <input id="checkAllRCCM"  style="display: inline-block;" name="checkAllRCCM" class="checkAllRCCM checkbox" type="checkbox"/>
+                            <label  for="checkAllRCCM">RCCM</label>
+                        </th>
+                        <th class="text-center">
+                            <input id="checkAllNIF"  style="display: inline-block" name="checkAllNIF" class="checkAllNIF checkboxnif" type="checkbox"/>
+                            <label for="checkAllNIF">NIF</label>
+                        </th>
+                        <th class="text-center" >Dénomination</th>
+                        <th class="text-center">Forme juridiquee</th>
+                        <th class="text-center"><span class="text-danger">RCCM</span>/<span class="text-success">NIF</span></th>
+                        <th>Date creation dossier</th>
+                        <th class="text-center">Date traitement NIF/RCCM</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for nif in nifRecu %}
+                        <tr>
+                            <td style="font-size: 10px;width:15px" class="col-lg-1 text-center">
+                                <div class="pretty p-default">
+                                    <input class="choixNif" name="choixNif[]" type="checkbox" value="{{ nif.id }}"/>
+                                </div>RCCM
+                            </td>
+
+                            <td style="font-size: 10px;width:15px" class="col-lg-1 text-center">
+                                <div class="pretty p-default">
+                                    <input class="choixRccm" name="choixRccm[]" type="checkbox"
+                                           value="{{ nif.id }}"/>
+                                </div>NIF
+                            </td>
+
+
+                            <td class="text-center">{{ nif.denominationSociale }}</td>
+                            <td class="text-center">{{ nif.libelle }} ({{ nif.sigle }})</td>
+                            <td class="text-center"><span class="text-danger">{{ nif.numeroIdentificationFiscale }} </span>
+                                <br>
+                                <span class="text-success">{{ nif.numeroIdentificationFiscale }}</span>
+                            </td>
+                            <td>{{ nif.dateCreation|date('d/m/Y') }}</td>
+                            <td class="text-center">
+                                {{ nif.date|date('d/m/Y') }}
+                                <br>
+                                {{ nif.date|date('d/m/Y') }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="modal-footer">
+                    <div class="col-lg-12">
+                        <button formaction="{{ path('traitement-nif-pysique-recu') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Valider la réception nif physique
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript" src="{{ asset('jquery-3.2.1.js') }}"></script>
+    <script type="text/javascript">
+        $('.promuRed').on('change', function () {
+            isChecked();
+            $('.promuRed').not(this).prop('checked', false);
+        });
+        $(document).ready(function () {
+            isChecked();
+            $('.checkAllNIF').on('click', function () {
+                $(this).closest('table').find("tbody").find('.choixNif')
+                    .prop('checked', this.checked)
+                    .closest('tr').toggleClass('selected', this.checked);
+                isChecked();
+
+            });
+            $('tbody').find('.choixNif').on('click', function () {
+                isChecked();
+                $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+                $(this).closest('table').find('.checkAllNIF').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+
+            });
+            function isChecked() {
+                var checkboxes = document.getElementsByClassName('choixNif');
+                var checkboxesChecked = [];
+                // loop over them all
+                for (var i=0; i<checkboxes.length; i++) {
+                    // And stick the checked ones onto an array...
+                    if (checkboxes[i].checked) {
+                        checkboxesChecked.push(checkboxes[i]);
+                    }
+                }
+                if (checkboxesChecked.length<=0){
+                    $(".internatEleve").attr('disabled',true);
+                    $(".internatEleve").attr('title','Assurez-vous de sélectionner au moins une ligne');
+                }
+                else {
+                    $(".internatEleve").attr('disabled',false);
+                    $(".internatEleve").attr('title','');
+                }
+            }
+
+        });
+    </script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock %}

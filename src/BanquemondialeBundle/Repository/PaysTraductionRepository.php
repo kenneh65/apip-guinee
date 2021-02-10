@@ -14,13 +14,14 @@ class PaysTraductionRepository extends EntityRepository {
 
     public function getListPaysByLanque($idLangue) {
         $query = $this->createQueryBuilder('p')->join('p.langue', 'l');
-        $query->where('l.id = :idl')->setParameter('idl', $idLangue);
+        $query->where('l.id = :idl')->setParameter('idl', $idLangue)->orderBy('p.libelle','asc')
+        ;
         return $query;
     }
     public function getListPaysResidenceByLanque($idLangue) {
         $query = $this->createQueryBuilder('pt')
                 ->join('pt.pays', 'p')              
-                ->join('pt.langue', 'l')->where('p.residence=true')->andWhere('l.id = :idl');
+                ->join('pt.langue', 'l')->where('p.residence=true')->andWhere('l.id = :idl')->orderBy('pt.libelle','asc');
         $query->setParameter('idl', $idLangue);
         return $query;
     }
@@ -29,7 +30,7 @@ class PaysTraductionRepository extends EntityRepository {
         $qb = $this->createQueryBuilder('t');
 
 
-        $qb->where('t.pays = :idPays and t.langue = :idLangue')
+        $qb->where('t.pays = :idPays and t.langue = :idLangue')->orderBy('t.libelle','asc')
                 ->setParameter('idPays', $id)
                 ->setParameter('idLangue', $idLangue)
         ;
@@ -41,7 +42,7 @@ class PaysTraductionRepository extends EntityRepository {
                 ->join('t.langue','l');
 
 
-        $qb->where('t.pays = :idPays and l.code = :langue')
+        $qb->where('t.pays = :idPays and l.code = :langue')->orderBy('t.libelle','asc')
                 ->setParameter('idPays', $id)
                 ->setParameter('langue', $langue)
         ;
@@ -50,13 +51,13 @@ class PaysTraductionRepository extends EntityRepository {
     }
     public function getListPays($langue){        
         $query=$this->createQueryBuilder('p')->join('p.langue', 'l');
-        $query->where('l.code = :code')->setParameter('code', $langue);
+        $query->where('l.code = :code')->setParameter('code', $langue)->orderBy('l.libelle','asc');
         return $query;
     }
     public function getPaysResidenceByCodeLanque($codeLangue) {
         $query = $this->createQueryBuilder('pt')
                 ->join('pt.pays', 'p')              
-                ->join('pt.langue', 'l')->where('p.residence=true')->andWhere('l.code = :code');
+                ->join('pt.langue', 'l')->where('p.residence=true')->andWhere('l.code = :code')->orderBy('pt.libelle','asc');
         $query->setParameter('code', $codeLangue);
         return $query;
     }
@@ -66,7 +67,7 @@ class PaysTraductionRepository extends EntityRepository {
 		->select('pt,p')
 		->join('pt.langue', 'l')
 		->join('pt.pays','p');
-        $query->where('l.id = :idl')->setParameter('idl', $idLangue);
+        $query->where('l.id = :idl')->setParameter('idl', $idLangue)->orderBy('pt.libelle','asc');
 
         return $query->getQuery()->getResult();
     }

@@ -22,6 +22,26 @@ class detailReservation
     private $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="DefaultBundle\Entity\reservation", inversedBy="detailReservation")
+     * @ORM\JoinColumn(name="idReservation", referencedColumnName="id")
+     */
+    private $reservation;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\FormeJuridiqueTraduction")
+     * @ORM\JoinColumn(name="iFormeJuridiqueTraduction", referencedColumnName="id",nullable=true)
+     */
+    private $formeJuridiqueTraduction;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="DefaultBundle\Entity\PeriodeReservation")
+     * @ORM\JoinColumn(name="iPeriodeReservation", referencedColumnName="id",nullable=true)
+     */
+    private $PeriodeReservation;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="dateDebut", type="datetimetz")
@@ -42,14 +62,20 @@ class detailReservation
      */
     private $statut;
 
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="isPaid", type="boolean", nullable=true)
+     */
+    private $isPaid;
+
     /**
      * @var array
      *
      * @ORM\Column(name="operation", type="array", nullable=true)
      */
     private $operation;
-
-
     /**
      * Get id
      *
@@ -150,5 +176,96 @@ class detailReservation
     public function getOperation()
     {
         return $this->operation;
+    }
+
+    /**
+     * Set reservation
+     *
+     * @param \DefaultBundle\Entity\reservation $reservation
+     * @return detailReservation
+     */
+    public function setReservation(\DefaultBundle\Entity\reservation $reservation = null)
+    {
+        $this->reservation = $reservation;
+        return $this;
+    }
+
+    /**
+     * Get reservation
+     *
+     * @return \DefaultBundle\Entity\reservation 
+     */
+    public function getReservation()
+    {
+        return $this->reservation;
+    }
+
+    /**
+     * Set isPaid
+     *
+     * @param boolean $isPaid
+     * @return detailReservation
+     */
+    public function setIsPaid($isPaid)
+    {
+        $this->isPaid = $isPaid;
+
+        return $this;
+    }
+
+    /**
+     * Get isPaid
+     *
+     * @return boolean 
+     */
+    public function getIsPaid()
+    {
+        return $this->isPaid;
+    }
+
+    /**
+     * Set formeJuridiqueTraduction
+     *
+     * @param \BanquemondialeBundle\Entity\FormeJuridiqueTraduction $formeJuridiqueTraduction
+     * @return detailReservation
+     */
+    public function setFormeJuridiqueTraduction(\BanquemondialeBundle\Entity\FormeJuridiqueTraduction $formeJuridiqueTraduction = null)
+    {
+        $this->formeJuridiqueTraduction = $formeJuridiqueTraduction;
+
+        return $this;
+    }
+
+    /**
+     * Get formeJuridiqueTraduction
+     *
+     * @return \BanquemondialeBundle\Entity\FormeJuridiqueTraduction 
+     */
+    public function getFormeJuridiqueTraduction()
+    {
+        return $this->formeJuridiqueTraduction;
+    }
+
+    /**
+     * Set PeriodeReservation
+     *
+     * @param \DefaultBundle\Entity\PeriodeReservation $periodeReservation
+     * @return detailReservation
+     */
+    public function setPeriodeReservation(\DefaultBundle\Entity\PeriodeReservation $periodeReservation = null)
+    {
+        $this->PeriodeReservation = $periodeReservation;
+
+        return $this;
+    }
+
+    /**
+     * Get PeriodeReservation
+     *
+     * @return \DefaultBundle\Entity\PeriodeReservation 
+     */
+    public function getPeriodeReservation()
+    {
+        return $this->PeriodeReservation;
     }
 }

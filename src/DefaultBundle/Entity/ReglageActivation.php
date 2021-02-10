@@ -137,4 +137,3 @@ class ReglageActivation {
         return $this->isSignatureVisible;
     }
 }
-

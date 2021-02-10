@@ -4,7 +4,7 @@
     {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
 {% endblock %}
 {% block body %}
-    <div class="row">
+    <div class="">
         {% for message in app.session.flashbag.get('error') %}
             <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -12,28 +12,24 @@
             </div>
         {% endfor %}
         <div class="col-lg-12">
-            <h1 class="page-header">
-                {% if is_granted('ROLE_SUPER_ADMIN') %} {% trans %}role_super_admin{% endtrans %}
-                {% elseif  is_granted('ROLE_POLE') %}
-                    {% if app.user.pole.sigle|upper == "CT" %}
-                        {{ 'Caissier'|trans|capitalize }}<label class="pull-right h4"
-                                                                style="color: #d44">{{ app.user.entreprise.denomination }}</label>
-                    {% elseif "gec"|lower in profilName|lower %}
-                        {{ 'greffier_en_chef'|trans|capitalize }}
-                    {% else %}
-                        {{ app.user.pole|trans }}
-                    {% endif %}
-                {% elseif app.user.entreprise %}
-                    {% if depot %} {% trans %}sevice_depot{% endtrans %} <label class="pull-right h4"
-                                                                                style="color: #d44">{{ app.user.entreprise.denomination }}</label>
-                    {% elseif retrait %} {% trans %}service_retrait{% endtrans %} <label class="pull-right h4"
-                                                                                         style="color: #d44">{{ app.user.entreprise.denomination }}</label>
-                    {% elseif profilName=="saisi" %}{% trans %}service_saisi{% endtrans %}
-                    {% else %} {{ app.user.profile.nom }} <label class="pull-right h4"
-                                                                 style="color: #d44">{{ app.user.entreprise.denomination }}</label>{#{%trans%}role_admin_entreprise{%endtrans%}#}
-                    {% endif %}
-                {% else %} {% trans %}role_createur{% endtrans %} {% endif %}
-            </h1>
+            <h2 class="page-header">
+                Statistique de traitement des dossiers
+            </h2>
+            <div class="row well">
+                <form action="{{ path('statistique-journaliere-des-dossiers') }}" method="post">
+                    <div class="col-lg-4">
+                        Du <input value="{{ dateDebut }}" placeholder="Date debut" name="dateDebut"
+                                  class="form-control input-sm" type="date">
+                    </div>
+                    <div class="col-lg-4">
+                        au <input value="{{ dateFin }}" placeholder="Date fin" name="dateFin"
+                                  class="form-control input-sm" type="date">
+                    </div>
+                    <div class="col-lg-4"><br>
+                        <button type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                    </div>
+                </form>
+            </div>
             <ol class="breadcrumb">
                 <li class="active">
                     <i class="fa fa-dashboard"></i> {% trans %}dashboard{% endtrans %}
@@ -41,1045 +37,257 @@
             </ol>
         </div>
     </div>
-    <div class="row">
-        {% if is_granted('ROLE_SUPER_ADMIN') %}
-            <!--div class="col-lg-4 col-md-6">
+    <div class="">
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="row">
-                            <div class="col-xs-3 col-md-offset-4">
-                                <i class="fa fa-exchange  fa-5x"></i>
-                            </div>
-
-                            <div class="col-xs-9 text-right">
-                                <h3>{% trans %}nombre_visiteur{% endtrans %}</h3>
-
+                            <div class="col-xs-3">
+                                <i class="fa fa-folder-open fa-2x">Dépôt</i>
                             </div>
                         </div>
                     </div>
 
+                    <a target="_blank"
+                       href="{{ path('statistique-journaliere-liste-des-dossiers-deposer-par-periode',{'dateDebut':dateDebut,'dateFin':dateFin}) }}">
+                        <div class="panel-footer">
+                            <span class="pull-left">Dossiers déposés ({{ statDepot|length }})</span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                        <input type="hidden" name="dateDebut" value="{{ dateDebut }}">
+                        <input type="hidden" name="dateFin" value="{{ dateFin }}">
+                    </a>
+                    <br><br><br>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-folder-open fa-2x">Quittance</i>
+                            </div>
+                        </div>
+                    </div>
                     <div class="panel-footer">
-                        <h3><span class="col-xs-6 text-right"> {{ nbreVisite |number_format(0, '.', '  ') }} </span></h3>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-quittancer-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'quittancer'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">Dossiers quittanc&eacute;s ({{ statCaisse['quittancer']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-quittancer-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'nonquittancer'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">Dossiers non quittanc&eacute;s({{ statCaisse['nonquittancer']|length }}) </span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-folder-open fa-2x">Saisie</i>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-saisie-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'dossierSaisie'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">Dossiers saisis ({{ statSaisie['dossierSaisie']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-saisie-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'dossierNonSaisie'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">Dossiers non saisis({{ statSaisie['dossierNonSaisie']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
 
                         <div class="clearfix"></div>
                     </div>
-
                 </div>
-            </div-->
+            </div>
+        </div>
+        <div class="row">
             <div class="col-lg-4 col-md-6">
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="row">
-                            <div class="col-xs-9 text-center">
-                                {% trans %}list_dossier{% endtrans %}
+                            <div class="col-xs-3">
+                                <i class="fa fa-folder-open fa-2x">Greffe</i>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-immatriculer-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'immatriculer'}) }}">
 
-                        {% for pole in StatNbreDossierBYPole %}
-                            <div class="row">
-                                <a href="{{ path('detailsDossierPole',{'idP':pole.idpole}) }}"
-                                   style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font class="pull-right"
-                                                                                                style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
-                                    <div class="clearfix"></div>
-                                </a>
+                            <div class="panel-footer">
+                                <span class="pull-left">RCCM trait&eacute;s({{ statGreff['rccmTraiter']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
                             </div>
-                        {% endfor %}
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-immatriculer-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'nonimmatriculer'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">RCCM non trait&eacute;s({{ statGreff['rccmNonTraiter']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
-                <div class="panel panel-green">
+                <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="row">
-                            <div class="col-xs-9 text-center">
-                                {% trans %}dossiers_delivre{% endtrans %}
+                            <div class="col-xs-12">
+                                <i class="fa fa-folder-open fa-2x">Transfert DNI</i>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
-
-                        {% for pole in StatDossierDelivre %}
-                            <div class="row">
-                                <a href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':2}) }}"
-                                   style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font class="pull-right"
-                                                                                                style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
-                                    <div class="clearfix"></div>
-                                </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-transfert-dni-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'rccmTransmit'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left ">Dossiers transmis ({{ statTranfertDNI['rccmTransmit']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
                             </div>
-                        {% endfor %}
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-transfert-dni-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'rccmNonTransmit'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">Dossiers non transmis ({{ statTranfertDNI['rccmNonTransmit']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
-                <div class="panel panel-yellow">
+                <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="row">
-                            <div class="col-xs-9 text-center">
-                                {% trans %}list_dossier_modification{% endtrans %}
+                            <div class="col-xs-12">
+                                <i style="font-size:20px;font-weight: bold " class="fa fa-folder-open fa-2x">(RCCM/NIF)
+                                    disponibles sur synergui</i>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
-
-                        {% for pole in StatDossierEnModif %}
-                            <div class="row">
-                                <a href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':3}) }}"
-                                   style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font class="pull-right"
-                                                                                                style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
-                                    <div class="clearfix"></div>
-                                </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-retoure-logique-rccm-nif-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'rccmLogique'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left ">RCCM disponibles ({{ RccmNifLogique['rccmLogique']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
                             </div>
-                        {% endfor %}
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-retoure-logique-rccm-nif-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'nifLogique'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">NIF disponibles ({{ RccmNifLogique['nifLogique']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="panel panel-primary">
+
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="row">
-                            <div class="col-xs-9 text-center">
-                                {% trans %}utilisateur_connectes{% endtrans %}
+                            <div class="col-xs-12">
+                                <i style="font-size:20px;font-weight: bold " class="fa fa-folder-open fa-2x">(RCCM/NIF)
+                                    re&ccedil;us physiquement</i>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
-                        <div class="row">
-                            <h3 style="text-align: center">
-                                <a href="{{ path('users_connected') }}">
-                                    {% if usersEnligne %}{{ usersEnligne|length }}{% endif %}
-                                    <div class="clearfix"></div>
-                                </a>
-                            </h3>
-                        </div>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-retoure-physique-rccm-nif-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'rccmPhysique'}) }}">
+
+                            <div class="panel-footer">
+                                <span class="pull-left ">RCCM disponibles ({{ RccmNifPhysique['rccmPhysique']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-des-dossiers-retoure-physique-rccm-nif-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'nifPhysique'}) }}">
+
+                            <div class="panel-footer">
+                                <span class="pull-left">NIF disponibles ({{ RccmNifPhysique['nifPhysique']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="panel panel-primary">
+            <div class="col-lg-6 col-md-6">
+                <div class="panel panel-info">
                     <div class="panel-heading">
                         <div class="row">
-                            <div class="col-xs-9 text-center">
-                                {% trans %}stat_entreprise_crees{% endtrans %}
+                            <div class="col-xs-12">
+                                <i class="fa fa-folder-open fa-2x">Retrait dossiers</i>
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
-                        <div class="row">
-                            <h3 style="text-align: center">
-                                <a target="_blank"  href="{{ path('extraction-nbEntreprise-excel') }}">
-                                    statististique
-                                    <div class="clearfix"></div>
-                                </a>
-                            </h3>
-                        </div>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-retrait-dossiers-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'dossierRetirer'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left ">Dossiers retir&eacute;s ({{ statRetrait['dossierRetirer']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        <a target="_blank"
+                           href="{{ path('statistique-journaliere-liste-retrait-dossiers-by-periode',{'dateDebut':dateDebut,'dateFin':dateFin,'choix':'dossierNonRetirer'}) }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">Dossiers non retir&eacute;s ({{ statRetrait['dossierNonRetirer']|length }})</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="panel panel-warning">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div style="color:black;" class="col-xs-3 text-center">
-                                {% trans %}Réservation{% endtrans %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <form method="post" action="{{ path('reservation_index') }}">
-                            <div class="row">
-                                <a   href="" style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
-
-                                    <button class="btn-link" type="submit">  {{ 'Réservés' }}</button>
-                                    <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
-                                        <input name="searchFilter" value="{{ 0 }}" type="hidden">
-                                        <button class="btn-link"
-                                                type="submit"> {{ totalNomcommercialReserver }}</button>
-                                    </font>
-                                    <div class="clearfix"></div>
-                                </a>
-                            </div>
-                        </form>
-                        <form method="post" action="{{ path('reservation_index') }}">
-                            <div class="row">
-
-                                <button class="btn-link"
-                                        type="submit"> {{ 'En cours d\'expiration ('~getJour~" )" }}</button>
-                                <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
-                                    <input name="searchFilter" value="{{ 'encours' }}" type="hidden">
-                                    <button class="btn-link"
-                                            type="submit"> {{ totalNomcommercialReserverEncourExpiration }}</button>
-                                </font>
-                            </div>
-                        </form>
-                        <form action="">
-                            <div class="row">
-                                <button class="btn-link" type="submit"> {{ 'Expiré' }}</button>
-                                <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
-                                    <input name="searchFilter" value="{{ 'expirer' }}" type="hidden">
-                                    <button class="btn-link"
-                                            type="submit"> {{ totalNomcommercialReserverEncourExpirer }}</button>
-                                </font>
-
-                                {#                                #}
-                                {#                                <a href="" style="font-size: 10pt;font-weight: bold;margin-left: 5px">{{ 'Expiré' }}#}
-                                {#                                    <font class="pull-right"#}
-                                {#                                          style="color: red;font-weight: bold;margin-right: 15px"> {{ totalNomcommercialReserverEncourExpirer }}</font>#}
-                                {#                                    <div class="clearfix"></div>#}
-                                {#                                </a>#}
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
-
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="panel panel-danger">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div style="color:black;" class="col-xs-3 text-center">
-                                {% trans %}Relance{% endtrans %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel-footer">
-                        <div class="row">
-                            <a target="_blank"  href="{{ path('historique-envoi-rccm-dni') }}"
-                               style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
-
-                                <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
-                                <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
-                                    <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
-                                </font>
-                                <div class="clearfix"></div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        {% endif %}
-        {% if is_granted('ROLE_CREATEUR') and not is_granted('ROLE_ADMIN') %}
-            {% if depot %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-file-text fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a target="_blank"  href="{{ path('depot_new') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}depot{% endtrans %}</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-green">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-folder-o fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a target="_blank" href="{{ path('lister_depot') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}lister_depot{% endtrans %}({{ nbreDocDepot }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-yellow">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-folder-o fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a target="_blank" href="{{ path('lister_depot_Modification') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}lister_depot_Modification{% endtrans %}({{ nbreDocDepotModification }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            {% elseif retrait %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-green">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-folder-o fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a target="_blank" href="{{ path('lister_retrait') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}lister_retrait{% endtrans %}({{ nbreDocRetrait }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-yellow">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-folder-open fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a target="_blank"  href="{{ path('lister_retrait_partiel') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}lister_partiellement_retirer{% endtrans %}({{ nbreDocRetraitPartiel }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-green">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-folder-open fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a  target="_blank" href="{{ path('lister_retirer') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}lister_retirer{% endtrans %}({{ nbreDocRetirer }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            {% else %}
-                {% if app.user.profile and app.user.profile.description=="help" %}
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-9 text-center">
-                                        {% trans %}list_dossier{% endtrans %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-
-                                {% for pole in StatNbreDossierBYPole %}
-                                    <div class="row">
-                                        <a target="_blank"  href="{{ path('detailsDossierPole',{'idP':pole.idpole}) }}"
-                                           style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font
-                                                    class="pull-right"
-                                                    style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
-                                            <div class="clearfix"></div>
-                                        </a>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-green">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-9 text-center">
-                                        {% trans %}dossiers_delivre{% endtrans %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-
-                                {% for pole in StatDossierDelivre %}
-                                    <div class="row">
-                                        <a target="_blank" href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':2}) }}"
-                                           style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font
-                                                    class="pull-right"
-                                                    style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
-                                            <div class="clearfix"></div>
-                                        </a>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-yellow">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-9 text-center">
-                                        {% trans %}list_dossier_modification{% endtrans %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-
-                                {% for pole in StatDossierEnModif %}
-                                    <div class="row">
-                                        <a target="_blank" href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':3}) }}"
-                                           style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font
-                                                    class="pull-right"
-                                                    style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
-                                            <div class="clearfix"></div>
-                                        </a>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <i class="fa fa-folder-o"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div>Suivi de dossier</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <a target="_blank" href="{{ path('suiviDossier') }}">
-                                <div class="panel-footer">
-                                    <span class="pull-left">Etat de retrait des dossiers <strong>({{ nbreDocSuivi }})</strong> </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                            <a target="_blank" href="{{ path('suivi-dga-liste-dossier-encour') }}">
-                                <div class="panel-footer">
-                                    <span class="pull-left">
-                                      Dossiers en attentes de saisie <strong>({{ NombreTotalEnattenteSaisiiInterfaceDGA }})</strong>
-                                    </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                            <a target="_blank" href="{{ path('dossier-en-attentes-immatriculation-dga-interface',{ids:1}) }}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                           Dossiers en attentes d'immatriculation
-                           <strong> ({{ NombreTotalEnattenteImmatriculationInterfaceDGA }})</strong>
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                            <a target="_blank" href="{{ path('dossier-en-attentes-modification-dga-interface',{ids:3}) }}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Dossiers en attentes de modification
-                           <strong> ({{ NombreTotalEnattenteModificationInterfaceDGA }})</strong>
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-warning">
-                            <div class="panel-heading">
-                                <div class="row">
-{#                                    <div class="col-xs-3">#}
-{#                                        <i class="fa fa-edit fa-5x"></i>#}
-{#                                    </div>#}
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div>Circuit de dossier</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a target="_blank" href="{{path('searche-folder-to-move')}}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Envoyer un dossier pour la  modification
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <div class="row">
-                                                                        <div class="col-xs-3">
-                                                                            <i class="fa fa-user"></i>
-                                                                        </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div>Gestion des utilisateurs</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a target="_blank" href="{{path('utilisateurs_index')}}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Liste des utilisateurs
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-danger">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div style="color:black;" class="col-xs-3 text-center">
-                                        {% trans %}Relance {% endtrans %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-                                <div class="row">
-                                    <a target="_blank" href="{{ path('historique-envoi-rccm-dni') }}"
-                                       style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
-
-                                        <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
-                                        <font class="pull-right"
-                                              style="color: red;font-weight: bold;margin-right: 15px">
-                                            <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
-                                        </font>
-                                        <div class="clearfix"></div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-green">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div style="color:white;" class="col-xs-4">
-                                       RCCM / NIF
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-                                <div class="row">
-                                    <a target="_blank" href="{{ path('get-disponibilite-rccm-by-periode') }}"
-                                       style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
-
-                                        <button class="btn-link" type="submit">  {{ 'RCCM disponibles' }}</button>
-                                        <font class="pull-right"
-                                              style="color: red;font-weight: bold;margin-right: 15px">
-                                            <button class="btn-link" type="submit">{{ rccmTraite }}</button>
-                                        </font>
-                                        <div class="clearfix"></div>
-                                    </a>
-                                    <a target="_blank"  href="{{path('get-disponibilite-nif-by-periode')}}"
-                                       style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
-
-                                        <button class="btn-link" type="submit">  {{ 'NIF disponibles' }}</button>
-                                        <font class="pull-right"
-                                              style="color: red;font-weight: bold;margin-right: 15px">
-                                            <button class="btn-link" type="submit">{{ nifTraite }}</button>
-                                        </font>
-                                        <div class="clearfix"></div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                {% else %}
-                    {% if app.user.profile and "saisi"|lower not in app.user.profile.description|lower %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-primary">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-file-text fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('creerDossier') }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}ajouter_dossier{% endtrans %}</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    {% endif %}
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-yellow">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <i class="fa fa-folder-open fa-5x"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{{ path('dossierEncours') }}">
-                                <div class="panel-footer">
-                                    <span class="pull-left">
-                                        {% if app.user.profile and "saisi"|lower in app.user.profile.description|lower %}
-                                            {% trans %}brouillon_saisi{% endtrans %}({{ nbreDocBrouillon }})
-                                        {% else %}
-                                            {% trans %}brouillon{% endtrans %}({{ nbreDocBrouillon }})
-                                        {% endif %}
-                                    </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-green">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <i class="fa fa-folder-o fa-5x"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{{ path('suivreDossier') }}">
-                                <div class="panel-footer">
-                                    <span class="pull-left">{% trans %}suivre_dossier{% endtrans %}({{ nbreDocSuivi }})</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    {% if app.user.profile and app.user.profile.description=="saisi" %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-primary">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-file-text fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('DossiersDiaspora') }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}dossier_diaspora{% endtrans %}</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endif %}
-            {% endif %}
-        {% endif %}
-        {% if is_granted('ROLE_POLE') and not is_granted('ROLE_ADMIN') %}
-
-            {% if app.user.pole.sigle|upper == "CT" %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-yellow">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-money fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="{{ path('gestion_caisse') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}dossier_attente_paiement{% endtrans %}({{ nbreDocEnCours }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-green">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-money fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="{{ path('reporting_quittance') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}message_rapports_paiement{% endtrans %}({{ nbreDocDelivre }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-money fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="{{ path('brouillard_caisse') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}brouillard_caisse{% endtrans %}</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-money fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="{{ path('repartition_encaissement') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}repartition_des_encaissement{% endtrans %}</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            {% else %}
-
-                {% if app.user.pole.sigle|upper != "AL" and "gec"|lower not in profilName|lower %}
-                    {% if app.user.pole and (app.user.pole.sigle=="DP" or app.user.pole.sigle=="INV") %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-primary">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-file-text fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('creerDossier') }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}ajouter_dossier{% endtrans %}</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-yellow">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-folder-open fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('dossierEncours') }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}brouillon{% endtrans %}({{ nbreDocBrouillon }})</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-green">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-folder-o fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('suivreDossier') }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}suivre_dossier{% endtrans %}({{ nbreDocSuivi }})</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-yellow">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-folder-open fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('dossierPole') }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}list_dossier{% endtrans %}({{ nbreDocEnCours }})</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-green">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-folder fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('dossierPole',{'idS':2}) }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}dossiers_delivre{% endtrans %}({{ nbreDocDelivre }})</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="panel panel-yellow">
-                                <div class="panel-heading">
-                                    <div class="row">
-                                        <div class="col-xs-3">
-                                            <i class="fa fa-pencil-square-o fa-5x"></i>
-                                        </div>
-                                        <div class="col-xs-9 text-right">
-                                            <div class="huge"></div>
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <a href="{{ path('dossierPole',{'idS':3}) }}">
-                                    <div class="panel-footer">
-                                        <span class="pull-left">{% trans %}list_dossier_modification{% endtrans %}({{ nbreDocModifie }})</span>
-                                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        {% if app.user.pole.sigle|upper != "CNSS" and app.user.profile and "gec"|lower not in app.user.profile.description|lower %}
-                            <div class="col-lg-4 col-md-6">
-                                <div class="panel panel-green">
-                                    <div class="panel-heading">
-                                        <div class="row">
-                                            <div class="col-xs-3">
-                                                <i class="fa fa-money fa-5x"></i>
-                                            </div>
-                                            <div class="col-xs-9 text-right">
-                                                <div class="huge"></div>
-                                                <div></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a href="{{ path('gestion_caisse_pole') }}">
-                                        <div class="panel-footer">
-                                            <span class="pull-left">{% trans %}recapitulatif_paiement{% endtrans %}</span>
-                                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                {% elseif app.user.pole.sigle|upper != "AL" and "gec"|lower in profilName|lower %}
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-green">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <i class="fa fa-folder fa-5x"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{{ path('dossierAValiderChefGreffe',{'idS':2}) }}">
-                                <div class="panel-footer">
-                                    <span class="pull-left">{% trans %}dossiers_a_valider{% endtrans %}({{ nbrDocAValider }})</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-yellow">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <i class="fa fa-folder fa-5x"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{{ path('dossierValideChefGreffe',{'idS':2}) }}">
-                                <div class="panel-footer">
-                                    <span class="pull-left">{% trans %}dossiers_valides{% endtrans %}({{ nbrDocValide }})</span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endif %}
-            {% if app.user.pole.sigle|upper == 'AL' %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-yellow">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-newspaper-o fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="{{ path('annonceur-index') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}message_annonce_legale{% endtrans %}({{ nbreDocEnCours }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="panel panel-green">
-                        <div class="panel-heading">
-                            <div class="row">
-                                <div class="col-xs-3">
-                                    <i class="fa fa-folder-open fa-5x"></i>
-                                </div>
-                                <div class="col-xs-9 text-right">
-                                    <div class="huge"></div>
-                                    <div></div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="{{ path('annonceur-exporte') }}">
-                            <div class="panel-footer">
-                                <span class="pull-left">{% trans %}message_annonce_exportees{% endtrans %}({{ nbreDocDelivre }})</span>
-                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                <div class="clearfix"></div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            {% endif %}
-        {% endif %}
+        </div>
     </div>
 {% endblock %}

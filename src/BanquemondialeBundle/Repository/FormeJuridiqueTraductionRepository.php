@@ -19,6 +19,7 @@ class FormeJuridiqueTraductionRepository extends EntityRepository {
                 ->andWhere('j.actif = true')
                 ->orderBy('f.libelle', 'asc');
         return $query;
+
     }
 
     public function getListFormeJuridiqueByCodeLanque($codeLangue) {

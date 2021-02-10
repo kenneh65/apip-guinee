@@ -17,7 +17,8 @@ class QuartierRepository extends EntityRepository
         $query = $this->createQueryBuilder('q')->where('q.actif=true');
         if($idSP){
             $query->join('q.sousPrefecture', 'sp')->andWhere('sp.id = :idsp')->setParameter('idsp', $idSP);       
-        }        
+        }
+       // die(dump($query->getQuery()));
         return $query;
     }
 }

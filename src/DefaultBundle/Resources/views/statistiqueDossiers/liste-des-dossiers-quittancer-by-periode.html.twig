@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="">
-        <h3>Liste des dépôt du  {{ dateDebut|date('d/m/Y') }}  au {{ dateFin|date('d/m/Y') }}</h3>
+        <h3>Liste des dossiers  {{ choix=='nonquittancer'?'non quittanc&eacute;s'|raw:'quittanc&eacute;s'|raw }}  du  {{ dateDebut|date('d/m/Y') }}  au {{ dateFin|date('d/m/Y') }}</h3>
             <div class="table-responsive">
                 <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
@@ -29,18 +29,20 @@
                         <th>Num.dossier</th>
                         <th>Dénomination</th>
                         <th>Forme juridique</th>
-                        <th>Date cr&eacute;ation</th>
+                        <th>Date cr&eacute;ation dossier</th>
                         <th>Agent de dépôt</th>
+                        <th>Agent Caisse</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for d in statDepot %}
+                    {% for d in (choix=='nonquittancer')?statCaisse['nonquittancer']:statCaisse['quittancer'] %}
                         <tr>
                             <td>{{ d.numeroDossier }}</td>
                             <td>{{ d.denominationSociale }}</td>
                             <td>{{ d.libelle }}</td>
                             <td>{{ d.dateCreation|date('d/m/Y') }}</td>
-                            <td>{{d.username}}</td>
+                            <td>{{monServices.getUserById(d.idUserDepot).username}}</td>
+                            <td>{{ monServices.getUserById(d.UserCaisse)==null?'':monServices.getUserById(d.UserCaisse).username }}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -60,5 +62,34 @@
     <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
     <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+    <script type="text/javaScript">
+        $(document).ready(function() {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+            $('#datatable').DataTable({"language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
 
+
+
+        } );
+    </script>
 {% endblock %}

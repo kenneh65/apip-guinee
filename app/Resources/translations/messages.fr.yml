@@ -1,6 +1,7 @@
 portal : Portail
 parametrage : Paramètrage
 accueil : Accueil
+reservation : 'Réserver un nom commercial'
 ajout : Ajouter
 ajouter: Ajouter
 modifier: Modifier
@@ -126,4 +127,5 @@ utilisateur :
     password : Password (*)
 guide :
      titre : Title
-     
+
+recherche: 'nom commercial / nom entreprise / denomination'

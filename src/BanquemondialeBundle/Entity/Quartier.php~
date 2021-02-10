@@ -31,7 +31,7 @@ class Quartier {
     /**
      * @var string
      *
-     * @ORM\Column(name="Code", type="string", length=2, nullable=true)
+     * @ORM\Column(name="Code", type="string", length=8, nullable=true)
      */
     private $code;
 
@@ -121,5 +121,28 @@ class Quartier {
     public function getSousPrefecture()
     {
         return $this->sousPrefecture;
+    }
+
+    /**
+     * Set actif
+     *
+     * @param boolean $actif
+     * @return Quartier
+     */
+    public function setActif($actif)
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    /**
+     * Get actif
+     *
+     * @return boolean 
+     */
+    public function getActif()
+    {
+        return $this->actif;
     }
 }

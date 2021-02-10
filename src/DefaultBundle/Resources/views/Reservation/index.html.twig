@@ -1,51 +1,212 @@
 {% extends 'base.html.twig' %}
-
 {% block body %}
-    <h1>reservation list</h1>
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                <div style="color: white;background:green"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                <div style="color: white;background:#ff5a2f"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="">
+        <h3> Liste des noms commercials réserves</h3>
+        <hr>
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-xs-3"></div>
+            <div class="col-lg-6 col-md-6 col-xs-6">
+                <!-- prepending -->
+                <style>
+                    .InputAddOn {
+                        display: flex;
+                    }
 
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nomcommercial</th>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Adresse</th>
-                <th>Email</th>
-                <th>Telephone</th>
-                <th>Datecreation</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for reservation in reservations %}
-            <tr>
-                <td><a href="{{ path('reservation_show', { 'id': reservation.id }) }}">{{ reservation.id }}</a></td>
-                <td>{{ reservation.nomCommercial }}</td>
-                <td>{{ reservation.nom }}</td>
-                <td>{{ reservation.prenom }}</td>
-                <td>{{ reservation.adresse }}</td>
-                <td>{{ reservation.email }}</td>
-                <td>{{ reservation.telephone }}</td>
-                <td>{% if reservation.dateCreation %}{{ reservation.dateCreation|date('Y-m-d H:i:s') }}{% endif %}</td>
-                <td>
-                    <ul>
-                        <li>
-                            <a href="{{ path('reservation_show', { 'id': reservation.id }) }}">show</a>
-                        </li>
-                        <li>
-                            <a href="{{ path('reservation_edit', { 'id': reservation.id }) }}">edit</a>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                    .InputAddOn-field {
+                        flex: 1;
+                        /* field styles */
+                    }
 
-    <ul>
-        <li>
-            <a href="{{ path('reservation_new') }}">Create a new entry</a>
-        </li>
-    </ul>
+                    .InputAddOn-item {
+                        /* item styles */
+                    }
+
+                </style>
+                <form method="post" action="{{ path('reservation_index') }}">
+                    <div class="InputAddOn">
+                        <strong>Filtrer par:</strong>
+                        <select class="InputAddOn-field form-control" name="searchFilter" id="searchFilter">
+                            <option {% if searchFilter=="0" %}selected {% endif %} value="0">Selectionner tout</option>
+                            <option {% if searchFilter=="encours" %}selected {% endif %} value="encours">En cours
+                                d'expiration
+                            </option>
+                            <option {% if searchFilter=="expirer" %}selected {% endif %} value="expirer">Expirée
+                            </option>
+                        </select>
+                        <button class="InputAddOn-item btn-primary" type="submit">Valider</button>
+                    </div>
+                    <br>
+                </form>
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-2"></div>
+
+        </div>
+        <form  method="POST">
+            <div class="table-responsive">
+                <table class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>
+                            <input id="checkAll"  style="display: inline-block" name="checkAll" class="checkAll checkbox" type="checkbox"/>
+                            <label for="checkAll">Tout cocher</label>
+                        </th>
+                        <th>Nom commercial</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Date debut réservation</th>
+                        <th>Date d'expiration(Délai)</th>
+                        {#                      <th>Actions</th>#}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for reservation in reservations %}
+                        <tr>
+                            <td class="col-lg-3">
+                                <div class="pretty p-default">
+                                    <input class="choixEleves" name="choixReservation[]" type="checkbox"
+                                           value="{{ reservation.idReservation }}"/>
+                                </div>
+                            </td>
+                            <td>{{ reservation.nomCommercial }} </td>
+                            <td>{{ reservation.nom }}</td>
+                            <td>{{ reservation.prenom }}</td>
+                            <td>
+                                {% if monServices.getReservationsEncour(reservation.idReservation)|length >0 %}
+                                    {{ monServices.getReservationsEncour(reservation.idReservation)[0]['dateDebut'] |date('d/m/Y') }}
+                                {% else %}
+                                    {{ reservation.dateDebut|date('d/m/Y') }}
+                                {% endif %}
+                            </td>
+                            {% if reservation.id in reservationsEnExpiration|keys %}
+                                <td>
+                                    {{ monServices.secondsToTime(reservationsEnExpiration[reservation.idReservation][0]|date('Y-m-d H:i:s'))['Jours']~' Jours' }}
+                                    {{ monServices.secondsToTime(reservationsEnExpiration[reservation.idReservation][0]|date('Y-m-d H:i:s'))['Heures']~' Heures' }}
+                                    {{ monServices.secondsToTime(reservationsEnExpiration[reservation.idReservation][0]|date('Y-m-d H:i:s'))['Minutes']~' Minutes' }}
+
+                                </td>
+                            {% else %}
+                                <td>
+                                    {% if monServices.reservationsEncour(reservation.idReservation)|length >0 %}
+                                        {% set temoin=0 %}
+                                        {% if monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Ans']>0 %}
+                                            {{ monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Ans']~' Ans' }}
+                                            {% set temoin=1 %}
+                                        {% endif %}
+
+                                        {% if monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Mois']>0 %}
+                                            {{ monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Mois']~' Mois' }}
+                                            {% set temoin=1 %}
+                                        {% endif %}
+
+                                        {% if monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Jours']>0 %}
+                                            {{ monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Jours']~' Jours' }}
+                                            {% set temoin=1 %}
+                                        {% endif %}
+
+                                        {% if monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Heures']>0 %}
+                                            {{ monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Heures']~' Heures' }}
+                                            {% set temoin=1 %}
+                                        {% endif %}
+                                        {% if monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Minutes']>0 %}
+                                            {{ monServices.secondsToTime((monServices.reservationsEncour(reservation.idReservation)[0]['dateFin'])|date('Y-m-d H:i:s'))['Minutes']~' Minutes' }}
+                                            {% set temoin=1 %}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-danger"> Réservation expiré <br>
+                                                ( {{ reservation.dateFin|date('d/m/Y') }} )</span>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if searchFilter==0 %}
+                <div class="row">
+                    <div class="modal-footer"><br>
+                        <div class="col-lg-6">
+                            <button formaction="{{ path('send-alert-messages') }}" type="submit" class="btn internatEleve col-lg-6 btn-block btn-success">Envoyer un message
+                            </button>
+                        </div>
+                        <div class="col-lg-6">
+                            <button  formaction="{{ path('remove-reservations') }}" type="submit" class="btn internatEleve  col-lg-6 btn-block btn-warning">Désactiver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+    <!-- modal sizes end -->
+    <script type="text/javascript" src="{{ asset('jquery-3.2.1.js') }}"></script>
+    <script type="text/javascript">
+
+
+        $('.promuRed').on('change', function () {
+            isChecked();
+            $('.promuRed').not(this).prop('checked', false);
+        });
+        $(document).ready(function () {
+            isChecked();
+            $('.checkAll').on('click', function () {
+                $(this).closest('table').find('tbody :checkbox')
+                    .prop('checked', this.checked)
+                    .closest('tr').toggleClass('selected', this.checked);
+                isChecked();
+
+            });
+            $('tbody :checkbox').on('click', function () {
+                isChecked();
+                $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+                $(this).closest('table').find('.checkAll').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+
+            });
+            function isChecked() {
+                var checkboxes = document.getElementsByClassName('choixEleves');
+                var checkboxesChecked = [];
+                // loop over them all
+                for (var i=0; i<checkboxes.length; i++) {
+                    // And stick the checked ones onto an array...
+                    if (checkboxes[i].checked) {
+                        checkboxesChecked.push(checkboxes[i]);
+                    }
+                }
+                if (checkboxesChecked.length<=0){
+                   $(".internatEleve").attr('disabled',true);
+                   $(".internatEleve").attr('title','Assurez-vous de sélectionner au moins une ligne');
+                }
+                else {
+                    $(".internatEleve").attr('disabled',false);
+                    $(".internatEleve").attr('title','');
+                }
+            }
+
+        });
+    </script>
 {% endblock %}

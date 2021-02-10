@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for flashMessage in app.session.flashbag.get('successStatus') %}
+                <div style="color: white;background:green"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('echecStatus') %}
+                <div style="color: white;background:#ff5a2f"
+                     class="alert alert-message-warning text-center " role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <strong>{{flashMessage|raw }} </strong>
+                </div>
+            {% endfor %}
+            <h2 class="page-header">
+                Statistiques sur le  délais traitement dossiers
+            </h2>
+            <div class="row well">
+                <form  action="{{ path('statistique-generale-dossier-en-circuit') }}" method="post">
+                    <div class="col-lg-4">
+                        Du   <input value="{{ dateDebut}}" placeholder="Date debut" name="dateDebut" class="form-control input-sm" type="date">
+                    </div>
+                    <div class="col-lg-4">
+                        au    <input value="{{ dateFin}}" placeholder="Date fin" name="dateFin" class="form-control input-sm" type="date">
+                    </div>
+                    <div class="col-lg-4"><br>
+                        <button type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+   <div class="row">
+       <div class="table-responsive">
+           <table  border="3" id="datatable" class="table vtable table-hover table-overview table-striped table-condensed table-bordered">
+               <thead class="mystyle">
+               <tr class="border-l">
+                   <th class="mystyle td1"  rowspan="2">Dénomination</th>
+                   <th class="mystyle td1"rowspan="2">Forme juridique</th>
+                   <th class="mystyle td1" rowspan="2">Dépôt</th>
+                   <th class="mystyle td1" rowspan="2">Quittance</th>
+                   <th class="mystyle td1" rowspan="2">Saisie</th>
+                   <th class="mystyle td1" rowspan="2">Greffe</th>
+                   <th class="mystyle td1" class="text-center" rowspan="2">DNI</th>
+                   <th class="mystyle td1" class="text-center" colspan="2">NIF</th>
+                   <th class="mystyle td1" class="text-center" colspan="2">RCCM</th>
+                   <th class="mystyle td1" style="border-left: 1px solid whitesmoke"  rowspan="2">Retrait</th>
+                   <th class="mystyle td1" rowspan="2">Drée en Jours</th>
+               </tr>
+               <tr>
+                   <th class="mystyle td1" >Logique</th>
+                   <th class="mystyle td1">Pysique</th>
+                   <th class="mystyle td1">Logique</th>
+                   <th class="mystyle td1">Pysique</th>
+               </tr>
+
+               </thead>
+               <tbody>
+               {% for stat in statGenerale %}
+               <tr>
+                   <td>{{stat.denominationSociale }}</td>
+                   <td>{{stat.sigle }}</td>
+                   <td>{{stat.dateCreation|date('d/m/Y H:i:s') }}</td>
+                   <td>{{ stat.datePaiement?stat.datePaiement|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{ stat.dateSaisie?stat.dateSaisie|date('d/m/Y H:i:s'):''}}</td>
+                   <td>{{stat.dateGreffe?stat.dateGreffe|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{ stat.dateEnvoidni?stat.dateEnvoidni|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{stat.dateTraitNifLogique?stat.dateTraitNifLogique|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{stat.dateTraitementNifPhysique?stat.dateTraitementNifPhysique|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{stat.datetratementRccmLogique?stat.datetratementRccmLogique|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{stat.dateTraitementRccmPhysique?stat.dateTraitementRccmPhysique|date('d/m/Y H:i:s'):'' }}</td>
+                   <td>{{stat.dateRetrait ?stat.dateRetrait|date('d/m/Y H:i:s'):''}}</td>
+                   <td>{{ stat.nb_second?monServices.secondsToTimebis(stat.nb_second):'En cours'}}</td>
+               </tr>
+               {% endfor %}
+               </tbody>
+           </table>
+       </div>
+   </div>
+    <style type="text/css">
+        .mystyle{
+            border:2px solid #0c0c0c;
+            padding-bottom:14px;
+            text-align:center;
+        }
+        td{
+            font-size: 12px;text-align: justify-start;
+        }
+    </style>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        table {
+            margin: 20px auto;
+        }
+
+        table,
+        td,
+        th {
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: solid 1px;
+            text-align: center;
+        }
+
+        .vtable td {
+            background: transparent;
+        }
+
+        .vtable .td1 {
+            vertical-align: middle;
+        }
+
+    </style>
+
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery-1.12.4.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery.dataTables.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.buttons.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
+    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+    <script type="text/javaScript">
+        $(document).ready(function() {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+            $('#datatable').DataTable({"language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
+
+
+
+        } );
+    </script>
+{% endblock %}

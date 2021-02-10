@@ -241,4 +241,14 @@ class Pays
 
         return $this;
     }  
+
+    /**
+     * Get actif
+     *
+     * @return boolean 
+     */
+    public function getActif()
+    {
+        return $this->actif;
+    }
 }

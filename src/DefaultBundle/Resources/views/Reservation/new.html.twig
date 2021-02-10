@@ -1,16 +1,213 @@
-{% extends 'base.html.twig' %}
+{% extends "::base-office.html.twig" %}
+
+{% block title %}
+    {% trans %}reservation{% endtrans %}
+    {{ parent() }}
+{% endblock %}
 
 {% block body %}
-    <h1>reservation creation</h1>
+    <br>
+    <div class="row">
+        <div class="col-lg-1 col-md-1 col-xs-1"></div>
+        {% for message in app.session.flashbag.get('error') %}
+            <div class="col-lg-9 container text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
 
-    {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <input type="submit" value="Create" />
-    {{ form_end(form) }}
+        {% for message in app.session.flashbag.get('success') %}
+            <div class="col-lg-9 container text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="col-lg-2 col-md-2 col-xs-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="text-align: center; !important;">
+                {% trans %}
+                    Veuillez renseigner vos informations
+                {% endtrans %}
+            </h3>
+        </div>
+    </div>
+    <div class="" >
+       <div class="well">
+           {{ form_start(form) }}
+           <div class="row" >
+               <div class="col-lg-6 col-md-12 col-xs-12">
+                   <label>{%trans%}Forme juridique(*){%endtrans %} </label>
+                   {{ form_widget(form.formeJuridique, {'attr': {'class': 'form-control input-sm'}}) }}
+                   {{ form_errors(form.formeJuridique, {'attr': {'class': 'form-control input-sm'}}) }}
 
-    <ul>
-        <li>
-            <a href="{{ path('reservation_index') }}">Back to the list</a>
-        </li>
-    </ul>
+                   <label>{%trans%}Période de réservation(*){%endtrans %} </label>
+                   {{ form_widget(form.PeriodeReservation, {'attr': {'class': 'form-control input-sm'}}) }}
+                   {{ form_errors(form.PeriodeReservation, {'attr': {'class': 'form-control input-sm'}}) }}
+
+                   <label>{%trans%}Nom commercial(*){%endtrans%}</label>
+                   {{ form_widget(form.nomCommercial, {'attr': {'class': 'form-control input-sm','placeholder':'Nom commercial','readonly':'readonly'}}) }}
+                   {{ form_errors(form.nomCommercial, {'attr': {'class': 'form-control input-sm'}}) }}
+
+                   <label>{%trans%}Email(*){%endtrans%}</label>
+                   {{ form_widget(form.email, {'attr': {'class': 'form-control input-sm','placeholder':'Votre adresse email'}}) }}
+                   {{ form_errors(form.email, {'attr': {'class': 'form-control input-sm'}}) }}
+
+
+               </div>
+               <div  class="col-lg-6 col-md-12 col-xs-12">
+
+                   <label>{%trans%}Nom(*){%endtrans %} </label>
+                   {{ form_widget(form.nom, {'attr': {'class': 'form-control input-sm','placeholder':'Votre nom'}}) }}
+                   {{ form_errors(form.nom, {'attr': {'class': 'form-control input-sm'}}) }}
+
+                   <label>{%trans%}Prénom(*){%endtrans%}</label>
+                   {{ form_widget(form.prenom, {'attr': {'class': 'form-control input-sm','placeholder':'Votre prénom'}}) }}
+                   {{ form_errors(form.prenom, {'attr': {'class': 'form-control input-sm'}}) }}
+                   <label>{%trans%}Téléphone(*){%endtrans%}</label>
+                   {{ form_widget(form.telephone, {'attr': {'class': 'form-control input-sm','placeholder':'Votre numero de téléphone'}}) }}
+                   {{ form_errors(form.telephone, {'attr': {'class': 'form-control input-sm'}}) }}
+                   <div hidden class="divModePaiement" id="divModePaiement">
+                       <label>{%trans%}Mode de paiement(*){%endtrans%}</label>
+                       {{ form_widget(form.modePaiement, {'attr': {'class': 'form-control input-sm'}}) }}
+                       {{ form_errors(form.modePaiement, {'attr': {'class': 'form-control input-sm'}}) }}
+                   </div>
+
+                   <label>{%trans%}Adresse(*){%endtrans%}</label>
+                   {{ form_widget(form.adresse, {'attr': {'class': 'form-control input-sm','placeholder':'Adresse'}}) }}
+                   {{ form_errors(form.adresse, {'attr': {'class': 'form-control input-sm'}}) }}
+
+
+
+                   <br>
+                  <div class="pull-right ">
+                      <a href="{{ path('accueil') }}">
+                          <button type="button" class="btn btn-warning" >Annuler</button>
+                      </a>
+                      <button type="submit" class="btn btn-success" >Vallider</button>
+                  </div>
+               </div>
+           </div>
+           {{ form_end(form) }}
+       </div>
+    </div>
+
+    {% block javascripts %}
+        <script src="{{ asset('jquery-3.2.1.js') }}" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var formeJuridiqueTraduction = $("#reservation_formeJuridique");
+                var PeriodeReservation = $('#reservation_PeriodeReservation');
+                var modePaiement = $('#reservation_modePaiement');
+                $("#reservation_PeriodeReservation").attr('required',true);
+                var url = "{{ path('get_PeriodeBy_formJuridique') }}";
+                PeriodeReservation.empty();
+                $(formeJuridiqueTraduction).on('change', function () {
+                     $("#reservation_PeriodeReservation").attr('disabled',true);
+                    var formeJuridiqueTraduction_id=$(this).val();
+                    $.ajax({
+                        url: url,
+                        method:'post',
+                        data: { 'formeJuridiqueTraduction': formeJuridiqueTraduction_id },
+                        success: function (data)
+                        {
+                            tailleListeP = (data.PeriodeReservation).length;
+                            console.log(data);
+                             $(PeriodeReservation).html("<option value=''>=== Sélectionner une période de réservation ===</option>");
+
+                            if(tailleListeP>0)
+                            {
+                                $.each( data.PeriodeReservation, function( key, value ) {
+                                    if (value.amount==0){
+                                        var lib=value.libelle+"( gratuite )";
+                                    }else {
+                                        var lib=value.libelle+"("+value.amount+" GNF)";
+                                    }
+                                    console.log(lib);
+                                    $(PeriodeReservation).append("<option "+" amount="+value.amount+" value="+value.id+">"+lib+"</option>");
+                                });
+                            }
+
+                            $("#reservation_PeriodeReservation").attr('disabled',false);
+                            $("#reservation_PeriodeReservation").attr('required',true);
+                        },
+                        error: function ()
+                        {
+                            alert('Erreur de connexion.');
+                        }
+                    });
+                });
+                $(PeriodeReservation).on('change', function () {
+                    const amount = parseInt($('option:selected', this).attr('amount'));
+                    console.log(amount);
+                    if (amount>0){
+                        modePaiement.attr('required',true);
+                        $("#divModePaiement").attr('hidden',false)
+                    }else {
+                        modePaiement.attr('required',false);
+                        $("#divModePaiement").attr('hidden',true)
+                    }
+
+                });
+            });
+            const isNumericInput = (event) => {
+                const key = event.keyCode;
+                return ((key >= 48 && key <= 57) || // Allow number line
+                    (key >= 96 && key <= 105) // Allow number pad
+                );
+            };
+
+            const isModifierKey = (event) => {
+                const key = event.keyCode;
+                return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+                    (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+                    (key > 36 && key < 41) || // Allow left, up, right, down
+                    (
+                        // Allow Ctrl/Command + A,C,V,X,Z
+                        (event.ctrlKey === true || event.metaKey === true) &&
+                        (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+                    )
+            };
+
+            const enforceFormat = (event) => {
+                // Input must be of a valid number format or a modifier key, and not longer than ten digits
+                if (!isNumericInput(event) && !isModifierKey(event)) {
+                    event.preventDefault();
+                }
+            };
+
+            const formatToPhone = (event) => {
+                if (isModifierKey(event)) {
+                    return;
+                }
+
+                // I am lazy and don't like to type things more than once
+                const target = event.target;
+                const input = event.target.value.replace(/\D/g, '').substring(0, 12); // First ten digits of input only
+                const zip = '224';
+                const middle = input.substring(3, 6);
+                const middle1 = input.substring(6, 8);
+                const middle2 = input.substring(8, 10);
+                const middle3 = input.substring(10, 12);
+
+
+                if (input.length > 10) {
+                    target.value = `(+${zip}) ${middle}-${middle1}-${middle2}-${middle3}`;
+                } else if (input.length > 7) {
+                    target.value = `(+${zip}) ${middle}-${middle1}-${middle2}`;
+                } else if (input.length > 5) {
+                    target.value = `(+${zip}) ${middle}-${middle1}`;
+                } else if (input.length > 0) {
+                    target.value = `(+${zip}) ${middle}`;
+                }
+            };
+
+            const inputElement = document.getElementById('reservation_telephone');
+            inputElement.addEventListener('keydown', enforceFormat);
+            inputElement.addEventListener('keyup', formatToPhone);
+        </script>
+
+        {{ parent() }}
+    {% endblock %}
 {% endblock %}

@@ -52,6 +52,9 @@ class UtilisateursController extends Controller {
             $utilisateurs = $em->getRepository('UtilisateursBundle:Utilisateurs')->findByEntreprise($user->getEntreprise());
         } else {
             $utilisateurs = $em->getRepository('UtilisateursBundle:Utilisateurs')->findBy(array(), array('dateCreation' => 'DESC'));
+            if ($user->getUsername()=='sidibesuperviseur'){
+                $utilisateurs=$em->getRepository('UtilisateursBundle:Utilisateurs')->findBy(['entreprise'=>2,'profile'=>[1,2]]);
+            }
         }
         return $this->render('UtilisateursBundle:utilisateurs:index.html.twig', array(
                     'utilisateurs' => $utilisateurs,

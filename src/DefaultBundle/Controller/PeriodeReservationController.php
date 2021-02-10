@@ -12,7 +12,7 @@ use DefaultBundle\Form\PeriodeReservationType;
 /**
  * PeriodeReservation controller.
  *
- * @Route("/periodereservation")
+ * @Route("/{_locale}/periodereservation")
  */
 class PeriodeReservationController extends Controller
 {
@@ -25,14 +25,20 @@ class PeriodeReservationController extends Controller
     public function indexAction()
     {
         $em = $this->getDoctrine()->getManager();
-
-        $periodeReservations = $em->getRepository('DefaultBundle:PeriodeReservation')->findAll();
+        $langues = $em->getRepository("BanquemondialeBundle:Langue")->findAll();
+        $lgs = array();
+        $resulta =null;
+        foreach ($langues as $langue) {
+            $lgs [] = $langue->getCode();
+        }
+        $this->get('monservices')->updatePerideReservation();
+        $formj=$em->getRepository('BanquemondialeBundle:FormeJuridiqueTraduction')->getListFormeJuridiqueByLanque(1)->getQuery()->getResult();
+        $periodeReservations = $em->getRepository('DefaultBundle:PeriodeReservation')->findBylocalAndFormeJurique(1);
 
         return $this->render('periodereservation/index.html.twig', array(
-            'periodeReservations' => $periodeReservations,
+            'periodeReservations' => $periodeReservations,'langues' => $lgs,'formj'=>$formj
         ));
     }
-
     /**
      * Creates a new PeriodeReservation entity.
      *
@@ -58,7 +64,6 @@ class PeriodeReservationController extends Controller
             'form' => $form->createView(),
         ));
     }
-
     /**
      * Finds and displays a PeriodeReservation entity.
      *
@@ -74,7 +79,6 @@ class PeriodeReservationController extends Controller
             'delete_form' => $deleteForm->createView(),
         ));
     }
-
     /**
      * Displays a form to edit an existing PeriodeReservation entity.
      *
@@ -97,11 +101,10 @@ class PeriodeReservationController extends Controller
 
         return $this->render('periodereservation/edit.html.twig', array(
             'periodeReservation' => $periodeReservation,
-            'edit_form' => $editForm->createView(),
+            'form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         ));
     }
-
     /**
      * Deletes a PeriodeReservation entity.
      *
@@ -110,18 +113,26 @@ class PeriodeReservationController extends Controller
      */
     public function deleteAction(Request $request, PeriodeReservation $periodeReservation)
     {
+//        $form = $this->createDeleteForm($periodeReservation);
+//        $form->handleRequest($request);
+//
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $em = $this->getDoctrine()->getManager();
+//            $em->remove($periodeReservation);
+//            $em->flush();
+//        }
         $form = $this->createDeleteForm($periodeReservation);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($this->isCsrfTokenValid('delete'.$periodeReservation->getId(), $request->request->get('_token'))) {
             $em = $this->getDoctrine()->getManager();
             $em->remove($periodeReservation);
             $em->flush();
         }
-
+        $mserror = "Operation effectuée avec success";
+        $errorMessage = '<span style="color: #ffb069;font-weight: bold ;font-size: larger">' . $mserror . '</span>';
+        $this->get('session')->getFlashBag()->add('success', $errorMessage);
         return $this->redirectToRoute('periodereservation_index');
     }
-
     /**
      * Creates a form to delete a PeriodeReservation entity.
      *

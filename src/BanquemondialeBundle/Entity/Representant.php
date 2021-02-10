@@ -113,7 +113,7 @@ class Representant
 	
 	  
 	/**
-	  * @ORM\OneToMany(targetEntity="BanquemondialeBundle\Entity\Conjoint", mappedBy="advert")
+	  * @ORM\OneToMany(targetEntity="BanquemondialeBundle\Entity\Conjoint", mappedBy="representant")
 	  */
     private $conjoints;
 	

@@ -439,6 +439,7 @@
                     if (data.resultat == 1)
                     {                       
 						toastr.success('{%trans%}message_dossier_delivre_succes{%endtrans%}');
+
 						$.ajax({
 							type: "POST",
 							url: "{{ path('send_rccm', {'idd': idd}) }}",

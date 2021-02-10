@@ -165,7 +165,6 @@
 
     <script type="text/javascript">
         $(function () {
-
             $("#boutonDemandeModification").click(function () {
                 $("#divDemandeModification").modal();
             });
@@ -183,8 +182,6 @@
                     }
                 }, 500);
             });
-
-
             $("#boutonValider").click(function () {
                 var montantVerse = Number(document.getElementById('montantVerse').value.replace(/,/g, ""));
                 document.getElementById('quittance_montantVerse').value = montantVerse;
@@ -200,9 +197,6 @@
                     return false;
                 }
             });
-
-
-
             function addCommas(nStr)
             {
                 nStr += '';
@@ -215,7 +209,6 @@
                 }
                 return x1 + x2;
             }
-
             var delay = (function () {
                 var timer = 0;
                 return function (callback, ms) {
@@ -223,7 +216,6 @@
                     timer = setTimeout(callback, ms);
                 };
             })();
-
             $('#form').submit(function (e) {
                 e.preventDefault();
 
@@ -253,9 +245,7 @@
 
 		$('#quittance_typeDossier').find(':not(:selected)').attr('disabled','disabled');
 		$('#quittance_formeJuridique').find(':not(:selected)').attr('disabled','disabled');
-		$('#quittance_modePaiement').val('1');
     </script>
-{#    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>#}
     <script type="application/javascript">
         $("#quittance_modePaiement").on('change', function () {
         var id=  $(this).val();
@@ -265,14 +255,12 @@
               $("#quittance_telephone").attr('required',false);
           }
         });
-
         const isNumericInput = (event) => {
             const key = event.keyCode;
             return ((key >= 48 && key <= 57) || // Allow number line
                 (key >= 96 && key <= 105) // Allow number pad
             );
         };
-
         const isModifierKey = (event) => {
             const key = event.keyCode;
             return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
@@ -284,14 +272,12 @@
                     (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
                 )
         };
-
         const enforceFormat = (event) => {
             // Input must be of a valid number format or a modifier key, and not longer than ten digits
             if (!isNumericInput(event) && !isModifierKey(event)) {
                 event.preventDefault();
             }
         };
-
         const formatToPhone = (event) => {
             if (isModifierKey(event)) {
                 return;
@@ -317,7 +303,6 @@
                 target.value = `(+${zip}) ${middle}`;
             }
         };
-
         const inputElement = document.getElementById('quittance_telephone');
         inputElement.addEventListener('keydown', enforceFormat);
         inputElement.addEventListener('keyup', formatToPhone);

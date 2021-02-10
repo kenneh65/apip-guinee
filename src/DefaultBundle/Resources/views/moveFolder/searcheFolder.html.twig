@@ -24,26 +24,14 @@
         <h3>Veuillez rechercher un dossier</h3>
         <form  method="POST">
             <div class="row well">
-                <div class="col-lg-2">
-                    <label for="">Numéro dossier
-                        <input value="{{ 'numdos' }}" name="numDossier" class="form-control input-sm" type="text">
-                    </label>
+                <div class="col-lg-4">
+                    <input value="{{ searche }}" placeholder="Dénomination" name="search" class="form-control input-sm" type="text">
                 </div>
                 <div class="col-lg-3">
-                    <label>Dénomination
-                        <input value="{{ 'nomcom' }}" name="denomination" class="form-control input-sm" type="text">
-                    </label>
-                </div>
-                <div class="col-lg-7">
-                   <div class="row">
-                       <div class="col-md-3"><br>
-                           <button formaction="{{ path('historique-envoi-rccm-dni') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher
-                           </button>
-                       </div>
-                   </div>
+                           <button formaction="{{ path('searche-folder-to-move') }}"  type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
                 </div>
             </div>
-
+        </form>
             <div class="table-responsive">
                 <table class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
@@ -52,79 +40,64 @@
                         <th>Dénomination</th>
                         <th>Agent de dépôt</th>
                         <th>Agent de saisie</th>
-                        <th>Statut</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-{#                    {% for historiqueRccm in historiqueRccms %}#}
-{#                        <tr>#}
-{#                            <td class="col-lg-1">#}
-{#                                <div class="pretty p-default">{{ loop.index }}#}
-{#                                    <input class="choixEleves" name="choixhistoriqueRccm[]" type="checkbox"#}
-{#                                           value="{{ historiqueRccm.id }}"/>#}
-{#                                </div>#}
-{#                            </td>#}
-{#                            <td class="col-lg-1"><a  data-toggle="tooltip" data-placement="right" title="{{ historiqueRccm.contenuDataRecu }}" href="#">{{ historiqueRccm.idDossierDemande}}</a></td>#}
-{#                            <td>{{ historiqueRccm.denominationSociale }}</td>#}
-{#                            <td class="col-lg-1">{{ historiqueRccm.DateEnvoiRccm|date('d/m/Y') }}</td>#}
-{#                            <td class="col-lg-1">{{ historiqueRccm.codeRetourDNI }}</td>#}
-{#                        </tr>#}
-{#                    {% else %}#}
-{#                        <tr>#}
-{#                            <td class="text-center"#}
-{#                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>#}
-{#                        </tr>#}
-{#                    {% endfor %}#}
+                    {% for dossier in dossiers %}
+                        <tr>
+                            <td>{{ dossier.id }}</td>
+                            <td>{{ dossier.denominationSociale }}</td>
+{#                            <td>{{ dossier.idUserDepot }}</td>#}
+                            <td>{{ monServices.getUserById(dossier.idUserDepot).username }} ( {{ monServices.getUserById(dossier.idUserDepot).nom }} {{ monServices.getUserById(dossier.idUserDepot).prenom }})</td>
+                            <td>{{ monServices.getUserById(dossier.idUtilisateur).username }} ( {{ monServices.getUserById(dossier.idUtilisateur).nom }} {{ monServices.getUserById(dossier.idUtilisateur).prenom }})</td>
+                            <td>
+                                <button
+                                        onclick=""
+                                        type="button"
+                                        class="btn btn-primary btnMoveFolder"
+                                        data-toggle="modal"
+                                        numDossier="{{ dossier.id  }}"
+                                        idUtilisateur="{{ dossier.idUtilisateur }}"
+                                        idUserDepot="{{ dossier.idUserDepot }}"
+                                        data-target="#exampleModal" >
+                                    Modifier
+                                </button>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </form>
     </div>
     <!-- modal sizes end -->
     <script type="text/javascript" src="{{ asset('jquery-3.2.1.js') }}"></script>
     <script type="text/javascript">
-
-
-        $('.promuRed').on('change', function () {
-            isChecked();
-            $('.promuRed').not(this).prop('checked', false);
+        $('.btnMoveFolder').on('click', function () {
+         $("#userDepot").val($(this).attr('idUserDepot'));
+         $("#userSaisi").val($(this).attr('idUtilisateur'));
+         $("#numDossierselect").val($(this).attr('numDossier'));
         });
         $(document).ready(function () {
-            isChecked();
-            $('.checkAll').on('click', function () {
-                $(this).closest('table').find('tbody :checkbox')
-                    .prop('checked', this.checked)
-                    .closest('tr').toggleClass('selected', this.checked);
-                isChecked();
-
+            $("#circuitdossier").on('change', function () {
+                if ($(this).val()=='0'){
+                    $("#userDepot").attr('disabled',false);
+                    $("#userSaisi").attr('disabled',false);
+                }
+                else if ($(this).val()=='1'){
+                    $("#userDepot").attr('disabled',true);
+                    $("#userSaisi").attr('disabled',false);
+                }
+                else if ($(this).val()=='2'){
+                    $("#userDepot").attr('disabled',true);
+                    $("#userSaisi").attr('disabled',true);
+                }
             });
-            $('tbody :checkbox').on('click', function () {
-                isChecked();
-                $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
-                $(this).closest('table').find('.checkAll').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
-
-            });
-            function isChecked() {
-                var checkboxes = document.getElementsByClassName('choixEleves');
-                var checkboxesChecked = [];
-                // loop over them all
-                for (var i=0; i<checkboxes.length; i++) {
-                    // And stick the checked ones onto an array...
-                    if (checkboxes[i].checked) {
-                        checkboxesChecked.push(checkboxes[i]);
-                    }
-                }
-                if (checkboxesChecked.length<=0){
-                   $(".internatEleve").attr('disabled',true);
-                   $(".internatEleve").attr('title','Assurez-vous de sélectionner au moins une ligne');
-                }
-                else {
-                    $(".internatEleve").attr('disabled',false);
-                    $(".internatEleve").attr('title','');
-                }
-            }
-
         });
     </script>
     <script>
@@ -133,4 +106,65 @@
         });
     </script>
 
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Demande de modification</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form  method="post">
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="">Circuit de dossier</label>
+                                <select  class="form-control input-sm" name="circuitdossier" id="circuitdossier">
+                                    <option value="0">Envoyer au dépot</option>
+                                    <option value="1">Envoyer &agrave; la Saisie</option>
+                                    <option value="2">Envoyer chez le Greffe</option>
+                                </select>
+                                <input type="hidden" id="numDossierselect" name="numDossierselect">
+                                <br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="">Motif</label>
+                                <textarea required style="height: 100px" class="form-control" name="motif" id="motif" cols="10" rows="10"></textarea>
+                                <br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="">Agent de dépôt</label>
+                                <select class="form-control input-sm" name="userDepot" id="userDepot">
+                                    {% for d in userDepot %}
+                                        <option value="{{ d.id }}">{{ d.username|capitalize }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="">Agent de saisi</label>
+                                <select class="form-control input-sm" name="userSaisi" id="userSaisi">
+                                    {% for s in userSaisi %}
+                                        <option value="{{ s.id }}">{{s.username|capitalize}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                        <button formaction="{{ path('move-folder') }}" type="submit" class="btn btn-primary">Valider</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}

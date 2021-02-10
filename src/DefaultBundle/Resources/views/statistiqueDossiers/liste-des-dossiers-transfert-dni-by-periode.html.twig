@@ -21,26 +21,30 @@
         </div>
     </div>
     <div class="">
-        <h3>Liste des dossiers {% if choix=='nonquittancer' %}  non encore  {% endif %}saisie  du  {{ dateDebut|date('d/m/Y') }}  au {{ dateFin|date('d/m/Y') }}</h3>
+        <h3>Liste des rccm {% if choix=='rccmNonTransmit' %}  non encore  {% endif %} transmit &agrave; la DNI  {{ dateDebut|date('d/m/Y') }}  au {{ dateFin|date('d/m/Y') }}</h3>
             <div class="table-responsive">
                 <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
                     <tr>
+                        <th>N&deg;</th>
                         <th>Num.dossier</th>
                         <th>Dénomination</th>
                         <th>Forme juridique</th>
                         <th>Date cr&eacute;ation dossier</th>
-                        <th>Agent de  Saisie</th>
+                        <th>Date d'envoie</th>
+                        <th>Code retour</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for d in (choix=='dossierNonSaisie')?statSaisie['dossierNonSaisie']:statSaisie['dossierSaisie'] %}
+                    {% for d in (choix=='rccmNonTransmit')?statTranfertDNI['rccmNonTransmit']:statTranfertDNI['rccmTransmit'] %}
                         <tr>
+                            <td>{{ loop.index }}</td>
                             <td>{{ d.numeroDossier }}</td>
                             <td>{{ d.denominationSociale }}</td>
                             <td>{{ d.libelle }}</td>
                             <td>{{ d.dateCreation|date('d/m/Y') }}</td>
-                            <td>{{ monServices.getUserById(d.idUserSaisi)==null?'':monServices.getUserById(d.idUserSaisi).username }}</td>
+                            <td>{{ d.DateEnvoiRccm|date('d/m/Y') }}</td>
+                            <td>{{d.codeRetourDNI}}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -61,4 +65,34 @@
     <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
     <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
 
+    <script type="text/javaScript">
+        $(document).ready(function() {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+            $('#datatable').DataTable({"language": {
+                    "sProcessing": "{{'traitement_en_cours'|trans}}",
+                    "sSearch": "{{'rechercher'|trans}} :",
+                    "sLengthMenu": "{{'Afficher _MENU_ éléments'|trans}}",
+                    "sInfo": "{{'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans}}",
+                    "sInfoEmpty": "{{'Affichage des éléments 0 à 0 sur 0 élément'|trans}}",
+                    "sInfoFiltered": "({{'filtré de _MAX_ éléments au total'|trans}})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{'Aucun élément à afficher'|trans}}",
+                    "sEmptyTable": "{{'Aucune donnée disponible dans le tableau'|trans}}",
+                    "oPaginate": {
+                        "sFirst": "{{'premier'|trans}}",
+                        "sPrevious": "{{'precedent'|trans}}",
+                        "sNext": "{{'suivant'|trans}}",
+                        "sLast": "{{'dernier'|trans}}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }});
+
+
+
+        } );
+    </script>
 {% endblock %}

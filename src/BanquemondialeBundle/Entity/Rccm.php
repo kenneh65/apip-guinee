@@ -49,6 +49,17 @@ class Rccm
      */
     private $date;
 
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="dateObtentionNif", type="datetime", nullable=true)
+     */
+    private $dateObtentionRccm;
+    /**
+     * @var bool
+     * @ORM\Column(name="statut", type="boolean", nullable=true)
+     */
+    private $statut;
+
         /** 	
      * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\DossierDemande")
      * @ORM\JoinColumn(name="idDossierDemande", referencedColumnName="id")
@@ -184,5 +195,51 @@ class Rccm
     public function getTypeFormaliteRccm()
     {
         return $this->typeFormaliteRccm;
+    }
+
+    /**
+     * Set dateObtentionRccm
+     *
+     * @param \DateTime $dateObtentionRccm
+     * @return Rccm
+     */
+    public function setDateObtentionRccm($dateObtentionRccm)
+    {
+        $this->dateObtentionRccm = $dateObtentionRccm;
+
+        return $this;
+    }
+
+    /**
+     * Get dateObtentionRccm
+     *
+     * @return \DateTime 
+     */
+    public function getDateObtentionRccm()
+    {
+        return $this->dateObtentionRccm;
+    }
+
+    /**
+     * Set statut
+     *
+     * @param boolean $statut
+     * @return Rccm
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get statut
+     *
+     * @return boolean 
+     */
+    public function getStatut()
+    {
+        return $this->statut;
     }
 }

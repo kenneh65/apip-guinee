@@ -23,12 +23,14 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-4 col-md-6">
-            <div class="panel panel-yellow">
+
+
+        <div class="col-lg-6 col-md-6">
+            <div class="panel panel-info">
                 <div class="panel-heading">
                     <div class="row">
                         <div class="col-xs-3">
-                            <i class="fa fa-folder-open fa-5x"></i>
+                            <i class="fa fa-line-chart fa-2x"></i>
                         </div>
                         <div class="col-xs-9 text-right">
                             <div class="huge"></div>
@@ -36,7 +38,56 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ path('suivi-dga-liste-dossier-encour') }}">
+                <a target="_blank" href="{{path('statistique-journaliere-des-dossiers')}}">
+                    <div class="panel-footer">
+                        <span class="pull-left">
+                          Statistique de traitement des dossiers
+                        </span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-line-chart fa-2x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge"></div>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+                <a target="_blank" href="{{ path('statistique-generale-dossier-en-circuit') }}">
+                    <div class="panel-footer">
+                                    <span class="pull-left">
+                                     Statistiques sur le délais traitement dossiers
+                                    </span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-folder-open fa-2x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge"></div>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+                <a target="_blank" href="{{ path('suivi-dga-liste-dossier-encour') }}">
                     <div class="panel-footer">
                                     <span class="pull-left">
                                       Dossiers en attentes de saisie <strong>({{ NombreTotalEnattenteSaisiiInterfaceDGA }})</strong>
@@ -48,11 +99,11 @@
             </div>
         </div>
         <div class="col-lg-4 col-md-6">
-            <div class="panel panel-green">
+            <div class="panel panel-info">
                 <div class="panel-heading">
                     <div class="row">
                         <div class="col-xs-3">
-                            <i class="fa fa-folder-o fa-5x"></i>
+                            <i class="fa fa-folder-o fa-2x"></i>
                         </div>
                         <div class="col-xs-9 text-right">
                             <div class="huge"></div>
@@ -60,7 +111,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{path('dossier-en-attentes-immatriculation-dga-interface',{ids:1})}}">
+                <a target="_blank" href="{{path('dossier-en-attentes-immatriculation-dga-interface',{ids:1})}}">
                     <div class="panel-footer">
                         <span class="pull-left">
                            Dossiers en attentes d'immatriculation
@@ -77,7 +128,7 @@
                 <div class="panel-heading">
                     <div class="row">
                         <div class="col-xs-3">
-                            <i class="fa fa-folder-open-o fa-5x"></i>
+                            <i class="fa fa-folder-open-o fa-2x"></i>
                         </div>
                         <div class="col-xs-9 text-right">
                             <div class="huge"></div>
@@ -85,7 +136,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{path('dossier-en-attentes-modification-dga-interface',{ids:3})}}">
+                <a target="_blank" href="{{path('dossier-en-attentes-modification-dga-interface',{ids:3})}}">
                     <div class="panel-footer">
                         <span class="pull-left">
                             Dossiers en attentes de modification
@@ -97,5 +148,84 @@
                 </a>
             </div>
         </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-recycle"></i>
+                        </div>
+                        <div style="color:black;" class="col-xs-3 text-center">
+                            {% trans %}Relance {% endtrans %}
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <a target="_blank" href="{{ path('historique-envoi-rccm-dni') }}"
+                           style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
+
+                            <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
+                            <font class="pull-right"
+                                  style="color: red;font-weight: bold;margin-right: 15px">
+                                <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
+                            </font>
+                            <div class="clearfix"></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="row">
+                        {#                                    <div class="col-xs-3">#}
+                        {#                                        <i class="fa fa-edit fa-5x"></i>#}
+                        {#                                    </div>#}
+                        <div class="col-xs-9 text-right">
+                            <div class="huge"></div>
+                            <div>Circuit de dossier</div>
+                        </div>
+                    </div>
+                </div>
+                <a target="_blank" href="{{path('searche-folder-to-move')}}">
+                    <div class="panel-footer">
+                        <span class="pull-left">
+                            Envoyer un dossier pour la  modification
+                        </span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="huge"></div>
+                            <div>Gestion des utilisateurs</div>
+                        </div>
+                    </div>
+                </div>
+                <a target="_blank" href="{{path('utilisateurs_index')}}">
+                    <div class="panel-footer">
+                        <span class="pull-left">
+                            Liste des utilisateurs
+                        </span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+
     </div>
 {%endblock %}

@@ -129,6 +129,11 @@
         <hr/>
         <div>		
             <table id="dossiers" class="table table-responsive table-bordered">
+                <a target="_blank" href="{{ path('statistique-depot-excel',{'numeroDossier':data['numeroDossier'],'denominationSociale':data['denominationSociale'],'dateCreationDebut':(data['dateCreationDebut']==0)?0:data['dateCreationDebut']|date('d-m-Y'),'dateCreationFin':(data['dateCreationFin']==0)?0:data['dateCreationFin']|date('d-m-Y'),'formeJuridique':data['formeJuridique']}) }}">
+                    <button type="button" class="pull-right btn btn-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                    </button>
+                </a>
                 <thead>
                     <tr>
                         <th></th>

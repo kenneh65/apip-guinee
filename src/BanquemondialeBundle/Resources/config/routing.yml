@@ -193,10 +193,7 @@ Administrateur_supprimer:
 Associe_listerPole:
     path:     /listerassociepole/{idd}
     defaults: { _controller: BanquemondialeBundle:Associe:ListeAssocieDossier }
-   
-Administrateur_listerPole:
-    path:     /listeradminpole/{idd}
-    defaults: { _controller: BanquemondialeBundle:Administrateur:ListeAdministrateurDossier }
+
     
 CommissionnaireAuCompte_listercomCompte:
     path:     /listercomCompte/{id}/{idd}
@@ -213,9 +210,6 @@ CommissionnaireAuCompte_RetirercomCompte:
 CommissionnaireAuCompte_ListeAffectercomCompte:
     path:     /affecterComCompte/{idd}
     defaults: { _controller: BanquemondialeBundle:CommissionnaireAuCompte:listerAffecterComCompte }
-CommissionnaireAuCompte_ListerPoleDossier:
-    path:     /ComCompteListePole/{idd}
-    defaults: { _controller: BanquemondialeBundle:CommissionnaireAuCompte:ListeComCOmpteDossier }    
 CommissionnaireAuCompte_ListerPoleDossier:
     path:     /ComCompteListePole/{idd}
     defaults: { _controller: BanquemondialeBundle:CommissionnaireAuCompte:ListeComCOmpteDossier }
@@ -252,10 +246,6 @@ Associe_listerassocie:
 Associe_supprimer:
     path:     /supprimerassocie/{id}
     defaults: { _controller: BanquemondialeBundle:Associe:supprimer }  
-    
-Associe_listerPole:
-    path:     /listerassociepole/{idd}
-    defaults: { _controller: BanquemondialeBundle:Associe:ListeAssocieDossier }
 
 representant_listerrepresentant:
     path:     /listerrepresentant/{id}/{idd}

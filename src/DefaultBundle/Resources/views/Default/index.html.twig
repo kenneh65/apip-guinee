@@ -168,8 +168,8 @@
                     <div class="panel-footer">
                         <div class="row">
                             <h3 style="text-align: center">
-                                <a href="{{ path('extraction-nbEntreprise-excel') }}">
-                                    statististique
+                                <a target="_blank"  href="{{ path('extraction-nbEntreprise-excel') }}">
+                                    Statistique
                                     <div class="clearfix"></div>
                                 </a>
                             </h3>
@@ -177,8 +177,6 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="col-lg-4 col-md-6">
                 <div class="panel panel-warning">
                     <div class="panel-heading">
@@ -191,12 +189,13 @@
                     <div class="panel-footer">
                         <form method="post" action="{{ path('reservation_index') }}">
                             <div class="row">
-                                <a href="" style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
+                                <a   href="" style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
 
                                     <button class="btn-link" type="submit">  {{ 'Réservés' }}</button>
                                     <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
                                         <input name="searchFilter" value="{{ 0 }}" type="hidden">
-                                        <button class="btn-link" type="submit"> {{ totalNomcommercialReserver }}</button>
+                                        <button class="btn-link"
+                                                type="submit"> {{ totalNomcommercialReserver }}</button>
                                     </font>
                                     <div class="clearfix"></div>
                                 </a>
@@ -205,10 +204,12 @@
                         <form method="post" action="{{ path('reservation_index') }}">
                             <div class="row">
 
-                                <button class="btn-link" type="submit"> {{ 'En cours d\'expiration ('~getJour~" )" }}</button>
+                                <button class="btn-link"
+                                        type="submit"> {{ 'En cours d\'expiration ('~getJour~" )" }}</button>
                                 <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
                                     <input name="searchFilter" value="{{ 'encours' }}" type="hidden">
-                                    <button class="btn-link" type="submit"> {{ totalNomcommercialReserverEncourExpiration }}</button>
+                                    <button class="btn-link"
+                                            type="submit"> {{ totalNomcommercialReserverEncourExpiration }}</button>
                                 </font>
                             </div>
                         </form>
@@ -217,7 +218,8 @@
                                 <button class="btn-link" type="submit"> {{ 'Expiré' }}</button>
                                 <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
                                     <input name="searchFilter" value="{{ 'expirer' }}" type="hidden">
-                                    <button class="btn-link" type="submit"> {{ totalNomcommercialReserverEncourExpirer }}</button>
+                                    <button class="btn-link"
+                                            type="submit"> {{ totalNomcommercialReserverEncourExpirer }}</button>
                                 </font>
 
                                 {#                                #}
@@ -233,23 +235,23 @@
                 </div>
 
             </div>
-
             <div class="col-lg-4 col-md-6">
                 <div class="panel panel-danger">
                     <div class="panel-heading">
                         <div class="row">
                             <div style="color:black;" class="col-xs-3 text-center">
-                                {% trans %}Rccm{% endtrans %}
+                                {% trans %}Relance{% endtrans %}
                             </div>
                         </div>
                     </div>
                     <div class="panel-footer">
                         <div class="row">
-                            <a href="{{ path('historique-envoi-rccm-dni') }}" style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
+                            <a target="_blank"  href="{{ path('historique-envoi-rccm-dni') }}"
+                               style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
 
                                 <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
                                 <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
-                                    <button class="btn-link" type="submit">{{historiqueRccms }}</button>
+                                    <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
                                 </font>
                                 <div class="clearfix"></div>
                             </a>
@@ -257,6 +259,81 @@
                     </div>
                 </div>
 
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-line-chart fa-2x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge"></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a target="_blank" href="{{path('statistique-journaliere-des-dossiers')}}">
+                        <div class="panel-footer">
+                        <span class="pull-left">
+                          Statistique de traitement des dossiers
+                        </span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-line-chart fa-2x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge"></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a target="_blank" href="{{ path('statistique-generale-dossier-en-circuit') }}">
+                        <div class="panel-footer">
+                                    <span class="pull-left">
+                                     Statistiques sur le délais traitement dossiers
+                                    </span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+
+
+            <div class="col-lg-4 col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <i class="fa fa-users fa-2x"></i>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <div class="huge"></div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a target="_blank" href="{{ path('statistique_de_suivie_de_dossoers_par_agent') }}">
+                        <div class="panel-footer">
+                                    <span class="pull-left">
+                                     Statistiques de traitement de dossiers par agent 
+                                    </span>
+                            <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                            <div class="clearfix"></div>
+                        </div>
+                    </a>
+                </div>
             </div>
 
 
@@ -276,7 +353,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ path('depot_new') }}">
+                        <a target="_blank"  href="{{ path('depot_new') }}">
                             <div class="panel-footer">
                                 <span class="pull-left">{% trans %}depot{% endtrans %}</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -298,7 +375,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ path('lister_depot') }}">
+                        <a target="_blank" href="{{ path('lister_depot') }}">
                             <div class="panel-footer">
                                 <span class="pull-left">{% trans %}lister_depot{% endtrans %}({{ nbreDocDepot }})</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -320,7 +397,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ path('lister_depot_Modification') }}">
+                        <a target="_blank" href="{{ path('lister_depot_Modification') }}">
                             <div class="panel-footer">
                                 <span class="pull-left">{% trans %}lister_depot_Modification{% endtrans %}({{ nbreDocDepotModification }})</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -330,6 +407,50 @@
                     </div>
                 </div>
             {% elseif retrait %}
+                <div class="col-lg-6 col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-9">
+                                    <i class="fa fa-folder-open fa-2x"></i> RCCM
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a  target="_blank" href="{{ path('liste-rccm-by-periode') }}">
+                            <div class="panel-footer">
+                                <span class="pull-left"> RCCM Physique reçu</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-9">
+                                    <i class="fa fa-folder-open fa-2x"></i> NIF
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge"></div>
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a  target="_blank" href="{{ path('liste-nif-by-periode') }}">
+                            <div class="panel-footer">
+                                <span class="pull-left">NIF Physique reçu</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
                 <div class="col-lg-4 col-md-6">
                     <div class="panel panel-green">
                         <div class="panel-heading">
@@ -343,7 +464,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ path('lister_retrait') }}">
+                        <a target="_blank" href="{{ path('lister_retrait') }}">
                             <div class="panel-footer">
                                 <span class="pull-left">{% trans %}lister_retrait{% endtrans %}({{ nbreDocRetrait }})</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -365,7 +486,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ path('lister_retrait_partiel') }}">
+                        <a target="_blank"  href="{{ path('lister_retrait_partiel') }}">
                             <div class="panel-footer">
                                 <span class="pull-left">{% trans %}lister_partiellement_retirer{% endtrans %}({{ nbreDocRetraitPartiel }})</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -387,7 +508,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ path('lister_retirer') }}">
+                        <a  target="_blank" href="{{ path('lister_retirer') }}">
                             <div class="panel-footer">
                                 <span class="pull-left">{% trans %}lister_retirer{% endtrans %}({{ nbreDocRetirer }})</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -411,7 +532,7 @@
 
                                 {% for pole in StatNbreDossierBYPole %}
                                     <div class="row">
-                                        <a href="{{ path('detailsDossierPole',{'idP':pole.idpole}) }}"
+                                        <a target="_blank"  href="{{ path('detailsDossierPole',{'idP':pole.idpole}) }}"
                                            style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font
                                                     class="pull-right"
                                                     style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
@@ -435,7 +556,7 @@
 
                                 {% for pole in StatDossierDelivre %}
                                     <div class="row">
-                                        <a href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':2}) }}"
+                                        <a target="_blank" href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':2}) }}"
                                            style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font
                                                     class="pull-right"
                                                     style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
@@ -459,7 +580,7 @@
 
                                 {% for pole in StatDossierEnModif %}
                                     <div class="row">
-                                        <a href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':3}) }}"
+                                        <a target="_blank" href="{{ path('detailsDossierPole',{'idP':pole.idpole,'idS':3}) }}"
                                            style="font-size: 8pt;font-weight: bold">{{ pole.nom }}<font
                                                     class="pull-right"
                                                     style="color: red;font-weight: bold"> {{ pole.nbreDossier }}</font>
@@ -470,22 +591,159 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="panel panel-green">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="panel panel-primary">
                             <div class="panel-heading">
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <i class="fa fa-folder-o fa-5x"></i>
+                                        <i class="fa fa-folder-o"></i>
                                     </div>
                                     <div class="col-xs-9 text-right">
                                         <div class="huge"></div>
-                                        <div></div>
+                                        <div>Suivi de dossier</div>
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{ path('suiviDossier') }}">
+
+                            <a target="_blank" href="{{ path('suiviDossier') }}">
                                 <div class="panel-footer">
-                                    <span class="pull-left">{% trans %}suivre_dossier{% endtrans %}({{ nbreDocSuivi }})</span>
+                                    <span class="pull-left">Etat de retrait des dossiers <strong>({{ nbreDocSuivi }})</strong> </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                            <a target="_blank" href="{{ path('suivi-dga-liste-dossier-encour') }}">
+                                <div class="panel-footer">
+                                    <span class="pull-left">
+                                      Dossiers en attentes de saisie <strong>({{ NombreTotalEnattenteSaisiiInterfaceDGA }})</strong>
+                                    </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                            <a target="_blank" href="{{ path('dossier-en-attentes-immatriculation-dga-interface',{ids:1}) }}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                           Dossiers en attentes d'immatriculation
+                           <strong> ({{ NombreTotalEnattenteImmatriculationInterfaceDGA }})</strong>
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                            <a target="_blank" href="{{ path('dossier-en-attentes-modification-dga-interface',{ids:3}) }}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Dossiers en attentes de modification
+                           <strong> ({{ NombreTotalEnattenteModificationInterfaceDGA }})</strong>
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <i class="fa fa-pie-chart"></i> Statistique Journali&egrave;re
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{path('statistique-journaliere-des-dossiers')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Statistique circuit dossier
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                            <a target="_blank" href="{{path('statistique-generale-dossier-en-circuit')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Statistique generale sur le délais de traitement
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="panel panel-warning">
+                            <div class="panel-heading">
+                                <div class="row">
+{#                                    <div class="col-xs-3">#}
+{#                                        <i class="fa fa-edit fa-5x"></i>#}
+{#                                    </div>#}
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"></div>
+                                        <div>Circuit de dossier</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{path('searche-folder-to-move')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Envoyer un dossier pour la  modification
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-recycle"></i>
+                                    </div>
+                                    <div style="color:black;" class="col-xs-3 text-center">
+                                        {% trans %}Relance {% endtrans %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <div class="row">
+                                    <a target="_blank" href="{{ path('historique-envoi-rccm-dni') }}"
+                                       style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
+
+                                        <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
+                                        <font class="pull-right"
+                                              style="color: red;font-weight: bold;margin-right: 15px">
+                                            <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
+                                        </font>
+                                        <div class="clearfix"></div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="row">
+                                                                        <div class="col-xs-3">
+                                                                            <i class="fa fa-user"></i>
+                                                                        </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"></div>
+                                        <div>Gestion des utilisateurs</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{path('utilisateurs_index')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Liste des utilisateurs
+                        </span>
                                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
                                     <div class="clearfix"></div>
                                 </div>
@@ -822,6 +1080,31 @@
                                 </a>
                             </div>
                         </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <div class="row">
+                                        <div style="color:black;" class="col-xs-3 text-center">
+                                            {% trans %}Relance{% endtrans %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-footer">
+                                    <div class="row">
+                                        <a target="_blank"  href="{{ path('historique-envoi-rccm-dni') }}"
+                                           style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
+
+                                            <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
+                                            <font class="pull-right" style="color: red;font-weight: bold;margin-right: 15px">
+                                                <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
+                                            </font>
+                                            <div class="clearfix"></div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                         {% if app.user.pole.sigle|upper != "CNSS" and app.user.profile and "gec"|lower not in app.user.profile.description|lower %}
                             <div class="col-lg-4 col-md-6">
                                 <div class="panel panel-green">
@@ -893,14 +1176,7 @@
                         </div>
                     </div>
                 {% endif %}
-
-
-
             {% endif %}
-
-
-
-
             {% if app.user.pole.sigle|upper == 'AL' %}
                 <div class="col-lg-4 col-md-6">
                     <div class="panel panel-yellow">
@@ -947,7 +1223,6 @@
                     </div>
                 </div>
             {% endif %}
-
         {% endif %}
     </div>
 {% endblock %}

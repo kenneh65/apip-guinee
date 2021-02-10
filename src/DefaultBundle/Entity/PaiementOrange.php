@@ -76,11 +76,19 @@ class PaiementOrange
     private $factureOrange;
 
     /**
+ * @var string
+ *
+ * @ORM\Column(name="orderId", type="string", length=255, nullable=true, unique=true)
+ */
+    private $orderId;
+
+
+    /**
      * @var string
      *
-     * @ORM\Column(name="orderId", type="string", length=255, nullable=true, unique=true)
+     * @ORM\Column(name="numeroDossier", type="string", length=255, nullable=true)
      */
-    private $orderId;
+    private $numeroDossier;
 
     /**
      * @var int
@@ -119,8 +127,22 @@ class PaiementOrange
 
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="operation", type="string", length=255, nullable=true)
+     */
+    private $operation;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="DefaultBundle\Entity\detailReservation")
+     * @ORM\JoinColumn(name="idDetailReservation", referencedColumnName="id",nullable=true)
+     */
+    private $detailReservation;
+
+    /**
      * @ORM\ManyToOne(targetEntity="UtilisateursBundle\Entity\Utilisateurs")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $user;
 
@@ -303,6 +325,7 @@ class PaiementOrange
     {
         $this->factureOrange = new \Doctrine\Common\Collections\ArrayCollection();
         $this->initiateDate=new \Datetime();
+        $this->operation='quittance';
     }
 
     /**
@@ -336,5 +359,74 @@ class PaiementOrange
     public function getFactureOrange()
     {
         return $this->factureOrange;
+    }
+
+    /**
+     * Set operation
+     *
+     * @param string $operation
+     * @return PaiementOrange
+     */
+    public function setOperation($operation)
+    {
+        $this->operation = $operation;
+
+        return $this;
+    }
+
+    /**
+     * Get operation
+     *
+     * @return string 
+     */
+    public function getOperation()
+    {
+        return $this->operation;
+    }
+
+    /**
+     * Set detailReservation
+     *
+     * @param \DefaultBundle\Entity\detailReservation $detailReservation
+     * @return PaiementOrange
+     */
+    public function setDetailReservation(\DefaultBundle\Entity\detailReservation $detailReservation = null)
+    {
+        $this->detailReservation = $detailReservation;
+
+        return $this;
+    }
+
+    /**
+     * Get detailReservation
+     *
+     * @return \DefaultBundle\Entity\detailReservation 
+     */
+    public function getDetailReservation()
+    {
+        return $this->detailReservation;
+    }
+
+    /**
+     * Set numeroDossier
+     *
+     * @param string $numeroDossier
+     * @return PaiementOrange
+     */
+    public function setNumeroDossier($numeroDossier)
+    {
+        $this->numeroDossier = $numeroDossier;
+
+        return $this;
+    }
+
+    /**
+     * Get numeroDossier
+     *
+     * @return string 
+     */
+    public function getNumeroDossier()
+    {
+        return $this->numeroDossier;
     }
 }

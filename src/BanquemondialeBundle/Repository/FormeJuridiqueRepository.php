@@ -20,6 +20,30 @@ class FormeJuridiqueRepository extends EntityRepository
                 ->getQuery()
                 ->getSingleScalarResult();
     }
+
+    public function getListFormeJuridiqueByCodeLanque($codeLangue) {
+        $qb = $this->_em->createQueryBuilder();
+
+           $query= $qb->select('f')
+            ->from('BanquemondialeBundle:formejuridique','f')
+            ->leftjoin('BanquemondialeBundle:formeJuridiqueTraduction', 'ft','WITH','ft.formeJuridique=f.id')
+            ->leftjoin('BanquemondialeBundle:langue', 'l','WITH','ft.langue=l.id')
+            ->where("l.id=:codeLangue")
+            ->orderBy("f.id","asc")
+            ->setParameter('codeLangue', $codeLangue);
+           return $query;
+//die(dump($query));
+//
+//
+//        $query = $this->createQueryBuilder('f')
+//            ->join('f.formeJuridiqueTraduction', 'ft')
+//            ->join('ft.langue', 'l');
+//        $query->where('l.code = :codeLangue')->setParameter('codeLangue', $codeLangue)
+//            ->andWhere('f.actif = true')
+//            ->orderBy('ft.libelle', 'asc');
+//       // die(dump($query->getQuery()));
+//        return $query;
+    }
 	/*
 	public function getSimulationByForme($idFormeJuridique) {
              

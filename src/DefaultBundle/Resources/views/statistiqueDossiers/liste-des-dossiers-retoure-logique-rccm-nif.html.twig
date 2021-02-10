@@ -7,7 +7,7 @@
                      class="alert alert-message-warning text-center " role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <strong>{{flashMessage|raw }} </strong>
+                    <strong>{{ flashMessage|raw }} </strong>
                 </div>
             {% endfor %}
             {% for flashMessage in app.session.flashbag.get('echecStatus') %}
@@ -15,51 +15,87 @@
                      class="alert alert-message-warning text-center " role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <strong>{{flashMessage|raw }} </strong>
+                    <strong>{{ flashMessage|raw }} </strong>
                 </div>
             {% endfor %}
         </div>
     </div>
     <div class="">
-        <h3>Liste des rccm {% if choix=='rccmNonTransmit' %}  non encore  {% endif %} Transmit a la DNI  {{ dateDebut|date('d/m/Y') }}  au {{ dateFin|date('d/m/Y') }}</h3>
-            <div class="table-responsive">
-                <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
-                    <thead>
+        <h3>Liste des {{ choix=='rccmLogique'?'rccm':'nif' }} disponibles sur synergui &agrave; la date
+            du {{ dateDebut|date('d/m/Y') }} au {{ dateFin|date('d/m/Y') }}</h3>
+        <div class="table-responsive">
+            <table id="datatable" class="table table-responsive table-hover table-condensed table-bordered">
+                <thead>
+                <tr>
+                    <th>N&deg;</th>
+                    <th>Num.dossier</th>
+                    <th> {{(choix=='rccmLogique')?'Num.RCCM':'Num.NIF'}}</th>
+                    <th>Dénomination</th>
+                    <th>Forme juridique</th>
+                    <th>Date cr&eacute;ation dossier</th>
+                    <th>{{(choix=='rccmLogique')?'Date création RCCM':'Date d\'obtention NIF'}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for d in (choix=='nifLogique')?RccmNifLogique['nifLogique']:RccmNifLogique['rccmLogique'] %}
                     <tr>
-                        <th>Num.dossier</th>
-                        <th>Dénomination</th>
-                        <th>Forme juridique</th>
-                        <th>Date cr&eacute;ation dossier</th>
-                        <th>Date d'envoie DNIr</th>
-                        <th>Code retour</th>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ d.numeroDossier }}</td>
+                        <td>{{ (choix=='nifLogique')?d.numeroIdentificationFiscale:d.numRccmFormalite}}</td>
+                        <td>{{ d.denominationSociale }}</td>
+                        <td>{{ d.libelle }}</td>
+                        <td>{{ d.dateCreation|date('d/m/Y') }}</td>
+                        <td>
+                            {{ (choix=='nifLogique')? d.datenif|date('d/m/Y') :d.dateEnregistrementRccm|date('d/m/Y')}}
+                        </td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for d in (choix=='rccmNonTransmit')?statTranfertDNI['rccmNonTransmit']:statTranfertDNI['rccmTransmit'] %}
-                        <tr>
-                            <td>{{ d.numeroDossier }}</td>
-                            <td>{{ d.denominationSociale }}</td>
-                            <td>{{ d.libelle }}</td>
-                            <td>{{ d.dateCreation|date('d/m/Y') }}</td>
-                            <td>{{ ''}}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td class="text-center"
-                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% else %}
+                    <tr>
+                        <td class="text-center"
+                            colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery-1.12.4.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/js/exportdatatable/jquery.dataTables.min.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.bootstrap4.min.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/js/exportdatatable/dataTables.buttons.min.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/js/exportdatatable/buttons.bootstrap4.min.js')}}"></script>
-    <script type="text/javascript" src="{{asset('js/momentlocal.js') }}"></script>
-    <script src="{{asset('datepicker/js/bootstrap-datetimepicker.min.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('/js/exportdatatable/jquery-1.12.4.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/exportdatatable/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/exportdatatable/dataTables.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/exportdatatable/dataTables.buttons.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('/js/exportdatatable/buttons.bootstrap4.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/momentlocal.js') }}"></script>
+    <script src="{{ asset('datepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <script type="text/javaScript">
+        $(document).ready(function () {
+            $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'YYYY-MM-DD'});
+            $('#datatable').DataTable({
+                "language": {
+                    "sProcessing": "{{ 'traitement_en_cours'|trans }}",
+                    "sSearch": "{{ 'rechercher'|trans }} :",
+                    "sLengthMenu": "{{ 'Afficher _MENU_ éléments'|trans }}",
+                    "sInfo": "{{ 'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans }}",
+                    "sInfoEmpty": "{{ 'Affichage des éléments 0 à 0 sur 0 élément'|trans }}",
+                    "sInfoFiltered": "({{ 'filtré de _MAX_ éléments au total'|trans }})",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "{{ 'Aucun élément à afficher'|trans }}",
+                    "sEmptyTable": "{{ 'Aucune donnée disponible dans le tableau'|trans }}",
+                    "oPaginate": {
+                        "sFirst": "{{ 'premier'|trans }}",
+                        "sPrevious": "{{ 'precedent'|trans }}",
+                        "sNext": "{{ 'suivant'|trans }}",
+                        "sLast": "{{ 'dernier'|trans }}"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+                }
+            });
 
+
+        });
+    </script>
 {% endblock %}

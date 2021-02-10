@@ -1,0 +1,209 @@
+{% extends '::base.html.twig' %}
+{% block body %}
+    <div class="container" style="width:100%">
+        {% if choix==1 %}
+            <h1>Statistique de d&eacute;pôt par agent</h1><br>
+        {% elseif choix==2 %}
+            <h1>Statistique de dossiers quittanc&eacute;s par agent</h1><br>
+        {% elseif choix==3 %}
+            <h1>Statistique de dossiers saisis par agent</h1><br>
+        {% elseif choix==4 %}
+            <h1>Liste des dossiers immatricul&eacute;s</h1><br>
+        {% elseif choix==5 %}
+            <h1>Liste des dossiers retires</h1><br>
+        {% else %}
+            <h1>Statistique de suivi de dossiers</h1><br>
+        {% endif %}
+        {% for message in app.session.flashbag.get('info') %}
+            <div class="col-lg-12 text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="col-md-12" style="margin:0 0 20px 0">
+            <div class="row">
+                <div class="row well">
+                    <form action="{{ path('statistique_de_suivie_de_dossoers_par_agent') }}" method="post">
+                        <div class="col-lg-3">
+                            Service
+                            <select class="form-control" name="service" id="service">
+                                <option value="">===Selectionner un service ===</option>
+                                <option {% if choix==1 %} selected="{{ choix }}" {% endif %} value="1">Dépôt </option>
+                                <option {% if choix==2 %} selected="{{ choix }}" {% endif %} value="2">Caisse</option>
+                                <option {% if choix==3 %} selected="{{ choix }}" {% endif %} value="3">Saisie</option>
+                                <option {% if choix==4 %} selected="{{ choix }}" {% endif %} value="4">Greffe</option>
+                                <option {% if choix==5 %} selected="{{ choix }}" {% endif %} value="5">Retrait</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            Du <input value="{{ dateDebut }}" placeholder="Date debut" name="dateDebut"
+                                      class="form-control input-sm" type="date">
+                        </div>
+                        <div class="col-lg-3">
+                            au <input value="{{ dateFin }}" placeholder="Date fin" name="dateFin"
+                                      class="form-control input-sm" type="date">
+                        </div>
+                        <div class="col-lg-3"><br>
+                            <button type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="">
+            {% if choix ==0 or choix==1 or choix==2 or choix==3 %}
+                <table id="dossiers" class="table table-bordered table-responsive">
+                    <thead>
+                    <tr>
+                        <th>N&deg;</th>
+                        <th>Nom et Prenom</th>
+                        <th>Login</th>
+                        <th>Dossiers trait&eacute;s</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    {% set sum=0 %}
+                    {% for user in userListe %}
+                        <tr>
+                            <td width="1">{{ loop.index }}</td>
+                            <td width="50">{{ user.nomPrenom }}</td>
+                            <td width="25">{{ user.username }}</td>
+                            <td width="10" style="font-weight: bold;text-align: right">{{ user.nombreDossier }}</td>
+                            {% set sum=sum+user.nombreDossier %}
+                            <td width="50">
+                                <a target="_blank" href="{{ path('statistique-liste-des-dossier-traite-par-agent',{
+                                    'userId':user.userId,
+                                    'service':choix,
+                                    'dateDebut':dateDebut,
+                                    'dateFin':dateFin}) }}">
+                                    <button class="btn btn-info btn-xs">
+                                        Detail <span class="fa fa-eye"></span>
+                                    </button>
+                                </a>
+                                <a target="_blank" href="{{ path('statistique-liste-des-dossier-traite-par-agent-excel',{
+                                    'userId':user.userId,
+                                    'service':choix,
+                                    'dateDebut':dateDebut,
+                                    'dateFin':dateFin}) }}">
+                                    <button style="color: white;background: green" class="btn btn-xs pull-right">
+                                        Excel <span class="fa fa-file-excel-o "></span>
+                                    </button>
+                                </a>
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tfoot>
+                    <tr>
+                        <td style="font-weight: bold" colspan="4">
+                            Total <span class="pull-right">{{ sum }}</span>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            {% elseif choix==4 %}
+                <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>N&deg;</th>
+                        <th>Num.dossier</th>
+                        <th>Dénomination</th>
+                        <th>Forme juridique</th>
+                        <th>Date cr&eacute;ation dossier</th>
+                        <th>Agent de Saisie</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in userListe['rccmTraiter'] %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ d.numeroDossier }}</td>
+                            <td>{{ d.denominationSociale }}</td>
+                            <td>{{ d.libelle }}</td>
+                            <td>{{ d.dateCreation|date('d/m/Y') }}</td>
+                            <td>
+                                {{ monServices.getUserById(d.idUserSaisi)==null?'':monServices.getUserById(d.idUserSaisi).nom~' '~monServices.getUserById(d.idUserSaisi).prenom }}
+                               ( {{ monServices.getUserById(d.idUserSaisi)==null?'':monServices.getUserById(d.idUserSaisi).username }})
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% elseif choix==5 %}
+                <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr>
+                        <th>N&deg;</th>
+                        <th>Num.dossier</th>
+                        <th>Dénomination</th>
+                        <th>Forme juridique</th>
+                        <th>Date cr&eacute;ation dossier</th>
+                        <th>Date de retrait</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in userListe['dossierRetirer'] %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ d.numeroDossier }}</td>
+                            <td>{{ d.denominationSociale }}</td>
+                            <td>{{ d.libelle }}</td>
+                            <td>{{ d.dateCreation|date('d/m/Y') }}</td>
+                            <td>{{ d.dateRetrait|date('d/m/Y') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td class="text-center"
+                                colspan="6">{{ 'Aucun enregistrements correspondants trouvés' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(function () {
+                $('#dossiers').DataTable({
+                    "bInfo": false, "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]], bFilter: false, "language": {
+                        "sProcessing": "{{ 'traitement_en_cours'|trans }}",
+                        "sSearch": "{{ 'rechercher'|trans }} :",
+                        "sLengthMenu": "{{ 'Afficher _MENU_ éléments'|trans }}",
+                        "sInfo": "{{ 'Affichage des éléments de _START_ à _END_ sur _TOTAL_ éléments'|trans }}",
+                        "sInfoEmpty": "{{ 'Affichage des éléments 0 à 0 sur 0 élément'|trans }}",
+                        "sInfoFiltered": "({{ 'filtré de _MAX_ éléments au total'|trans }})",
+                        "sInfoPostFix": "",
+                        "sLoadingRecords": "Chargement en cours...",
+                        "sZeroRecords": "{{ 'Aucun élément à afficher'|trans }}",
+                        "sEmptyTable": "{{ 'aucun_resultat'|trans }}",
+                        "oPaginate": {
+                            "sFirst": "{{ 'premier'|trans }}",
+                            "sPrevious": "{{ 'precedent'|trans }}",
+                            "sNext": "{{ 'suivant'|trans }}",
+                            "sLast": "{{ 'dernier'|trans }}"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                            "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                        }
+                    }
+                });
+                $('#datetimepicker1').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+                $('#datetimepicker2').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+                $('#datetimepicker3').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+
+                $('#datetimepicker4').datetimepicker({locale: 'fr', format: 'DD-MM-YYYY'});
+            }
+        );
+    </script>
+{% endblock %}

@@ -48,7 +48,7 @@ class Conjoint
 	
 	
 	/**	
-      * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Representant")
+      * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\Representant",inversedBy="conjoints")
       * @ORM\JoinColumn(name="idRepresentant", referencedColumnName="id", onDelete="CASCADE")
       */
 	private $representant;

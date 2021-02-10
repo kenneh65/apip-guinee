@@ -1,7 +1,73 @@
-{% extends "::base.html.twig" %}
+{% extends '::base.html.twig' %}
+{%block title%}representant_entreprise{%endblock%}
+{% block stylesheets %}
+    <style>
+        .thumbnail {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+            transition: 0.3s;
+            min-width: 40%;
+            border-radius: 5px;
+        }
 
-{% block title %}DefaultBundle:PayCardController:returning{% endblock %}
+        .thumbnail-description {
+            min-height: 40px;
+        }
 
-{% block body %}
-<h1>Welcome to the PayCardController:returning page</h1>
+        .thumbnail:hover {
+            cursor: pointer;
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 1);
+        }
+    </style>
 {% endblock %}
+{% block body %}
+    <div class="hpanel">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        Confirmation de paiement par PayCard
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-12">
+                {% for flashMessage in app.session.flashbag.get('successSMS') %}
+                    <div style="color: white;background:green"
+                         class="alert alert-message-warning text-center " role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <strong>{{flashMessage|raw }} </strong>
+                    </div>
+                {% endfor %}
+                {% for flashMessage in app.session.flashbag.get('echecSMS') %}
+                    <div style="color: white;background:#ff5a2f"
+                         class="alert alert-message-warning text-center " role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <strong>{{flashMessage|raw }} </strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="thumbnail">
+                         <strong> Paiement success !!!</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{%block javascripts %}
+    {{parent()}}
+
+{%endblock%}

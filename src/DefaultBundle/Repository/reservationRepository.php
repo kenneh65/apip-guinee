@@ -2,7 +2,9 @@
 
 namespace DefaultBundle\Repository;
 
+use DefaultBundle\services\monServices;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping;
 
 /**
  * reservationRepository
@@ -12,4 +14,88 @@ use Doctrine\ORM\EntityRepository;
  */
 class reservationRepository extends EntityRepository
 {
+    private $jour;
+   public function __construct($em, Mapping\ClassMetadata $class)
+   {
+
+       parent::__construct($em, $class);
+       $jj=new monServices();
+       $this->jour=$jj->getJour();
+   }
+
+    public function findReservationAll() {
+        $em = $this->getEntityManager();
+        $connection = $em->getConnection();
+        $RAW_QUERY ="SELECT r.*,r.id as idReservation FROM reservation r where r.statut=true";
+        $statement = $connection->prepare($RAW_QUERY);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return($result);
+    }
+
+    /**
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getReservationEnExpiration()
+    {
+        $em = $this->getEntityManager();
+        $connection = $em->getConnection();
+        $jour =$this->jour;
+        $RAW_QUERY ="
+                    SELECT a.nomCommercial,a.nom,a.prenom,a.email,a.adresse,a.iFormeJuridiqueTraduction,d.dateDebut, d.dateFin, d.id, d.idReservation, DATE_ADD(d.dateFin, INTERVAL -$jour DAY) f5
+                    FROM detail_reservation d 
+                    INNER JOIN reservation a ON a.id=d.idReservation
+                    and  CAST(CURRENT_DATE()  AS datetime)>= DATE_ADD(d.dateFin,INTERVAL -$jour DAY)  AND CAST(CURRENT_DATE() AS datetime)<=(d.dateFin)
+                      AND d.statut=true  AND a.statut=true
+                    GROUP by d.id";
+        $statement = $connection->prepare($RAW_QUERY);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return $result;
+    }
+
+    /**
+     * @param $reservation
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public  function getReservationEncour($reservation){
+
+        $jour =$this->jour;
+        // $jour = intval('5');
+        $em=$this->getEntityManager()->getConnection();
+        $sql="
+            SELECT d.id,d.dateFin ,d.idReservation,d.dateDebut
+             FROM detail_reservation d
+            WHERE d.idReservation=:reservation
+            AND d.statut=true 
+            AND CAST(CURRENT_DATE() AS DATETIME)<= DATE_ADD(d.dateFin,INTERVAL -$jour DAY)";
+        $statement = $em->prepare($sql);
+        $statement->bindValue('reservation',$reservation);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return $result;
+    }
+
+    /**
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getReservationExpirer()
+    {
+        $jour =$this->jour;
+        $em = $this->getEntityManager();
+        $connection = $em->getConnection();
+        $RAW_QUERY = "
+           SELECT a.statut, a.nomCommercial,a.nom,a.prenom,a.email,a.adresse,a.iFormeJuridiqueTraduction,d.dateDebut, d.dateFin, d.id, d.idReservation, DATE_ADD(d.dateFin, INTERVAL -$jour DAY) f5
+                    FROM detail_reservation d 
+                    INNER JOIN reservation a ON a.id=d.idReservation
+            AND d.statut=true  AND a.statut=true
+            AND CAST( d.dateFin AS datetime) < CAST(CURRENT_DATE() AS datetime) GROUP by d.id";
+        $statement = $connection->prepare($RAW_QUERY);
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return $result;
+    }
 }

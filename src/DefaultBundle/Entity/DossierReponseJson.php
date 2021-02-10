@@ -7,86 +7,156 @@
  */
 
 namespace DefaultBundle\Entity;
-
 /**
- * Description of ReponseJson
- *
- * @author fgueye
+ * Class DossierReponseJson
+ * @package DefaultBundle\Entity
  */
-class ReponseJson {
+class DossierReponseJson {
+
     /**
-     * @var string
-     *
+     *  @return string
+     */
+    private $status;
+
+    /**
+     *  @return string
      */
     private $numeroDossier;
-	
-	/**
-     * @var string
-     *
+
+    /**
+     * @return mixed
      */
-    private $code;
-	
-	/**
-     * @var string
-     *     
+    public function getDateCreation()
+    {
+        return $this->dateCreation;
+    }
+
+    /**
+     * @param mixed $dateCreation
      */
-    private $description;
-    
-    function getNumeroDossier() {
+    public function setDateCreation($dateCreation)
+    {
+        $this->dateCreation = $dateCreation;
+    }
+
+    /**
+     *  @return string
+     */
+    private $dateCreation;
+
+    /**
+     *  @return string
+     */
+    private $rccm;
+
+    /**
+     * @return mixed
+     */
+    public function getRccm()
+    {
+        return $this->rccm;
+    }
+
+    /**
+     * @param mixed $rccm
+     */
+    public function setRccm($rccm)
+    {
+        $this->rccm = $rccm;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNif()
+    {
+        return $this->nif;
+    }
+
+    /**
+     * @param mixed $nif
+     */
+    public function setNif($nif)
+    {
+        $this->nif = $nif;
+    }
+
+    /**
+     *  @return string
+     */
+    private $nif;
+
+
+    /**
+     * @return string
+     */
+    public function getNumeroDossier()
+    {
         return $this->numeroDossier;
     }
 
-    function getCode() {
-        return $this->code;
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
-    function setNumeroDossier($numeroDossier) {
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @param string $numeroDossier
+     */
+    public function setNumeroDossier($numeroDossier)
+    {
         $this->numeroDossier = $numeroDossier;
     }
 
-    function setCode($code) {
-        $this->code = $code;
-    }
-    function getDescription() {
-        return $this->description;
-    }
-
-    function setDescription($description) {
-        $this->description = $description;
+    /**
+     * @return string
+     */
+    public function getDenominationCommercial()
+    {
+        return $this->denominationCommercial;
     }
 
+    /**
+     * @param string $denominationCommercial
+     */
+    public function setDenominationCommercial($denominationCommercial)
+    {
+        $this->denominationCommercial = $denominationCommercial;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    /**
+     * @param array $messages
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = $messages;
+    }
+
+    private $denominationCommercial;
 
 
-}
-class ReponseJson2 {   
-	
-	/**
-     * @var string
+    /**
+     * @var array
      *
      */
-    private $code;
-	
-	/**
-     * @var string
-     *     
-     */
-    private $description;
-    
-    function getCode() {
-        return $this->code;
-    }
-
-    function getDescription() {
-        return $this->description;
-    }
-
-    function setCode($code) {
-        $this->code = $code;
-    }
-
-    function setDescription($description) {
-        $this->description = $description;
-    }
-
-
+    private $messages;
 }

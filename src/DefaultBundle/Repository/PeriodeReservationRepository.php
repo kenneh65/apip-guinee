@@ -12,4 +12,17 @@ use Doctrine\ORM\EntityRepository;
  */
 class PeriodeReservationRepository extends EntityRepository
 {
+    public function findBylocalAndFormeJurique($local) {
+        $qb = $this->createQueryBuilder('p')
+            ->innerJoin('p.formeJuridiqueTraduction', 'f')
+            ->innerJoin('f.langue', 'l')
+            ->where('l.id = :idl')
+            ->setParameter('idl',$local)
+            ->orderBy('p.nombre', 'asc')
+        ;
+        $query = $qb->getQuery();
+        $results = $query->getResult();
+        return($results);
+    }
+
 }

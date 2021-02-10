@@ -23,7 +23,7 @@ class factureOrange
 
     /**
      * @ORM\ManyToOne(targetEntity="DefaultBundle\Entity\PaiementOrange",inversedBy="factureOrange")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $paiementOrange;
 

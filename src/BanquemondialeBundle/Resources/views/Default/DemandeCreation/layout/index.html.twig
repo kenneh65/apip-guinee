@@ -37,8 +37,139 @@
             </div>
             <div class="panel-body">
                 <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+
+
+                            {% for message in app.session.flashbag.get('error') %}
+                                {#                {% if flashMessage != '<span style="color: red;font-weight: bold ;font-size: larger"></span>' %}#}
+                                <div style="color: red;background:#ebccd1"
+                                     class="alert alert-message-warning text-center text-capitalize" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span></button>
+                                    <strong>{{ message|raw }} </strong>
+                                </div>
+                                {#                {% endif %}#}
+                            {% endfor %}
+
+                            {% for flashMessage in app.session.flashbag.get('successErrorMail') %}
+                                {#                {% if flashMessage != '<span style="color: red;font-weight: bold ;font-size: larger"></span>' %}#}
+                                <div style="color: white;background:green"
+                                     class="alert alert-message-warning text-center text-capitalize" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span></button>
+                                    <strong>{{ flashMessage|raw }} </strong>
+                                </div>
+                                {#                {% endif %}#}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% for flashMessage in app.session.flashbag.get('successErrorSMS') %}
+                                {#                {% if flashMessage != '<span style="color: red;font-weight: bold ;font-size: larger"></span>' %}#}
+                                <div style="color: white;background:green"
+                                     class="alert alert-message-warning text-center text-capitalize" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span></button>
+                                    <strong>{{ flashMessage|raw }} </strong>
+                                </div>
+                                {#                {% endif %}#}
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% if message %}
                         <p class="alert alert-success">{{ message }}</p>
+                    {% endif %}
+
+                    {% if isNomCommercialReserved==true %}
+                        <div class="row">
+                            <div class="col-lg-12 col-md-1 col-xs-12"></div>
+                            <div class="col-lg-12">
+                                <table class="table table-responsive table-condensed table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Nom commercial</th>
+                                        <th>Promoteur</th>
+                                        <th>Observation</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>{{reservation.nomCommercial }}</td>
+                                        <td>
+                                            <span>Nom et prenom:{{ reservation.nom~' '~reservation.prenom }}</span><br>
+                                            <span>Email:{{reservation.email  }}</span><br>
+                                            <span>Tel:{{ reservation.telephone }}</span>
+                                            <input id="idReservation" value="{{ reservation.id }}" type="hidden">
+                                            <input id="validationCode" value="{{ reservation.validationCode }}" type="hidden">
+                                        </td>
+                                        <td style="color: #00af5d;font-weight: bold">
+                                            {{ 'Ce Nom Commercial Est Déjà Réserve'|raw }}
+                                        </td>
+                                        <td>
+                                            <button id="boutonMotif" data-motif="{{reservation.nomCommercial }}"
+                                                    class=" boutonMotif btn btn-success btn-xs btn-block"><img style="width: 15px;display: none" id="loadimage"
+                                                                                                               src="{{ asset('img/loading2.gif') }}" alt=""> Créer le
+                                                dossier
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <br><br>
+                        <div id="divMotif" class="modal fade " role="dialog">
+                            <div class="modal-dialog ">
+                                <div class="modal-content col-md-12">
+                                    <br/>
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">{% trans %}Verification code de validation{% endtrans %}</h4>
+                                        <p>Nous avons envoyer un code de validation au promotair</p>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- prepending -->
+                                        <style>
+                                            .InputAddOn {
+                                                display: flex;
+                                            }
+
+                                            .InputAddOn-field {
+                                                flex: 1;
+                                                /* field styles */
+                                            }
+
+                                            .InputAddOn-item {
+                                                /* item styles */
+                                            }
+
+                                        </style>
+                                        <label for="">Code de validation</label>
+                                        <div class="InputAddOn">
+                                            <input id="inputRechercher" step="1" type="number" required="required"
+                                                   placeholder="Entrez le code de validation envoyer par le promoteur" class="InputAddOn-field form-control"/>
+                                            <button id="btnRechercher" class="InputAddOn-item btn-primary" type="submit">Verifier</button>
+                                        </div>
+                                        <span hidden
+                                              class="text-center alertvalidationisCorrecte ">{{ 'Code de validation incorrecte' }}</span>
+                                        <div hidden class="validationisCorrecte">
+                                            <div class="row"><br>
+                                                <form method="get" action="{{ path('notaire-creation-dossier-du-nom-commercial-reserver') }}">
+                                                    <input id="inputData" name="inputData" value="{{ reservation.id }}" type="hidden">
+                                                    <button  style="background: #00af5d;" class="btn btn-warning btn-block " type="submit">
+                                                        Confirmer
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     {% endif %}
                     {{ form_start(form,{'attr':{'name':'simpleForm','id':'simpleForm'}}) }}
                     <div class="row">
@@ -80,12 +211,12 @@
                             {{ form_errors(form.secteurActivite,{'attr':{'class':'alert alert-danger'}}) }}
                             {{ form_widget(form.secteurActivite, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="form-group col-sm-4">
+                        <div hidden  class="form-group col-sm-4">
                             <label>{% trans %}activite_secondaire{% endtrans %}</label>
                             {{ form_errors(form.activiteSecondaire,{'attr':{'class':'alert alert-danger'}}) }}
                             {{ form_widget(form.activiteSecondaire, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="form-group col-sm-4">
+                        <div  hidden class="form-group col-sm-4">
                             <label>{% trans %}activite_secondaire{% endtrans %} 2</label>
                             {{ form_errors(form.activiteSecondaire2,{'attr':{'class':'alert alert-danger'}}) }}
                             {{ form_widget(form.activiteSecondaire2, {'attr': {'class': 'form-control'}}) }}
@@ -168,12 +299,12 @@
                             {{ form_widget(form.nombreSalariePrevu, {'attr': {'class': 'form-control'}}) }}
                         </div>
                         <div class="form-group col-sm-4">
-                            <label>{% trans %}phone{% endtrans %} notaire (*)</label>
+                            <label>{% trans %}phone{% endtrans %} promoteur (*)</label>
                             {{ form_errors(form.telephone,{'attr':{'class':'alert alert-danger'}}) }}
                             {{ form_widget(form.telephone, {'attr': {'class': 'form-control'}}) }}
                         </div>
                         <div class="form-group col-sm-4">
-                            <label>{% trans %}phone{% endtrans %} promoteur</label>
+                            <label>{% trans %}phone{% endtrans %} notaire (*)</label>
                             {{ form_errors(form.telephone2,{'attr':{'class':'alert alert-danger'}}) }}
                             {{ form_widget(form.telephone2, {'attr': {'class': 'form-control'}}) }}
                         </div>
@@ -278,6 +409,62 @@
         //
         //
         // });
+
+        $(document).ready(function () {
+            var boutonMotif = $("#boutonMotif");
+            var url = "{{ path('sent-sms-email-when-depot-dossier-if-reservation') }}";
+            $(boutonMotif).on('click', function () {
+                $('.validationisCorrecte').attr('hidden', true);
+                $('.alertvalidationisCorrecte').attr('hidden', false);
+                $('.alertvalidationisCorrecte').html('');
+                $('.alertvalidationisCorrecte').css({"background-color": "#ebccd", "color": "green"});
+                $('#inputRechercher').css({"border":"black"});
+                $('#inputRechercher').val('');
+                let dataId = null;
+                {% if isNomCommercialReserved==true %}
+                dataId = '{{ reservation.id }}';
+                {% endif %}
+                $.ajax({
+                    url: url,
+                    method:'post',
+                    data: { 'data': dataId},
+                    beforeSend:function () {
+                        boutonMotif.attr('disabled',true);
+                        $("#loadimage").show();
+                    },
+                    success: function (data){
+                        $("#loadimage").hide();
+                        $("#divMotif").modal();
+                        boutonMotif.attr('disabled',false);
+                    },
+                    error: function () {
+                        $("#loadimage").hide();
+                        boutonMotif.attr('disabled',false);
+                        alert('Erreur de connexion.');
+
+                    }
+                });
+            });
+            $('#btnRechercher').on('click', function () {
+                var validationCode = $('#validationCode').val();
+                var clientCode = $('#inputRechercher').val();
+                if (validationCode == clientCode) {
+                    $('.validationisCorrecte').attr('hidden', false);
+                    $('.alertvalidationisCorrecte').attr('hidden', false);
+                    $('.alertvalidationisCorrecte').html('code de vérification accepter');
+                    $('.alertvalidationisCorrecte').css({"background-color": "#ebccd", "color": "green"});
+                    $('#inputRechercher').css({"border":"solid green"});
+                }
+                else {
+                    $('.validationisCorrecte').attr('hidden', true);
+                    $('.alertvalidationisCorrecte').attr('hidden', false);
+                    $('.alertvalidationisCorrecte').html('Désolé code de vérification incorrect');
+                    $('.alertvalidationisCorrecte').css({"background-color": "#ebccd", "color": "red"});
+                    $('#inputRechercher').css({"border":"solid red"});
+
+                }
+            });
+        });
 
         $(document).ready(function () {
             $("#banquemondialebundle_dossierDemande_prefecture").children().remove();
@@ -451,7 +638,7 @@
             }
         });
     </script>
-    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>
+{#    <script src="{{ asset('jquery-3.2.1.js') }}" type="application/javascript"></script>#}
     <script type="application/javascript">
 
         const isNumericInput = (event) => {

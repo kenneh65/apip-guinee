@@ -18,61 +18,49 @@ class QuittanceRepository extends EntityRepository {
         $query = $this->createQueryBuilder('a')->where('a.isPaid = true')
             ->leftJoin('a.utilisateur', 'u')
             ->leftJoin('u.entreprise', 'e');
-
         if ($lieu) {
             //$query->leftJoin('a.utilisateur', 'u')
             //->leftJoin('u.entreprise', 'e');
             //$query->andwhere('u.id=:idu')->setParameter('idu', $idUser);
             $query->join('a.sousPrefecture', 'sp')->andWhere('sp.id=:idSP')->setParameter('idSP', $lieu);
         }
-
-
-        if ($data['numeroDossier'] != '') {
+        if (!empty($data['numeroDossier'] )) {
             $query->andWhere('LOWER(a.numeroDossier) = :numeroDossier')
                 ->setParameter('numeroDossier', $data['numeroDossier']);
         }
-        if ($data['typeDossier'] != '') {
+        if (!empty($data['typeDossier'])) {
             $query->join(('a.dossierDemande'), 'dd');
             $query->andWhere('dd.typeDossier = :idtd')
                 ->setParameter('idtd', $data['typeDossier']);
         }
-
-        if ($data['denominationSociale'] != '') {
+        if (!empty($data['denominationSociale'] )) {
             $query->andWhere('LOWER(a.denominationSociale) like :denominationSociale')
                 ->setParameter('denominationSociale', '%' . $data['denominationSociale'] . '%');
         }
-
-        if ($data['formeJuridique'] != '') {
+        if (!empty($data['formeJuridique'] )) {
             $query->andWhere('a.formeJuridique = :formeJuridique')
                 ->setParameter('formeJuridique', $data['formeJuridique']);
         }
-
-        if ($data['typeDossier'] != '') {
+        if (!empty($data['typeDossier'] )) {
             $query->andWhere('a.typeDossier = :typeDossier')
                 ->setParameter('typeDossier', $data['typeDossier']);
         }
-
-        if ($data['numeroQuittance'] != '') {
+        if (!empty($data['numeroQuittance'] )) {
             $query->andWhere('LOWER(a.numeroQuittance) = :numeroQuittance')
                 ->setParameter('numeroQuittance', $data['numeroQuittance']);
         }
-
-        if ($data['datePaiementDebut'] != '') {
+        if ( !empty($data['datePaiementDebut'])) {
             $query->andWhere('DATE_DIFF(a.datePaiement,:datePaiementDebut)>=0')
                 ->setParameter('datePaiementDebut', new DateTime($data['datePaiementDebut']));
         }
-
-        if ($data['datePaiementFin'] != '') {
+        if (!empty($data['datePaiementFin'] )) {
             $query->andWhere('DATE_DIFF(a.datePaiement,:datePaiementFin)<=0')
                 ->setParameter('datePaiementFin', new DateTime($data['datePaiementFin']));
         }
-
-        if ($data['entreprise'] != '') {
+        if (!empty($data['entreprise'] )) {
             $query->andWhere('e.denomination = :entreprise')
                 ->setParameter('entreprise', $data['entreprise']);
         }
-
-
         if ($limit) {
             $query->setMaxResults($limit);
         }
@@ -107,7 +95,6 @@ class QuittanceRepository extends EntityRepository {
             ($result->getUtilisateur() && $result->getUtilisateur()->getEntreprise()) ? $tabResult[$i]['entreprise'] = $result->getUtilisateur()->getEntreprise()->getDenomination() : $tabResult[$i]['entreprise'] = "";
             $i++;
         }
-
         return $tabResult;
     }
 
@@ -126,7 +113,6 @@ class QuittanceRepository extends EntityRepository {
             //$query->andwhere('u.id=:idu')->setParameter('idu', $idUser);
             $query->innerJoin('a.sousPrefecture', 'sp')->andWhere('sp.id=:idSP')->setParameter('idSP', $lieu);
         }
-
         if (!empty($data)) {
             if ($data['numeroDossier'] != '') {
                 $query->andWhere('LOWER(a.numeroDossier) = :numeroDossier')
@@ -204,7 +190,6 @@ class QuittanceRepository extends EntityRepository {
             }
             $i++;
         }
-        //  die(dump($tabResult));
         return $tabResult;
 
     }

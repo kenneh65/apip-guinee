@@ -25,7 +25,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h2 class="page-header">
-                        Confirmation de paiement par orange money
+                        Confirmation de paiement par PayCard
                     </h2>
                 </div>
             </div>
@@ -58,44 +58,20 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="thumbnail">
-                                <div class="caption text-center" >
-                                    <div class="position-relative">
-                                        <img src="http://maliactu.net/wp-content/uploads/2014/06/orange-money-1.png" style="width:72px;height:72px;" />
-                                    </div>
-                                    <div class="thumbnail-description smaller">
-                                        <h4>
-                                            Vous êtes sur le point d'effectuer le paiement par orange money, il vous faut un code de confirmation générer par le client pour la validation
-                                        </h4>
-                                    </div>
-                                    <h4 id="thumbnail-label">
-                                        Le compte du client sera débuté de :
-                                        <a style="list-style: none;text-decoration: none" >
-                                           {{(app.session.get('sessionData')['montantTotalFacture']*0.02+app.session.get('sessionData')['montantTotalFacture'])|number_format('0', '.',' ')}} GNF
-                                        </a>
-                                    </h4>
-
-                                    <div class="thumbnail-description smaller">
-                                        <h3>Pour générer un code OTP (Code paiement)</h3>
-                                        <h3>le promoteur doit composer:</h3> <h2>*144*4*2*1# <br> Puis Entrer code secret pour confirmer</h2>
-
-                                    </div>
-
-                                </div>
-                                <div class="caption card-footer text-center">
-                                    <ul class="list-inline">
-                                        <li>
-                                            <i class="people lighter"></i>&nbsp; <a href="{{ path('make-orange-money-payement') }}">
-                                            <button class="btn btn-success" type="reset">  Lancer le Paiement</button>
-                                            </a>
-                                        </li>
-                                        <li></li>
-                                        <li>
-                                            <a href="{{ path('traiter_quittance',{'idq':app.session.get('sessionIdq')}) }}">
-                                            <button class="btn btn-warning" type="reset">Annuler le Paiement</button>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <form action="https://paycard.co/epay/" method="POST">
+                                    <input type="hidden" name="c" value="NDMxMjI5Njk">
+                                    <input type="hidden" name="paycard-amount" value="{{amount}}"> <!-- Changez au montant de votre produit -->
+                                    <input type="hidden" name="paycard-description" value="{{ description }}">
+                                    <!-- Changez à la description de la vente ( pas obligatoire ) -->
+                                    <!-- Inclure le callback URL où redigirer automatiquement après le paiement -->
+                                    <!-- Un appel POST sera fait au callback URL avec toutes les données -->
+                                    <input type="hidden" name="paycard-callback-url" value="{{ returnUrl }}">
+                                    <!-- Inclure les données que vous aimerez recevoir au callback -->
+                                    <input type="hidden" name="order_id" value="{{orderId}}">
+                                    <input type="hidden" name="PayementId" value="{{PayementId}}">
+                                    <input type="hidden" name="initietedDate" value="{{initietedDate}}">
+                                    <input type="image" src="https://paycard.co/static/images/paywithpaycard2.png" border="0" alt="Payez avec PayCard"></input>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -106,7 +82,6 @@
 
 {%block javascripts %}
     {{parent()}}
-
     <script type="text/javascript">
         // $(function () {
         //     $('#datetimepicker').datetimepicker({locale: 'fr', format: 'yyyy-MM-dd'});

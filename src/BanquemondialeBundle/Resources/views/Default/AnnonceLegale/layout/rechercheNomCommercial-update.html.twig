@@ -33,29 +33,10 @@ div#nomcomm_processing {
                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                     <strong>{{ message }}</strong>
                 </div>
-     {% endif %} 
-	<hr></hr>
-
-		
-
+     {% endif %}
+	<hr>
+    {% if  isReserver!=true  %}
 <div class="table-responsive" style="width:100%">
-{#                    <table id="nomcomm" class="table  table-striped table-bordered">#}
-{#                        <thead>#}
-{#                            <tr>#}
-{#                                <th>{%trans%}nomCommercial{%endtrans%}</th>#}
-{#                                <th>{%trans%}forme_juridique{%endtrans%}</th>#}
-{#								<th>{%trans%}numero_rccm{%endtrans%}</th>#}
-{#								<th>{%trans%}nomCommercial_Gerant{%endtrans%}</th>#}
-{#								<th>{%trans%}nomComm_secteurActivite{%endtrans%}</th>#}
-{#								<th>{%trans%}nomComm_telephone{%endtrans%}</th>#}
-{#								<th>{%trans%}nomComm_siegeSocial{%endtrans%}</th>#}
-{#								<th>{%trans%}nomComm_anneeCreation{%endtrans%}</th>#}
-{#                            </tr>#}
-{#                        </thead>#}
-{#                        <tbody> #}
-{#						</tbody> #}
-{#                    </table>#}
-
     <table id="datatable" class="table  table-striped table-bordered">
         <thead>
         <tr>
@@ -94,8 +75,7 @@ div#nomcomm_processing {
     </table>
                 </div>
 
-		
-
+    {% endif %}
 </div>
 </div>
 {% endblock %}

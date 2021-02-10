@@ -30,7 +30,12 @@
         "tui/session-bundle": "~1.1",
          "mewesk/twig-excel-bundle": "^2.1",
          "twig/extensions": "^1.5",
-        "ismaeltoe/osms": "^2.0"
+        "ismaeltoe/osms": "^2.0",
+        "foris-master/orange-money-sdk": "^0.6.0",
+        "endroid/qrcode": "^2.5",
+        "symfony/dotenv": "^3.4",
+        "liip/imagine-bundle": "^1.9",
+        "beberlei/doctrineextensions": "^1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~3.0",

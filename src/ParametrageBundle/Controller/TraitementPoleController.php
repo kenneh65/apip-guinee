@@ -41,6 +41,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 //fin pour web service
 
@@ -51,7 +52,6 @@ use Symfony\Component\Serializer\Encoder\JsonDecode;
  */
 class TraitementPoleController extends Controller
 {
-
     public function listDossierPoleAction($data = null, $maxItemPerPage = 25)
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -127,9 +127,318 @@ class TraitementPoleController extends Controller
     {
     }
 
+    public function delivrerDossierAction(Request $request)
+    {
+        // die(dump('ok'));
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $pole = $user->getPole();
+        $idPole = 0;
+        $nomDuPole = null;
+        if ($pole) {
+            $idPole = $pole->getId();
+            $nomDuPole = $this->get('translator')->trans($pole->getNom());
+        }
+        $idd = $request->get('idd');
+        $retour = '';
+        $sms = "";
+        $dateActu = new \DateTime();
+
+        //$pole = $em->getRepository('ParametrageBundle:Pole')->find($idPole);
+        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
+        $texte = $this->get('translator')->trans('envoi_email_soumission_saisie', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
+
+        if ($request->getMethod() == 'POST') {
+
+            $documentCollected = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande));
+            if ($documentCollected) {
+                //si le dossier de reception n'existe pas le creer
+                $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+                $cheminUpload = $chemin->getNom();
+
+                $temp = $cheminUpload . $idd . '\\';
+                if (!is_dir($temp)) {
+                    mkdir($temp);
+                }
+
+                //Mise a jour du pole en cours
+                $statutTraitement = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(2);
+
+                $documentCollected->setStatutTraitement($statutTraitement);
+                $documentCollected->setMotif(null);
+                $documentCollected->setDateDelivrance($dateActu);
+                $em->persist($documentCollected);
+                $em->flush();
+
+
+                //enregistrer PDF
+                if (strtolower($pole->getSigle()) == 'bni') {
+                    $this->enregistrerNIF($idd);
+                    $texteMail = $this->get('translator')->trans('envoi_email_soumission_nif', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
+                } else if ($pole->getSigle() == "CNSS") {
+                    $this->enregistrerNI($idd, $pole);
+                    $texteMail = $this->get('translator')->trans('envoi_email_soumission_cnss', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
+                } else {
+                    $codeFormJ = $dossierDemande->getFormeJuridique()->getSigle();
+                    //die(dump($codeFormJ));
+                    if ($codeFormJ == "EI") {
+                        $this->enregistrerP1($idd, $pole);
+                        $this->enregistrerPE1($idd, $pole);
+                        $texteMail = $this->get('translator')->trans('envoi_email_soumission_greffe', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
+                    } else if ($codeFormJ == "GIE") {
+                        $this->enregistrerG1($idd, $pole);
+                        $this->enregistrerGE4($idd, $pole);
+                        $texteMail = $this->get('translator')->trans('envoi_email_soumission_greffe', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
+                    } else {
+                        $this->enregistrerM0($idd, $pole);
+                        $this->enregistrerME1($idd, $pole);
+                        $texteMail = $this->get('translator')->trans('envoi_email_soumission_greffe', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
+                    }
+                }
+                //fin
+                //Mise a jour Pole suivant
+                $ordre = $documentCollected->getOrdre();
+                $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
+                //si on a pas d'autres documentcollected du meme ordre
+                $documentsCollectedMemeOrdre = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDocumentMemeOrdre($ordre, $dossierDemande, $statutEncours);
+
+                //on verifie si c'etait le dernier pole ou pas
+                $documentSuivant = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPoleSuivant($ordre, $idd);
+                //si on a d'autres poles du meme ordre on envoi juste les notifications
+                $notif = $this->container->get('utilisateurs.notification');
+                if ($documentsCollectedMemeOrdre) {
+                    $message = $this->get('translator')->trans('message_dossier_en_cours');
+                    $objet = $this->get('translator')->trans('traitement_dossier_en_cours');
+                } //on cherche la liste des documentcollected du prochain ordre
+                else {
+                    if ($documentSuivant) {
+                        $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
+                        $polesSuivants = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPolesSuivants($documentSuivant[0]->getOrdre(), $idd);
+                        if ($polesSuivants) {
+                            $message = $this->get('translator')->trans('message_dossier_recu');
+                            $objet = $this->get('translator')->trans('reception_dossier_objet');
+                            foreach ($polesSuivants as $poleSuivant) {
+                                $poleSuivant->setStatutTraitement($statutEncours);
+                                $dateEnCours = $poleSuivant->getDateSoumission() ? $poleSuivant->getDateSoumission() : $dateActu;
+                                $poleSuivant->setDateSoumission($dateEnCours);
+                                $em->persist($poleSuivant);
+                                foreach ($poleSuivant->getPole()->getUtilisateur() as $user)
+                                    $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message, $user, $objet);
+                            }
+                            $message = $this->get('translator')->trans('message_dossier_en_cours');
+                            $objet = $this->get('translator')->trans('traitement_dossier_en_cours');
+
+                            if ($pole->getTypePole() && $pole->getTypePole()->getCode() == "00") {
+                                //die('recev');
+                                $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message, $dossierDemande->getUtilisateur(), $objet);
+
+                                $sujet = $this->get('translator')->trans('sujet_notification_email');
+                                $texte = $this->get('translator')->trans('texte_notification_email_recevabilite') . " " . $dossierDemande->getNumeroDossier();
+                                $this->sendMail($sujet, $texte, $dossierDemande->getUtilisateur());
+
+                                if ($request->getLocale() == 'fr') {
+                                    $sms = 'Votre+dossier+' . $dossierDemande->getNumeroDossier() . '+a+été+traité+par+le+pole+' . str_replace(" ", "+", $nomDuPole);
+                                    //$retour = $this->sendSMS('fr', $sms, $telephone);
+                                } else if ($request->getLocale() == 'en') {
+                                    $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+performed+by+' . str_replace(" ", "+", $nomDuPole);
+                                    //$retour = $this->sendSMS('en', $sms, $telephone);
+                                } else {
+                                    $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+performed+by+' . str_replace(" ", "+", $nomDuPole);
+                                    //$retour = $this->sendSMS($request->getLocale(), $sms, $telephone);
+                                }
+                            }
+                        }
+                    } else {
+                        //si dernier Pole
+                        $dossierDemande->setStatut(2);
+                        $date = new \DateTime();
+                        $dossierDemande->setDateDelivrance($date);
+                        $em->persist($dossierDemande);
+                        $message = $this->get('translator')->trans('message_dossier_delivre');
+                        //Envoie d'une notification
+                        $objet = $this->get('translator')->trans('dossier_delivre');
+                        $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message, $dossierDemande->getUtilisateur(), $objet);
+
+                        $sujet = $this->get('translator')->trans('sujet_notification_email');
+                        $texte = $this->get('translator')->trans('texte_notification_dossier_delivre') . " " . $dossierDemande->getNumeroDossier();
+                        $this->sendMail($sujet, $texte, $dossierDemande->getUtilisateur());
+
+                        if ($request->getLocale() == 'fr') {
+                            $sms = 'Votre+dossier+' . $dossierDemande->getNumeroDossier() . '+a+été+délivré+par+le+pole+' . str_replace(" ", "+", $nomDuPole);
+                            //$retour = $this->sendSMS('fr', $sms, $telephone);
+                        } elseif ($request->getLocale() == 'en') {
+                            $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+issued+by+' . str_replace(" ", "+", $nomDuPole);
+                            //$retour = $this->sendSMS($request->getLocale(), $sms, $telephone);
+                        } else
+                            $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+issued+by+' . str_replace(" ", "+", $nomDuPole);
+                    }
+                }
+
+                //Envoie d'une notification
+
+                $em->flush();
+
+                //envoi email promoteur
+                if ($dossierDemande->getEmailPromoteur()) {
+                    $sujet = $this->get('translator')->trans('sujet_notification_email');
+                    $ancienEmailUtilisateur = $dossierDemande->getUtilisateur()->getEmail();
+                    $dossierDemande->getUtilisateur()->setEmail($this->valideMail($dossierDemande->getEmailPromoteur()));
+                    try {
+                        $this->sendMail($sujet, $texteMail, $dossierDemande->getUtilisateur());
+                    } catch (\Exception $e) {
+                        $translated = $this->get('translator')->trans("error_send_mail");
+                        $this->get('session')->getFlashBag()->add('error', $translated);
+                        $this->get('logger')->error($e->getMessage());
+                    } finally {
+                        $dossierDemande->getUtilisateur()->setEmail($this->valideMail($ancienEmailUtilisateur));
+                    }
+                }
+                return new JsonResponse(array('resultat' => '1', 'url' => $sms));
+            }
+            //return new JsonResponse(array('resultat' => '1'));
+        }
+
+        return new JsonResponse(array('resultat' => '0'));
+    }
+
+    public function enregistrerNIF($idd)
+    {
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $pole = $user->getPole();
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
+        if ($pole) {
+            $idPole = $pole->getId();
+        }
+        $em = $this->getDoctrine()->getManager();
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+        $cheminDownload = $chemin->getNom();
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
+
+        $libelleFormulaire = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->findOneByPole($pole);
+
+        $nif = $em->getRepository('BanquemondialeBundle:Nif')->findOneByDossierDemande($idd);
+
+        $dateNif = new \DateTime();
+        $dateValiditeTemp = new \DateTime();
+        $timestamp = $dateValiditeTemp->getTimestamp();
+        $dateValidite = strftime('%d %B %Y', $timestamp);
+
+        if ($nif) {
+            $dateNif = $nif->getDate();
+        }
+
+        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
+        $gerant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
+
+        $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
+        $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
+        $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
+
+
+        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserNIF.html.twig', array('idd' => $idd,
+            'dd' => $dossierDemande, 'dateValidite' => $dateValidite, 'nif' => $nif,
+            'rep' => $gerant[0], 'rccm' => $rccm, 'activitePrincipale' => $activitePrincipale,
+            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+        $nomFichier = "formulaire" . $idd . "_" . $libelleFormulaire->getId() . ".pdf"; //cofifier après rccm
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+        $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
+
+        $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('nomFichier' => $nomFichier, 'pole' => $pole, 'dossierDemande' => $dossierDemande));
+        if (!$formDelivre) {
+            $date = new \DateTime();
+            $formulaireDelivre = new FormulaireDelivre();
+            $formulaireDelivre->setPole($pole);
+            $formulaireDelivre->setDossierDemande($dossierDemande);
+            $formulaireDelivre->setDateCreation($date);
+            $formulaireDelivre->setNomFichier($nomFichier);
+            $formulaireDelivre->setLibelleFormulaireDelivre($libelleFormulaire);
+            $em->persist($formulaireDelivre);
+        } else {
+            $date = new \DateTime();
+            $formDelivre->setDateCreation($date);
+            $em->persist($formDelivre);
+        }
+        $em->flush();
+    }
+
+    public function enregistrerNI($idd, $pole)
+    {
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $pole = $user->getPole();
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
+        if ($pole) {
+            $idPole = $pole->getId();
+        }
+        $em = $this->getDoctrine()->getManager();
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+        $cheminDownload = $chemin->getNom();
+
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
+        $dateRccm = new \DateTime();
+        if ($rccm) {
+            $dateRccm = $rccm->getDate();
+        }
+
+
+        $listeTypeOrigine = $em->getRepository('ParametrageBundle:TypeOrigine')->findAll();
+        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
+        $complementCnss = $em->getRepository('BanquemondialeBundle:ComplementCnss')->findOneByDossierDemande($idd);
+        $leCnss = $em->getRepository('BanquemondialeBundle:Cnss')->findOneByDossierDemande($idd);
+        $gerant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
+
+        $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
+        $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
+        $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
+
+
+        if ($complementCnss) {
+            $dateComplementCnss = $complementCnss->getDateImmatriculation();
+        } else {
+            $complementCnss = new ComplementCnss();
+            $complementCnss->setDateEffet($dateComplementCnss);
+        }
+
+        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserNI.html.twig', array('idd' => $idd,
+            'dd' => $dossierDemande, 'cnss' => $complementCnss, 'dateComplementCnss' => $dateComplementCnss, 'leCnss' => $leCnss, 'rccm' => $rccm, 'user' => $user, 'rep' => $gerant[0], 'activitePrincipale' => $activitePrincipale,
+            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
+        $lesFormulairesDelives = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->findOneBy(array('pole' => $pole->getId()));
+        $nomFichier = "formulaire" . $idd . "_" . $lesFormulairesDelives->getId() . ".pdf";
+        $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande));
+        if (!$formDelivre) {
+            $formulaireDelivre = new FormulaireDelivre();
+            $formulaireDelivre->setPole($pole);
+            $formulaireDelivre->setDossierDemande($dossierDemande);
+            $formulaireDelivre->setDateCreation($dateRccm);
+            $formulaireDelivre->setNomFichier($nomFichier);
+            $formulaireDelivre->setLibelleFormulaireDelivre($lesFormulairesDelives);
+            $em->persist($formulaireDelivre);
+        } else {
+            $formDelivre->setDateCreation($dateRccm);
+            $formDelivre->setLibelleFormulaireDelivre($lesFormulairesDelives);
+            $em->persist($formDelivre);
+        }
+        $em->flush();
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+        $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
+        //$html2pdf->Output($cheminDownload . 'formulairesDelivres\\' . $nomFichier, 'F');
+        //exit;
+    }
+
     public function enregistrerP1($idd, $pole)
     {
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -197,9 +506,58 @@ class TraitementPoleController extends Controller
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function enregistrerG1($idd, $pole)
+    public function enregistrerPE1($idd, $pole)
     {
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        if ($pole) {
+            $idPole = $pole->getId();
+        }
+        $em = $this->getDoctrine()->getManager();
+        $request = $this->get('request');
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+
+        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
+        $representant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
+        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
+        $dateRccm = new \DateTime();
+        if ($rccm) {
+            $dateRccm = $rccm->getDate();
+        }
+
+        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
+        $cheminDownload = $chemin->getNom();
+        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserPE1.html.twig', array('rep' => $representant[0], 'dateRccm' => $dateRccm, 'rccm' => $rccm));
+        $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), "acc");
+        $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . "_2.pdf";
+        $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande, 'numero' => 2));
+        if (!$formDelivre) {
+            $formulaireDelivre = new FormulaireDelivre();
+            $formulaireDelivre->setPole($pole);
+            $formulaireDelivre->setDossierDemande($dossierDemande);
+            $formulaireDelivre->setNumero(2);
+            $formulaireDelivre->setDateCreation($dateRccm);
+            $formulaireDelivre->setNomFichier($nomFichier);
+            $formulaireDelivre->setLibelleFormulaireDelivre($leFormulaire_a_delive);
+            $em->persist($formulaireDelivre);
+        } else {
+            $formDelivre->setDateCreation($dateRccm);
+            $formDelivre->setLibelleFormulaireDelivre($leFormulaire_a_delive);
+            $em->persist($formDelivre);
+        }
+        $em->flush();
+        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->pdf->SetDisplayMode('real');
+        $html2pdf->writeHTML($html);
+        //$html2pdf->Output('document.pdf');
+        //exit;
+
+        $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
+    }
+
+    public function enregistrerG1($idd, $pole)
+    {
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -277,193 +635,9 @@ class TraitementPoleController extends Controller
         $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
     }
 
-    public function enregistrerNIF($idd)
-    {
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
-        if ($pole) {
-            $idPole = $pole->getId();
-        }
-        $em = $this->getDoctrine()->getManager();
-        $request = $this->get('request');
-        $codLang = $request->getLocale();
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-        $cheminDownload = $chemin->getNom();
-        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
-
-        $libelleFormulaire = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->findOneByPole($pole);
-
-        $nif = $em->getRepository('BanquemondialeBundle:Nif')->findOneByDossierDemande($idd);
-
-        $dateNif = new \DateTime();
-        $dateValiditeTemp = new \DateTime();
-        $timestamp = $dateValiditeTemp->getTimestamp();
-        $dateValidite = strftime('%d %B %Y', $timestamp);
-
-        if ($nif) {
-            $dateNif = $nif->getDate();
-        }
-
-        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
-        $gerant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
-
-        $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
-        $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
-        $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
-
-
-        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserNIF.html.twig', array('idd' => $idd,
-            'dd' => $dossierDemande, 'dateValidite' => $dateValidite, 'nif' => $nif,
-            'rep' => $gerant[0], 'rccm' => $rccm, 'activitePrincipale' => $activitePrincipale,
-            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
-        $nomFichier = "formulaire" . $idd . "_" . $libelleFormulaire->getId() . ".pdf"; //cofifier après rccm
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-        $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
-
-        $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('nomFichier' => $nomFichier, 'pole' => $pole, 'dossierDemande' => $dossierDemande));
-        if (!$formDelivre) {
-            $date = new \DateTime();
-            $formulaireDelivre = new FormulaireDelivre();
-            $formulaireDelivre->setPole($pole);
-            $formulaireDelivre->setDossierDemande($dossierDemande);
-            $formulaireDelivre->setDateCreation($date);
-            $formulaireDelivre->setNomFichier($nomFichier);
-            $formulaireDelivre->setLibelleFormulaireDelivre($libelleFormulaire);
-            $em->persist($formulaireDelivre);
-        } else {
-            $date = new \DateTime();
-            $formDelivre->setDateCreation($date);
-            $em->persist($formDelivre);
-        }
-        $em->flush();
-    }
-
-    public function enregistrerNI($idd, $pole)
-    {
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
-        if ($pole) {
-            $idPole = $pole->getId();
-        }
-        $em = $this->getDoctrine()->getManager();
-        $request = $this->get('request');
-        $codLang = $request->getLocale();
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-        $cheminDownload = $chemin->getNom();
-
-        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
-        $dateRccm = new \DateTime();
-        if ($rccm) {
-            $dateRccm = $rccm->getDate();
-        }
-
-
-        $listeTypeOrigine = $em->getRepository('ParametrageBundle:TypeOrigine')->findAll();
-        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
-        $complementCnss = $em->getRepository('BanquemondialeBundle:ComplementCnss')->findOneByDossierDemande($idd);
-        $leCnss = $em->getRepository('BanquemondialeBundle:Cnss')->findOneByDossierDemande($idd);
-        $gerant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
-
-        $activitePrincipale = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getSecteurActivite(), 'langue' => 1));
-        $activiteSecondaire = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire(), 'langue' => 1));
-        $activiteSecondaire2 = $em->getRepository('ParametrageBundle:SecteurActiviteTraduction')->findOneBy(array('secteurActivite' => $dossierDemande->getActiviteSecondaire2(), 'langue' => 1));
-
-
-        if ($complementCnss) {
-            $dateComplementCnss = $complementCnss->getDateImmatriculation();
-        } else {
-            $complementCnss = new ComplementCnss();
-            $complementCnss->setDateEffet($dateComplementCnss);
-        }
-
-        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserNI.html.twig', array('idd' => $idd,
-            'dd' => $dossierDemande, 'cnss' => $complementCnss, 'dateComplementCnss' => $dateComplementCnss, 'leCnss' => $leCnss, 'rccm' => $rccm, 'user' => $user, 'rep' => $gerant[0], 'activitePrincipale' => $activitePrincipale,
-            'activiteSecondaire' => $activiteSecondaire, 'activiteSecondaire2' => $activiteSecondaire2));
-        $lesFormulairesDelives = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->findOneBy(array('pole' => $pole->getId()));
-        $nomFichier = "formulaire" . $idd . "_" . $lesFormulairesDelives->getId() . ".pdf";
-        $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande));
-        if (!$formDelivre) {
-            $formulaireDelivre = new FormulaireDelivre();
-            $formulaireDelivre->setPole($pole);
-            $formulaireDelivre->setDossierDemande($dossierDemande);
-            $formulaireDelivre->setDateCreation($dateRccm);
-            $formulaireDelivre->setNomFichier($nomFichier);
-            $formulaireDelivre->setLibelleFormulaireDelivre($lesFormulairesDelives);
-            $em->persist($formulaireDelivre);
-        } else {
-            $formDelivre->setDateCreation($dateRccm);
-            $formDelivre->setLibelleFormulaireDelivre($lesFormulairesDelives);
-            $em->persist($formDelivre);
-        }
-        $em->flush();
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-        $html2pdf->Output($cheminDownload . "\\" . $idd . "\\" . $nomFichier, 'F');
-        //$html2pdf->Output($cheminDownload . 'formulairesDelivres\\' . $nomFichier, 'F');
-        //exit;
-    }
-
-    public function enregistrerPE1($idd, $pole)
-    {
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
-        if ($pole) {
-            $idPole = $pole->getId();
-        }
-        $em = $this->getDoctrine()->getManager();
-        $request = $this->get('request');
-        $codLang = $request->getLocale();
-        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
-
-        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
-        $representant = $em->getRepository('BanquemondialeBundle:Representant')->getRepresentantByDossierDemande($dossierDemande->getId(), $langue->getId());
-        $rccm = $em->getRepository('BanquemondialeBundle:Rccm')->findOneByDossierDemande($idd);
-        $dateRccm = new \DateTime();
-        if ($rccm) {
-            $dateRccm = $rccm->getDate();
-        }
-
-        $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-        $cheminDownload = $chemin->getNom();
-        $html = $this->renderView('ParametrageBundle:ParameterPole:visualiserPE1.html.twig', array('rep' => $representant[0], 'dateRccm' => $dateRccm, 'rccm' => $rccm));
-        $leFormulaire_a_delive = $em->getRepository('BanquemondialeBundle:LibelleFormulaireDelivre')->getNomFormulaireDelivre($pole->getId(), "acc");
-        $nomFichier = "formulaire" . $idd . "_" . $leFormulaire_a_delive->getId() . "_2.pdf";
-        $formDelivre = $em->getRepository('BanquemondialeBundle:FormulaireDelivre')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande, 'numero' => 2));
-        if (!$formDelivre) {
-            $formulaireDelivre = new FormulaireDelivre();
-            $formulaireDelivre->setPole($pole);
-            $formulaireDelivre->setDossierDemande($dossierDemande);
-            $formulaireDelivre->setNumero(2);
-            $formulaireDelivre->setDateCreation($dateRccm);
-            $formulaireDelivre->setNomFichier($nomFichier);
-            $formulaireDelivre->setLibelleFormulaireDelivre($leFormulaire_a_delive);
-            $em->persist($formulaireDelivre);
-        } else {
-            $formDelivre->setDateCreation($dateRccm);
-            $formDelivre->setLibelleFormulaireDelivre($leFormulaire_a_delive);
-            $em->persist($formDelivre);
-        }
-        $em->flush();
-        $html2pdf = new \Html2Pdf_Html2Pdf('P', 'A4', 'fr');
-        $html2pdf->pdf->SetDisplayMode('real');
-        $html2pdf->writeHTML($html);
-        //$html2pdf->Output('document.pdf');
-        //exit;
-
-        $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
-    }
-
     public function enregistrerGE4($idd, $pole)
     {
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -598,7 +772,7 @@ class TraitementPoleController extends Controller
 
     public function enregistrerME1($idd, $pole)
     {
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -644,178 +818,43 @@ class TraitementPoleController extends Controller
         $html2pdf->Output($cheminDownload . $idd . '\\' . $nomFichier, 'F');
     }
 
-    public function delivrerDossierAction(Request $request)
+    function sendMail($sujet, $texte, $utilisateur)
     {
-        // die(dump('ok'));
         $em = $this->getDoctrine()->getManager();
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $pole = $user->getPole();
-        $idPole = 0;
-        $nomDuPole = null;
-        if ($pole) {
-            $idPole = $pole->getId();
-            $nomDuPole = $this->get('translator')->trans($pole->getNom());
+
+        $messagerie = $em->getRepository('ParametrageBundle:Messagerie')->find(1);
+        $transport = \Swift_SmtpTransport::newInstance($messagerie->getMailerHost(), $messagerie->getMailerPort())
+            ->setUsername($messagerie->getMailerUser())
+            ->setPassword($messagerie->getMailerPassword())->setEncryption($messagerie->getEncryption());
+        $mailer = \Swift_Mailer::newInstance($transport);
+
+        $message = \Swift_Message::newInstance($transport);
+
+        $translated = $translated = $this->get('translator')->trans("notification");
+
+        $message->setSubject($sujet)
+            ->setFrom(array($messagerie->getExpediteurEmail() => $messagerie->getExpediteurName()))
+            ->setTo($utilisateur->getEmail())
+            ->setBody($this->renderView('ParametrageBundle:Parametrage:email\notification.email.twig', array('texte' => $texte, 'user' => $utilisateur)), 'text/html');
+
+        try {
+            $mailer->send($message);
+        } catch (\Exception $e) {
+            //\Doctrine\Common\Util\Debug::dump($e);
         }
-        $idd = $request->get('idd');
-        $retour = '';
-        $sms = "";
-        $dateActu = new \DateTime();
+    }
 
-        //$pole = $em->getRepository('ParametrageBundle:Pole')->find($idPole);
-        $dossierDemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->find($idd);
-        $texte = $this->get('translator')->trans('envoi_email_soumission_saisie', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
-
-        if ($request->getMethod() == 'POST') {
-
-            $documentCollected = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findOneBy(array('pole' => $pole, 'dossierDemande' => $dossierDemande));
-            if ($documentCollected) {
-                //si le dossier de reception n'existe pas le creer
-                $chemin = $em->getRepository('ParametrageBundle:Chemins')->find(1);
-                $cheminUpload = $chemin->getNom();
-
-                $temp = $cheminUpload . $idd . '\\';
-                if (!is_dir($temp)) {
-                    mkdir($temp);
-                }
-
-                //Mise a jour du pole en cours
-                $statutTraitement = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(2);
-
-                $documentCollected->setStatutTraitement($statutTraitement);
-                $documentCollected->setMotif(null);
-                $documentCollected->setDateDelivrance($dateActu);
-                $em->persist($documentCollected);
-                $em->flush();
-
-
-                //enregistrer PDF
-                if (strtolower($pole->getSigle()) == 'bni') {
-                    $this->enregistrerNIF($idd);
-                    $texteMail = $this->get('translator')->trans('envoi_email_soumission_nif', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
-                } else if ($pole->getSigle() == "CNSS") {
-                    $this->enregistrerNI($idd, $pole);
-                    $texteMail = $this->get('translator')->trans('envoi_email_soumission_cnss', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
-                } else {
-                    $codeFormJ = $dossierDemande->getFormeJuridique()->getSigle();
-                    //die(dump($codeFormJ));
-                    if ($codeFormJ == "EI") {
-                        $this->enregistrerP1($idd, $pole);
-                        $this->enregistrerPE1($idd, $pole);
-                        $texteMail = $this->get('translator')->trans('envoi_email_soumission_greffe', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
-                    } else if ($codeFormJ == "GIE") {
-                        $this->enregistrerG1($idd, $pole);
-                        $this->enregistrerGE4($idd, $pole);
-                        $texteMail = $this->get('translator')->trans('envoi_email_soumission_greffe', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
-                    } else {
-                        $this->enregistrerM0($idd, $pole);
-                        $this->enregistrerME1($idd, $pole);
-                        $texteMail = $this->get('translator')->trans('envoi_email_soumission_greffe', array('%denominationSociale%' => $dossierDemande->getDenominationSociale()));
-                    }
-                }
-                //fin
-                //Mise a jour Pole suivant
-                $ordre = $documentCollected->getOrdre();
-                $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
-                //si on a pas d'autres documentcollected du meme ordre                
-                $documentsCollectedMemeOrdre = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDocumentMemeOrdre($ordre, $dossierDemande, $statutEncours);
-
-                //on verifie si c'etait le dernier pole ou pas
-                $documentSuivant = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPoleSuivant($ordre, $idd);
-                //si on a d'autres poles du meme ordre on envoi juste les notifications
-                $notif = $this->container->get('utilisateurs.notification');
-                if ($documentsCollectedMemeOrdre) {
-                    $message = $this->get('translator')->trans('message_dossier_en_cours');
-                    $objet = $this->get('translator')->trans('traitement_dossier_en_cours');
-                } //on cherche la liste des documentcollected du prochain ordre
-                else {
-                    if ($documentSuivant) {
-                        $statutEncours = $em->getRepository('BanquemondialeBundle:StatutTraitement')->find(1);
-                        $polesSuivants = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findPolesSuivants($documentSuivant[0]->getOrdre(), $idd);
-                        if ($polesSuivants) {
-                            $message = $this->get('translator')->trans('message_dossier_recu');
-                            $objet = $this->get('translator')->trans('reception_dossier_objet');
-                            foreach ($polesSuivants as $poleSuivant) {
-                                $poleSuivant->setStatutTraitement($statutEncours);
-                                $dateEnCours = $poleSuivant->getDateSoumission() ? $poleSuivant->getDateSoumission() : $dateActu;
-                                $poleSuivant->setDateSoumission($dateEnCours);
-                                $em->persist($poleSuivant);
-                                foreach ($poleSuivant->getPole()->getUtilisateur() as $user)
-                                    $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message, $user, $objet);
-                            }
-                            $message = $this->get('translator')->trans('message_dossier_en_cours');
-                            $objet = $this->get('translator')->trans('traitement_dossier_en_cours');
-
-                            if ($pole->getTypePole() && $pole->getTypePole()->getCode() == "00") {
-                                //die('recev');
-                                $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message, $dossierDemande->getUtilisateur(), $objet);
-
-                                $sujet = $this->get('translator')->trans('sujet_notification_email');
-                                $texte = $this->get('translator')->trans('texte_notification_email_recevabilite') . " " . $dossierDemande->getNumeroDossier();
-                                $this->sendMail($sujet, $texte, $dossierDemande->getUtilisateur());
-
-                                if ($request->getLocale() == 'fr') {
-                                    $sms = 'Votre+dossier+' . $dossierDemande->getNumeroDossier() . '+a+été+traité+par+le+pole+' . str_replace(" ", "+", $nomDuPole);
-                                    //$retour = $this->sendSMS('fr', $sms, $telephone);
-                                } else if ($request->getLocale() == 'en') {
-                                    $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+performed+by+' . str_replace(" ", "+", $nomDuPole);
-                                    //$retour = $this->sendSMS('en', $sms, $telephone);
-                                } else {
-                                    $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+performed+by+' . str_replace(" ", "+", $nomDuPole);
-                                    //$retour = $this->sendSMS($request->getLocale(), $sms, $telephone);
-                                }
-                            }
-                        }
-                    } else {
-                        //si dernier Pole                    
-                        $dossierDemande->setStatut(2);
-                        $date = new \DateTime();
-                        $dossierDemande->setDateDelivrance($date);
-                        $em->persist($dossierDemande);
-                        $message = $this->get('translator')->trans('message_dossier_delivre');
-                        //Envoie d'une notification 
-                        $objet = $this->get('translator')->trans('dossier_delivre');
-                        $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message, $dossierDemande->getUtilisateur(), $objet);
-
-                        $sujet = $this->get('translator')->trans('sujet_notification_email');
-                        $texte = $this->get('translator')->trans('texte_notification_dossier_delivre') . " " . $dossierDemande->getNumeroDossier();
-                        $this->sendMail($sujet, $texte, $dossierDemande->getUtilisateur());
-
-                        if ($request->getLocale() == 'fr') {
-                            $sms = 'Votre+dossier+' . $dossierDemande->getNumeroDossier() . '+a+été+délivré+par+le+pole+' . str_replace(" ", "+", $nomDuPole);
-                            //$retour = $this->sendSMS('fr', $sms, $telephone);
-                        } elseif ($request->getLocale() == 'en') {
-                            $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+issued+by+' . str_replace(" ", "+", $nomDuPole);
-                            //$retour = $this->sendSMS($request->getLocale(), $sms, $telephone);
-                        } else
-                            $sms = 'Your+request+' . $dossierDemande->getNumeroDossier() . '+has+been+issued+by+' . str_replace(" ", "+", $nomDuPole);
-                    }
-                }
-
-                //Envoie d'une notification 
-
-                $em->flush();
-
-                //envoi email promoteur
-                if ($dossierDemande->getEmailPromoteur()) {
-                    $sujet = $this->get('translator')->trans('sujet_notification_email');
-                    $ancienEmailUtilisateur = $dossierDemande->getUtilisateur()->getEmail();
-                    $dossierDemande->getUtilisateur()->setEmail($this->valideMail($dossierDemande->getEmailPromoteur()));
-                    try {
-                        $this->sendMail($sujet, $texteMail, $dossierDemande->getUtilisateur());
-                    } catch (\Exception $e) {
-                        $translated = $this->get('translator')->trans("error_send_mail");
-                        $this->get('session')->getFlashBag()->add('error', $translated);
-                        $this->get('logger')->error($e->getMessage());
-                    } finally {
-                        $dossierDemande->getUtilisateur()->setEmail($this->valideMail($ancienEmailUtilisateur));
-                    }
-                }
-                return new JsonResponse(array('resultat' => '1', 'url' => $sms));
-            }
-            //return new JsonResponse(array('resultat' => '1'));
+    /**
+     * @param $mail
+     * @return string
+     */
+    function valideMail($mail)
+    {
+        if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+            return 'abcdef@gmail.com';
+        } else {
+            return $mail;
         }
-
-        return new JsonResponse(array('resultat' => '0'));
     }
 
     public function traitercnssAction($idd)
@@ -955,7 +994,8 @@ class TraitementPoleController extends Controller
         if (date('Y') >= 2018) {
             $debutNumRccm = "GN.TCC." . $dateRccm->format("Y") . "." . $lettreFormulaire . ".";
             $debutNumRccmFormalite = "GN.TCC." . $dateRccm->format("Y") . ".";
-        } else {
+        }
+        else {
             $debutNumRccm = "GC.TCC." . $dateRccm->format("Y") . "." . $lettreFormulaire . ".";
             $debutNumRccmFormalite = "GC.TCC." . $dateRccm->format("Y") . ".";
         }
@@ -1017,7 +1057,8 @@ class TraitementPoleController extends Controller
                     $objet = $this->get('translator')->trans('demande_modification_dossier_envoye');
                     $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message . ' ' . $message2 . ' ' . $nomDuPole, $dossierDemande->getUtilisateur(), $objet);
                 }
-            } else {
+            }
+            else {
                 $complementNumRccm = $request->get('complementNumRccm');
 
                 if (!$rccm) {
@@ -1173,7 +1214,8 @@ class TraitementPoleController extends Controller
                     $objet = $this->get('translator')->trans('demande_modification_dossier_envoye');
                     $notif->notifier($dossierDemande->getNumeroDossier() . ' ' . $message . ' ' . $message2 . ' ' . $nomDuPole, $dossierDemande->getUtilisateur(), $objet);
                 }
-            } else {
+            }
+            else {
                 if (!$rccm) {
                     $newRccm = new Rccm();
                     $idTypeF = $request->get('radioFormalite');
@@ -1191,7 +1233,8 @@ class TraitementPoleController extends Controller
                     $em->flush();
                     $message = $this->get('translator')->trans('message.ajout_succes ');
                     return new RedirectResponse($this->container->get('router')->generate('traiter_pers_morale', array('idd' => $idd)));
-                } else {
+                }
+                else {
 
                     $idTypeF = $request->get('radioFormalite');
                     $rccmFormalite = $request->get('rccmFormalite');
@@ -1208,6 +1251,7 @@ class TraitementPoleController extends Controller
                     $em->flush();
                     return new RedirectResponse($this->container->get('router')->generate('traiter_pers_morale', array('idd' => $idd)));
                 }
+                $this->get('suivistatutdossierservice')->getAndsetStatRccm('set', $idd, null, null);
             }
         }
 
@@ -1288,16 +1332,12 @@ class TraitementPoleController extends Controller
                     $documentCollected->setDateDerniereModification($date);
                     $documentCollected->setStatutTraitement($statutTraitementModifier);
                     $em->persist($documentCollected);
-
-
                     $dossierDemande->setStatut(3);
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
                     $quittance = $em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande' => $idd]);
-// die(dump($quittance));
                     $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
-
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
                     $message2 = $this->get('translator')->trans('par_le_pole');
@@ -1355,7 +1395,8 @@ class TraitementPoleController extends Controller
                     $em->persist($newRccm);
                     $em->flush();
                     $message = $this->get('translator')->trans('message.ajout_succes ');
-                } else {
+                }
+                else {
 
                     $idTypeF = $request->get('radioFormalite');
                     $rccmFormalite = $complementNumRccm . $request->get('rccmFormalite');
@@ -1398,7 +1439,7 @@ class TraitementPoleController extends Controller
                     $em->persist($rccm);
                     $em->flush();
                 }
-
+                $this->get('suivistatutdossierservice')->getAndsetStatRccm('set', $idd, null, null);
                 return new RedirectResponse($this->container->get('router')->generate('traiter_pers_physique', array('idd' => $idd)));
             }
         }
@@ -1418,7 +1459,7 @@ class TraitementPoleController extends Controller
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -1498,7 +1539,7 @@ class TraitementPoleController extends Controller
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -1617,7 +1658,7 @@ class TraitementPoleController extends Controller
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -1840,7 +1881,7 @@ class TraitementPoleController extends Controller
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection        
+        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         if ($pole) {
             $idPole = $pole->getId();
         }
@@ -1937,35 +1978,11 @@ class TraitementPoleController extends Controller
         return $retour;
     }
 
-    function sendMail($sujet, $texte, $utilisateur)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $messagerie = $em->getRepository('ParametrageBundle:Messagerie')->find(1);
-        $transport = \Swift_SmtpTransport::newInstance($messagerie->getMailerHost(), $messagerie->getMailerPort())
-            ->setUsername($messagerie->getMailerUser())
-            ->setPassword($messagerie->getMailerPassword())->setEncryption($messagerie->getEncryption());
-        $mailer = \Swift_Mailer::newInstance($transport);
-
-        $message = \Swift_Message::newInstance($transport);
-
-        $translated = $translated = $this->get('translator')->trans("notification");
-
-        $message->setSubject($sujet)
-            ->setFrom(array($messagerie->getExpediteurEmail() => $messagerie->getExpediteurName()))
-            ->setTo($utilisateur->getEmail())
-            ->setBody($this->renderView('ParametrageBundle:Parametrage:email\notification.email.twig', array('texte' => $texte, 'user' => $utilisateur)), 'text/html');
-
-        try {
-            $mailer->send($message);
-        } catch (\Exception $e) {
-            //\Doctrine\Common\Util\Debug::dump($e);
-        }
-    }
-
     public function sendRccmAction(Request $request, $idd)
     {
+        //die(dump(date_format(new \DateTime('2020-11-10 00:00:00.000000'),'Y-m-d')));
         // $this->get('monservices')->UpdateSecteurActiviteNonValid();
+
         $encoders = array(new JsonEncoder(new JsonEncode(JSON_UNESCAPED_UNICODE), new JsonDecode(false)));
         $normalizers = new PropertyNormalizer();
         $normalizers->setCircularReferenceHandler(function ($object) {
@@ -2113,7 +2130,6 @@ class TraitementPoleController extends Controller
         $typeFormalite = $em->getRepository('BanquemondialeBundle:TypeFormaliteRccm')->find($rccm->getTypeFormaliteRccm());
         $adresse = $dossierDemande->getRegion()->getLibelle() . "-" . $dossierDemande->getPrefecture()->getLibelle() . "-" . $dossierDemande->getSousPrefecture()->getLibelle();
         $sigleOuEnseigne = null;
-
         // var_dump($this->get('monservices')->truncateWord($dossierDemande->getDenominationSociale(),50));die();
         if ($dossierDemande->getSigle()) {
             $sigleOuEnseigne = $dossierDemande->getSigle();
@@ -2218,7 +2234,13 @@ class TraitementPoleController extends Controller
             $renseignementRelatifActivite->setActiviteSecondaire2($activiteSecond2Codifie);
             $renseignementRelatifActivite->setDateDebut($dossierDemande->getDateDebut()->format('Y-m-d'));
             $renseignementRelatifActivite->setNbSalaries($dossierDemande->getNombreSalariePrevu());
+            $objet = new ActiviteFormulaire();
+            $objet->setCode(null);
+            $objet->setLibelle(" ");
 
+
+            $this->normalizeActiviteGI($renseignementRelatifActivite, $objet);
+           // die(dump($renseignementRelatifActivite));
             /* partie generale */
             $formulaire = new FormulaireGie();
             $formulaire->setNumeroDossier($dossierDemande->getNumeroDossier());
@@ -2286,9 +2308,8 @@ class TraitementPoleController extends Controller
 
             if ($origine) {
                 $sigleSucc = $origine->getSigleOuEnseigne();
-                $nomCommercialSucc = $origine->getNomCommercial();
+                $nomCommercialSucc = $origine->getDossierDemande()->getDenominationSociale();
                 $dateOuvertureSucc = $origine->getDateOuverture();
-               // die(dump($dossierDemande));
                 $adresseSucc = $origine->getAdresseEtablissementSecondaire();
                 $activiteSucc = $origine->getActiviteEtablissementSecondaire();
                 $typeOrigine = $origine->getTypeOrigine();
@@ -2323,9 +2344,8 @@ class TraitementPoleController extends Controller
             $renseignementRelatifPersonnePhysique->setConjoints(array_values(array_unique($conjoints, SORT_REGULAR)));
             /* partie relatif activite etablissement */
             $renseignementRelatifActiviteEtablissement = new ActiviteEtablissementEiFormulaire();
-            $renseignementRelatifActiviteEtablissement->setNomCommercial($dossierDemande->getNomCommercial());
+            $renseignementRelatifActiviteEtablissement->setNomCommercial($dossierDemande->getDenominationSociale());
             $renseignementRelatifActiviteEtablissement->setSigle($sigleOuEnseigne);
-
             $categorieActiviteCodifie = new ActiviteFormulaire();
             $categorieActiviteCodifie->setCode($codeCategorie);
             $categorieActiviteCodifie->setLibelle($categorieActivitePrincipaleLibelle);
@@ -2355,22 +2375,27 @@ class TraitementPoleController extends Controller
             $activiteSecond2Codifie->setCode($codeActivite2);
             $activiteSecond2Codifie->setLibelle($activiteSecondaire2Libelle);
             $renseignementRelatifActiviteEtablissement->setActiviteSecondaire2($activiteSecond2Codifie);
-
             $renseignementRelatifActiviteEtablissement->setDateDebut($dossierDemande->getDateDebut()->format('Y-m-d'));
             $renseignementRelatifActiviteEtablissement->setRccm($rccm->getNumRccmEntreprise());
             $renseignementRelatifActiviteEtablissement->setAdressePrincipale($dossierDemande->getAdresseSiege());
             $renseignementRelatifActiviteEtablissement->setOrigine(mb_strtoupper($typeOrigineLibelle, 'UTF-8'));
             $renseignementRelatifActiviteEtablissement->setNomCommercialSucc($nomCommercialSucc);
             $renseignementRelatifActiviteEtablissement->setSigleSucc($sigleSucc);
-            $renseignementRelatifActiviteEtablissement->setDateOuvertureSucc($dateOuvertureSucc);
-                      //  $renseignementRelatifActiviteEtablissement->setDateOuvertureSucc($dateOuvertureSucc);
+            $objet = new ActiviteFormulaire();
+            $objet->setCode(null);
+            $objet->setLibelle(" ");
+            $this->normalizeActiviteFI($renseignementRelatifActiviteEtablissement, $objet);
+            if ($dateOuvertureSucc instanceof \DateTime) {
+                $renseignementRelatifActiviteEtablissement->setDateOuvertureSucc(empty($dateOuvertureSucc) ? (date_format(new \DateTime(), 'Y-m-d')) : date_format($dateOuvertureSucc, 'Y-m-d'));
+            } else {
 
+                $renseignementRelatifActiviteEtablissement->setDateOuvertureSucc(empty($dateOuvertureSucc) == true ? (date_format(new \DateTime(), 'Y-m-d')) : date_format(new \DateTime($dateOuvertureSucc), 'Y-m-d'));
+
+            }
             $renseignementRelatifActiviteEtablissement->setAdresseSucc($adresseSucc);
             $renseignementRelatifActiviteEtablissement->setActiviteSucc($activiteSucc);
-
             /* partie relatif autre personne physique */
             $autres_personnes_physiques = array();
-
             foreach ($personneEngageurs as $engageur) {
                 $engageurTemp = new AutrePersonnePhysiqueFormulaire();
                 $engageurTemp->setNom($engageur['nom']);
@@ -2411,7 +2436,7 @@ class TraitementPoleController extends Controller
             $formulaire->setPersPhysique($renseignementRelatifPersonnePhysique);
             $formulaire->setActiviteEtablissement($renseignementRelatifActiviteEtablissement);
             $formulaire->setAutresPersonnes(array_values(array_unique($autres_personnes_physiques, SORT_REGULAR)));
-            // die(dump($formulaire));
+            //die(dump($formulaire));
         } // PERSONNE MORALE
         else {
 
@@ -2425,7 +2450,7 @@ class TraitementPoleController extends Controller
                 $rccmPrecedentEploitant = $origine->getRccmExploitant();
                 $loueurFondPrecedentEploitant = $origine->getLoueurFondExploitant();
                 $sigleSucc = $origine->getSigleOuEnseigne();
-                $nomCommercialSucc = $origine->getNomCommercial();
+                $nomCommercialSucc = $origine->getDossierDemande()->getDenominationSociale();
                 $dateOuvertureSucc = $origine->getDateOuverture();
                 $adresseSucc = $origine->getAdresseEtablissementSecondaire();
                 $activiteSucc = $origine->getActiviteEtablissementSecondaire();
@@ -2485,7 +2510,7 @@ class TraitementPoleController extends Controller
             /* renseignement_relatif_personne_morale */
             $renseignementRelatifPersonneMorale = new PersonneMoraleFormulaire();
             $renseignementRelatifPersonneMorale->setDenomination($dossierDemande->getDenominationSociale());
-            $renseignementRelatifPersonneMorale->setNomCommercial($dossierDemande->getNomCommercial());
+            $renseignementRelatifPersonneMorale->setNomCommercial($dossierDemande->getDenominationSociale());
             $renseignementRelatifPersonneMorale->setAdresse($adresse);
             $renseignementRelatifPersonneMorale->setAdresseSiege($dossierDemande->getAdresseSiege());
             $renseignementRelatifPersonneMorale->setAdresseEtablissement($dossierDemande->getAdresseEtablissement());
@@ -2528,7 +2553,10 @@ class TraitementPoleController extends Controller
             $activiteSecond2Codifie->setCode($codeActivite2);
             $activiteSecond2Codifie->setLibelle($activiteSecondaire2Libelle);
             $renseignementRelatifActiviteMoraleFormulaire->setActiviteSecondaire2($activiteSecond2Codifie);
-
+            $objet = new ActiviteFormulaire();
+            $objet->setCode(null);
+            $objet->setLibelle(" ");
+            $this->normalizeActivitePM($renseignementRelatifActiviteMoraleFormulaire, $objet);
             $renseignementRelatifActiviteMoraleFormulaire->setDateDebut($dossierDemande->getDateDebut()->format('Y-m-d'));
             $renseignementRelatifActiviteMoraleFormulaire->setNbSalaries($dossierDemande->getNombreSalariePrevu());
             $renseignementRelatifActiviteMoraleFormulaire->setEtablissementPrincipalOuSuccursale($dossierDemande->getDenominationSociale());
@@ -2578,7 +2606,7 @@ class TraitementPoleController extends Controller
 
         $validator = $this->get('validator');
         $violations = $validator->validate($formulaire);
-
+       // die(dump($violations));
         if (count($violations) !== 0) {
             foreach ($violations as $violation) {
 
@@ -2593,21 +2621,19 @@ class TraitementPoleController extends Controller
             $historiqueEnvoi->setCodeRetourDNI('008');
             $historiqueEnvoi->setContenuDataRecu($errors);
             $em->persist($historiqueEnvoi);
-
             $em->flush();
             //exit;
             return new JsonResponse(array('resultat' => '0'));
-        }
-        else {
+        } else {
 
             try {
 
                 $username = "dnsi";  // authentication
                 $password = "dnsi";  // authentication
                 $auth = '{"username":"dnsi","password":"dnsi"}';
-                //generation du token                
+                //generation du token
                 $json_url0 = "http://" . $ipServeurDNI . "/login";
-                // die(dump($json_url0));
+
                 $em->flush();
                 $ch0 = curl_init($json_url0);
 
@@ -2627,15 +2653,18 @@ class TraitementPoleController extends Controller
 
                 $dataReponseToken = json_decode($resultTo, true);
 
+                // die(dump($resultTo));
                 $token = $dataReponseToken["token"];
-                //  die(dump($token));
+
                 curl_close($ch0);
                 //fin genera
                 $formulaire->setToken($token);
 
                 $jsonFormulaire = $serializer->serialize($formulaire, 'json');
-              //  die(dump($jsonFormulaire));
+                // die(dump($jsonFormulaire));
+                //  die(dump($jsonFormulaire));
                 $jsonFormulaire0 = str_replace("\/", "/", $jsonFormulaire);
+
                 $jsonFormulaire1 = preg_replace('/\bnull\b/u', '""', $jsonFormulaire0);
                 //die(dump($jsonFormulaire0));
                 $historiqueEnvoi->setContenuEnvoi($jsonFormulaire1);
@@ -2690,8 +2719,7 @@ class TraitementPoleController extends Controller
                     $dataReponse = curl_errno($ch);
                     $historiqueEnvoi->setContenuDataRecu($result);
                     $em->persist($historiqueEnvoi);
-                }
-                else {
+                } else {
                     $dataReponse = json_decode($result, true);
                 }
                 curl_close($ch);
@@ -2703,9 +2731,8 @@ class TraitementPoleController extends Controller
                             $documentCollected->setStatutTraitement($statutEnCoursEnvoiDni);
                             $documentCollected->setDateSoumission(new \DateTime());
                             //$documentCollected->
-//                                                           	
-                        }
-                        else {
+//
+                        } else {
 
                             $messages = $dataReponse["messages"] ? $dataReponse["messages"] : array();
                             $motif = $messages[0]; //implode("_", $messages);
@@ -2713,8 +2740,7 @@ class TraitementPoleController extends Controller
                             $documentCollected->setMotif($motif);
                             //$em->flush();
                         }
-                    }
-                    else {
+                    } else {
                         $dataReponse["code"] = "APIP00";
                         $messages = $dataReponse["messages"] ? $dataReponse["messages"] : array();
                         $motif = $messages[0]; //implode("_", $messages);
@@ -2728,39 +2754,219 @@ class TraitementPoleController extends Controller
 //                  							$documentCollected->setStatutTraitement($statutEnCoursEnvoiDni);
 //                  							//$documentCollected->setDateSoumission(new \DateTime());
 //                  							break;
-////                  						
+////
 //                  						case "APIP02":
 //                  							//Format de données envoyé incorect (non valide)
 //                  							$documentCollected->setStatutTraitement($statutEchecEnvoiDni);
-//                  							break;  						
+//                  							break;
 //                  						default:
 //                  							$dataReponse["code"] = "APIP00";
 //                  							$documentCollected->setStatutTraitement($statutEchecEnvoiDni);
 //                  					}
-
                     $historiqueEnvoi->setCodeRetourDNI($dataReponse["code"]);
                     $em->persist($documentCollected);
                     $em->persist($historiqueEnvoi);
                     $em->flush();
                     //die(dump($historiqueEnvoi));
-                }
-                catch (\Exception $ex0) {
+                } catch (\Exception $ex0) {
                     $historiqueEnvoi->setCodeRetourDNI("APIP10");
+                    $historiqueEnvoi->setContenuDataRecu($ex0->getMessage());
                     $em->persist($historiqueEnvoi);
                     $em->flush();
                     return new JsonResponse(array('resultat' => '0'));
                 }
             }
             catch (\Exception $ex) {
-               // die(dump($ex));
+                // die(dump($ex));
                 $historiqueEnvoi->setCodeRetourDNI("APIP00");
+                $historiqueEnvoi->setContenuDataRecu($ex->getMessage());
                 $em->persist($historiqueEnvoi);
-                // die(dump($historiqueEnvoi));
+                //  die(dump($historiqueEnvoi));
                 $em->flush();
                 return new JsonResponse(array('resultat' => '0'));
             }
         }
         return new JsonResponse(array('resultat' => '1'));
+    }
+
+    public function normalizeActiviteGI(RenseignementRelatifActiviteGroupementFormulaire $formulaire, $objet)
+    {
+       // die(dump('GI'));
+        if ($formulaire) {
+            $a = $formulaire->getActivitePrincipale();
+            $a1 = $formulaire->getGroupeActivitePrincipale();
+            $b = $formulaire->getGroupeActiviteSecondaire2();
+            $b1 = $formulaire->getActiviteSecondaire2();
+            $c = $formulaire->getActiviteSecondaire1();
+            $c1 = $formulaire->getGroupeActiviteSecondaire1();
+            if (empty($b->getCode())) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            }
+            if (empty($b1->getCode())) {
+                $formulaire->setActiviteSecondaire2($objet);
+            }
+            if (empty($c->getCode())) {
+                $formulaire->setActiviteSecondaire1($objet);
+            }
+            if (empty($c1->getCode())) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            }
+
+            if ($a == $a1 && $a == $b && $a == $b1 && $a == $c && $a == $c1) {
+
+//                $formulaire->setGroupeActivitePrincipale($objet);
+                $formulaire->setActiviteSecondaire1($objet);
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+                $formulaire->setActiviteSecondaire2($objet);
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a == $b) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a == $b1) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($a == $c) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($a == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($a1 == $b) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a1 == $b1) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($a1 == $c) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($a1 == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($b == $b1) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($b == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($b1 == $c) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($b1 == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($c == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            }
+        }
+    }
+
+    public function normalizeActiviteFI(ActiviteEtablissementEiFormulaire $formulaire, $objet)
+    {
+      //  die(dump('EI'));
+        if ($formulaire) {
+            $te = new FormulaireEi();
+            $a = $formulaire->getActiviteExercee();
+            $a1 = $formulaire->getGroupeActivitePrincipale();
+            $b = $formulaire->getGroupeActiviteSecondaire2();
+            $b1 = $formulaire->getActiviteSecondaire2();
+            $c = $formulaire->getActiviteSecondaire1();
+            $c1 = $formulaire->getGroupeActiviteSecondaire1();
+            if (empty($b->getCode())) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            }
+            if (empty($b1->getCode())) {
+                $formulaire->setActiviteSecondaire2($objet);
+            }
+            if (empty($c->getCode())) {
+                $formulaire->setActiviteSecondaire1($objet);
+            }
+            if (empty($c1->getCode())) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            }
+
+            if ($a == $a1 && $a == $b && $a == $b1 && $a == $c && $a == $c1) {
+//                $formulaire->setGroupeActivitePrincipale($objet);
+                $formulaire->setActiviteSecondaire2($objet);
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+                $formulaire->setActiviteSecondaire1($objet);
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($a == $b) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a == $b1) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($a == $c) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($a == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($a1 == $b) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a1 == $b1) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($a1 == $c) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($a1 == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($b == $b1) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($b == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($b1 == $c) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($b1 == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($c == $c1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            }
+        }
+    }
+
+    public function normalizeActivitePM(RenseignementRelatifActiviteMoraleFormulaire $formulaire, $objet)
+    {
+       // die(dump('pm'));
+        if ($formulaire) {
+            $a = $formulaire->getActivitePrincipale();
+            $a1 = $formulaire->getGroupeActivitePrincipale();
+            $b = $formulaire->getActiviteSecondaire1();
+            $b1 = $formulaire->getGroupeActiviteSecondaire1();
+            $c = $formulaire->getActiviteSecondaire2();
+            $c1 = $formulaire->getGroupeActiviteSecondaire2();
+            if (empty($b->getCode())) {
+                $formulaire->setActiviteSecondaire1($objet);
+            }
+            if (empty($b1->getCode())) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            }
+            if (empty($c->getCode())) {
+                $formulaire->setActiviteSecondaire2($objet);
+            }
+            if (empty($c1->getCode())) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            }
+
+            if ($a == $a1 && $a == $b && $a == $b1 && $a == $c && $a == $c1) {
+
+//                $formulaire->setGroupeActivitePrincipale($objet);
+                $formulaire->setActiviteSecondaire1($objet);
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+                $formulaire->setActiviteSecondaire2($objet);
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a == $b) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($a == $b1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($a == $c) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($a == $c1) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($a1 == $b) {
+                $formulaire->setActiviteSecondaire1($objet);
+            } elseif ($a1 == $b1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($a1 == $c) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($a1 == $c1) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($b == $b1) {
+                $formulaire->setGroupeActiviteSecondaire1($objet);
+            } elseif ($b == $c1) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($b1 == $c) {
+                $formulaire->setActiviteSecondaire2($objet);
+            } elseif ($b1 == $c1) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            } elseif ($c == $c1) {
+                $formulaire->setGroupeActiviteSecondaire2($objet);
+            }
+        }
     }
 
     function jsonToCsv($json, $csvFilePath = false, $boolOutputFile = false)
@@ -2832,18 +3038,5 @@ class TraitementPoleController extends Controller
 
         // Delete the temp file
         unlink($strTempFile);
-    }
-
-    /**
-     * @param $mail
-     * @return string
-     */
-    function valideMail($mail)
-    {
-        if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
-            return 'abcdef@gmail.com';
-        } else {
-            return $mail;
-        }
     }
 }

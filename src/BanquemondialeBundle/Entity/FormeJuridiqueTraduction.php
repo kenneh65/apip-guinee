@@ -2,6 +2,7 @@
 
 namespace BanquemondialeBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -20,6 +21,34 @@ class FormeJuridiqueTraduction
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+    /**
+     * @ORM\OneToMany(targetEntity="DefaultBundle\Entity\PeriodeReservation",mappedBy="formeJuridiqueTraduction")
+     */
+    private $periodeReservation;
+
+    public function __construct()
+    {
+        $this->periodeReservation = new ArrayCollection();
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getPeriodeReservation()
+    {
+        return $this->periodeReservation;
+    }
+
+    /**
+     * @param ArrayCollection $periodeReservation
+     */
+    public function setPeriodeReservation($periodeReservation)
+    {
+        $this->periodeReservation = $periodeReservation;
+    }
+
+
 
     /**
      * @var string
@@ -187,5 +216,28 @@ class FormeJuridiqueTraduction
     
     public function __toString() {
         return $this->libelle;
+    }
+
+    /**
+     * Add periodeReservation
+     *
+     * @param \DefaultBundle\Entity\PeriodeReservation $periodeReservation
+     * @return FormeJuridiqueTraduction
+     */
+    public function addPeriodeReservation(\DefaultBundle\Entity\PeriodeReservation $periodeReservation)
+    {
+        $this->periodeReservation[] = $periodeReservation;
+
+        return $this;
+    }
+
+    /**
+     * Remove periodeReservation
+     *
+     * @param \DefaultBundle\Entity\PeriodeReservation $periodeReservation
+     */
+    public function removePeriodeReservation(\DefaultBundle\Entity\PeriodeReservation $periodeReservation)
+    {
+        $this->periodeReservation->removeElement($periodeReservation);
     }
 }

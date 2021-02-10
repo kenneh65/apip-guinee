@@ -10,7 +10,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * Nif
  *
  * @ORM\Table(name="nif")
- * @UniqueEntity("numeroIdentificationFiscale",message="nif_existe") 
+ * @UniqueEntity("numeroIdentificationFiscale",message="nif_existe")
  * @ORM\Entity(repositoryClass="BanquemondialeBundle\Repository\NifRepository")
  */
 class Nif
@@ -30,50 +30,50 @@ class Nif
      * @ORM\Column(name="numeroIdentificationFiscale", type="string", length=20, nullable=true)
      */
     private $numeroIdentificationFiscale;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="numeroFormulaire", type="string", length=8, nullable=true)
      */
     private $numeroFormulaire;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="numeroFormulaireBis", type="string", length=20, nullable=true)
      */
     private $numeroFormulaireBis;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="secteur", type="string", length=100, nullable=true)
      */
     private $secteur;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="quartier", type="string", length=100, nullable=true)
      */
     private $quartier;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="rue", type="string", length=100, nullable=true)
      */
     private $rue;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="marche", type="string", length=100, nullable=true)
      */
     private $marche;
-	
-	/**
+
+    /**
      * @var string
      *
      * @ORM\Column(name="boutique", type="string", length=100, nullable=true)
@@ -83,11 +83,21 @@ class Nif
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date", type="date", nullable=true)
+     * @ORM\Column(name="date", type="datetime", nullable=true)
      */
     private $date;
-	
-	/** 	
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="dateObtentionNif", type="datetime", nullable=true)
+     */
+    private $dateObtentionNif;
+    /**
+     * @var bool
+     * @ORM\Column(name="statut", type="boolean", nullable=true)
+     */
+    private $statut;
+
+    /**
      * @ORM\ManyToOne(targetEntity="BanquemondialeBundle\Entity\DossierDemande")
      * @ORM\JoinColumn(name="idDossierDemande", referencedColumnName="id")
      */
@@ -97,7 +107,7 @@ class Nif
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -120,7 +130,7 @@ class Nif
     /**
      * Get numeroIdentificationFiscale
      *
-     * @return string 
+     * @return string
      */
     public function getNumeroIdentificationFiscale()
     {
@@ -143,7 +153,7 @@ class Nif
     /**
      * Get date
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getDate()
     {
@@ -166,7 +176,7 @@ class Nif
     /**
      * Get dossierDemande
      *
-     * @return \BanquemondialeBundle\Entity\DossierDemande 
+     * @return \BanquemondialeBundle\Entity\DossierDemande
      */
     public function getDossierDemande()
     {
@@ -189,7 +199,7 @@ class Nif
     /**
      * Get secteur
      *
-     * @return string 
+     * @return string
      */
     public function getSecteur()
     {
@@ -212,7 +222,7 @@ class Nif
     /**
      * Get marche
      *
-     * @return string 
+     * @return string
      */
     public function getMarche()
     {
@@ -235,7 +245,7 @@ class Nif
     /**
      * Get boutique
      *
-     * @return string 
+     * @return string
      */
     public function getBoutique()
     {
@@ -259,15 +269,15 @@ class Nif
     /**
      * Get numeroFormulaire
      *
-     * @return string 
+     * @return string
      */
     public function getNumeroFormulaire()
     {
         return $this->numeroFormulaire;
     }
-	
-	
-	 /**
+
+
+    /**
      * Set numeroFormulaireBis
      *
      * @param string $numeroFormulaireBis
@@ -283,7 +293,7 @@ class Nif
     /**
      * Get numeroFormulaireBis
      *
-     * @return string 
+     * @return string
      */
     public function getNumeroFormulaireBis()
     {
@@ -306,7 +316,7 @@ class Nif
     /**
      * Get quartier
      *
-     * @return string 
+     * @return string
      */
     public function getQuartier()
     {
@@ -329,10 +339,56 @@ class Nif
     /**
      * Get rue
      *
-     * @return string 
+     * @return string
      */
     public function getRue()
     {
         return $this->rue;
+    }
+
+    /**
+     * Set dateObtentionNif
+     *
+     * @param \DateTime $dateObtentionNif
+     * @return Nif
+     */
+    public function setDateObtentionNif($dateObtentionNif)
+    {
+        $this->dateObtentionNif = $dateObtentionNif;
+
+        return $this;
+    }
+
+    /**
+     * Get dateObtentionNif
+     *
+     * @return \DateTime
+     */
+    public function getDateObtentionNif()
+    {
+        return $this->dateObtentionNif;
+    }
+
+    /**
+     * Set statut
+     *
+     * @param boolean $statut
+     * @return Nif
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get statut
+     *
+     * @return boolean
+     */
+    public function getStatut()
+    {
+        return $this->statut;
     }
 }

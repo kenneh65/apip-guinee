@@ -29,6 +29,13 @@ class HistoriqueEchangeDNI
     private $numeroDossier;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="statut", type="boolean", nullable=true)
+     */
+    private $statut;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="DateEnvoiRccm", type="datetime")
@@ -275,5 +282,51 @@ class HistoriqueEchangeDNI
     public function getNomFichierEnvoye()
     {
         return $this->nomFichierEnvoye;
+    }
+
+    /**
+     * Set contenuDataRecu
+     *
+     * @param string $contenuDataRecu
+     * @return HistoriqueEchangeDNI
+     */
+    public function setContenuDataRecu($contenuDataRecu)
+    {
+        $this->contenuDataRecu = $contenuDataRecu;
+
+        return $this;
+    }
+
+    /**
+     * Get contenuDataRecu
+     *
+     * @return string 
+     */
+    public function getContenuDataRecu()
+    {
+        return $this->contenuDataRecu;
+    }
+
+    /**
+     * Set statut
+     *
+     * @param boolean $statut
+     * @return HistoriqueEchangeDNI
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get statut
+     *
+     * @return boolean 
+     */
+    public function getStatut()
+    {
+        return $this->statut;
     }
 }

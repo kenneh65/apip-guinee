@@ -1,0 +1,104 @@
+{% xlsdocument
+    {
+    'category': category,
+    'company': 'APIP-GUINEE',
+    'creator': 'APIP-GUINEE',
+    'defaultStyle': {
+    'font': {
+        'size': 14.0
+    }
+},
+    'description':description,
+    'keywords': 'APIP-GUINEE',
+    'lastModifiedBy': 'APIP-GUINEE',
+    'manager': 'APIP-GUINEE',
+    'security': {
+    'lockRevision': true,
+    'lockStructure': true,
+    'lockWindows': true,
+    'revisionsPassword': 'test',
+    'workbookPassword': 'test'
+},
+    'subject': description,
+    'title': description
+    } %}
+    {% xlssheet description
+        {
+        pageMargins: {
+        top: 1,
+        bottom: 1,
+        left: 0.75,
+        right: 0.75,
+        header: 0.5,
+        footer: 0.5
+    },
+        pageSetup: {
+        fitToHeight: 1,
+        fitToPage: false,
+        fitToWidth: 1,
+        horizontalCentered: false,
+        orientation: 'landscape',
+        paperSize: 9,
+        printArea: 'A1:B1',
+        scale: 100,
+        verticalCentered: false
+    },
+
+        printGridlines: true,
+        rightToLeft: false,
+        rowDimension: {
+        'default': {
+            collapsed: false,
+            outlineLevel: 0,
+            rowHeight: -1,
+            rowIndex: '1',
+            visible: true,
+            xfIndex: 0,
+            zeroHeight:false
+        },
+    },
+        sheetState: 'visible',
+        showGridlines: true,
+        tabColor: 'a1a1e0',
+        zoomScale: 75
+        } %}
+
+
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'AGENT CAISSE' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %} {{ user['username'] }} ( {{ user['nom']~' '~user['prenom']}} ){% endxlscell %}
+        {% endxlsrow %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+        {% endxlsrow %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'N°' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}numero_dossier{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}numero_quittance{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}message_montant{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}denomination{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}type_dossier{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}forme_juridique{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}structure_appartenance{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}date_paiement{%endtrans%}{% endxlscell %}
+        {% endxlsrow %}
+        {% for ls in listQuittance %}
+            {% xlsrow %}
+                {% xlscell %}{{loop.index}}{% endxlscell %}
+                {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
+                {% xlscell %}{{ ls.numeroQuittance}}{% endxlscell %}
+                {% xlscell %}{{ ls.montantVerse|number_format(0, '.', '  ')}}{% endxlscell %}
+                {% xlscell %}{{ ls.denominationSociale}}{% endxlscell %}
+                {% xlscell %}{{ ls.typeDossier}}{% endxlscell %}
+                {% xlscell %}{{ ls.libelleFormeJ}}{% endxlscell %}
+                {% xlscell %}{{ ls.entreprise|raw}}{% endxlscell %}
+                {% xlscell %}{% if ls.datePaiement %}{{ ls.datePaiement|date('d-m-Y') }}{% endif %}{% endxlscell %}
+
+            {% endxlsrow %}
+        {% endfor %}
+    {% endxlssheet %}
+{% endxlsdocument %}

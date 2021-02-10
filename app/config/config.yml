@@ -40,8 +40,12 @@ framework:
         cookie_lifetime: 36000 # Ten hours
     fragments:       ~
     http_method_override: true
-
+    serializer:
+        enabled: true
 # Twig Configuration
+# app/config/config_test.yml
+    profiler:
+        enabled: true
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
@@ -49,6 +53,9 @@ twig:
         resources: [ 'form_errors.html.twig' ]
     globals:
         monServices: "@monServices"
+        suiviStatutDossierService: "@suiviStatutDossierService"
+    exception_controller: DefaultBundle:Exception:showException
+
 # Doctrine Configuration
 doctrine:
     dbal:
@@ -67,6 +74,9 @@ doctrine:
         #     path:     "%database_path%"
 
     orm:
+        dql:
+            datetime_functions:
+                date_format: DoctrineExtensions\Query\Mysql\DateFormat
         auto_generate_proxy_classes: "%kernel.debug%"
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
@@ -110,7 +120,31 @@ services:
         class: UtilisateursBundle\Listener\LogoutListener
         arguments:
              userManager: @doctrine.orm.default_entity_manager
-        
-framework:
-    serializer:
-        enabled: true
+# app/config/config.yml
+
+liip_imagine:
+    resolvers:
+        default:
+            web_path: ~
+
+    filter_sets:
+        cache: ~
+
+        # the name of the "filter set"
+        slider:
+
+            # adjust the image quality to 75%
+            quality: 95
+
+            # list of transformations to apply (the "filters")
+            filters:
+
+                # create a thumbnail: set size to 120x90 and use the "outbound" mode
+                # to crop the image when the size ratio of the input differs
+                thumbnail: { size: [1280, 450], mode: inset }
+
+                # create a 2px black border: center the thumbnail on a black background
+                # 4px larger to create a 2px border around the final image
+                background: { size: [1280, 450], position: center, color: '#ffffff' }
+
+        # app/config/config.yml

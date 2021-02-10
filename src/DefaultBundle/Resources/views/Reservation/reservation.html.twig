@@ -1,7 +1,168 @@
-{% extends "::base.html.twig" %}
+{% extends "::base-office.html.twig" %}
 
-{% block title %}DefaultBundle:Reservation:reservation{% endblock %}
+{% block title %}
+    {% trans %}reservation{% endtrans %}
+    {{ parent() }}
+{% endblock %}
 
 {% block body %}
-<h1>Welcome to the Reservation:reservation page</h1>
+    <br>
+    <div class="row">
+        <div class="col-lg-1 col-md-1 col-xs-1"></div>
+        {% for message in app.session.flashbag.get('error') %}
+            <div class="col-lg-9 container text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        {% for message in app.session.flashbag.get('success') %}
+            <div class="col-lg-9 container text-center m-t-md alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="col-lg-2 col-md-2col-xs-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3 style="text-align: center; !important;">
+                {% trans %}
+                    Vérifier la disponibilité de votre nom commercial
+                {% endtrans %}
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-xs-3"></div>
+        <div class="col-lg-6 col-md-6 col-xs-6">
+            <!-- prepending -->
+            <style>
+                .InputAddOn {
+                    display: flex;
+                }
+
+                .InputAddOn-field {
+                    flex: 1;
+                    /* field styles */
+                }
+
+                .InputAddOn-item {
+                    /* item styles */
+                }
+
+            </style>
+            <form method="post" action="{{ path('default_reservation_reservation') }}">
+                <div class="InputAddOn">
+                    <input required="required" placeholder="{{ 'recherche'|trans }}" name="search" min="3" max="100"
+                           class="InputAddOn-field form-control"/>
+                    <button class="InputAddOn-item btn-primary" type="submit">Valider</button>
+                </div>
+                <br>
+            </form>
+        </div>
+        <div class="col-lg-2 col-md-2 col-xs-2"></div>
+
+    </div>
+    {% if nomCommercial %}
+        <div class="row">
+            <div class="col-lg-3 col-md-1 col-xs-3"></div>
+            <div class="col-lg-6">
+                <caption>Résultats de la vérification</caption>
+                <table class="table table-responsive table-condensed table-striped">
+                    <thead>
+                    <tr>
+                        <th>Nom commercial</th>
+                        <th>Observation</th>
+                     {% if resulta %}
+                         {% else %}
+                             <th>Action</th>
+                             {% endif %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ nomCommercial }}</td>
+
+                        {% if resulta %}
+                            <td style="color: red;font-weight: bold">
+{#                                Vous ne pouvez pas utiliser ce nom commercial car il est deja pris#}
+                                {{ message }}
+{#                                Ce nom commercial est d&eacute;j&agrave; r&eacute;serv&eacute;#}
+                            </td>
+{#                            <td>#}
+{#                                <form method="put" action="{{ path('renouvelement-reservation_new') }}">#}
+{#                                    <div class="fusion-modal modal fade modal-1 expert" tabindex="-1" id="exampleModalCenter" role="dialog"#}
+{#                                         aria-labelledby="modal-heading-1" aria-hidden="true" style="z-index:999999">#}
+{#                                        <style type="text/css">.modal-1 .modal-header, .modal-1 .modal-footer {#}
+{#                                                border-color: #ebebeb;#}
+{#                                            }</style>#}
+{#                                        <div class="modal-dialog modal-lg ">#}
+{#                                            <div class="modal-content fusion-modal-content" style="background-color:#ffffff">#}
+{#                                                <div class="modal-header">#}
+{#                                                    <button class="close" type="button" data-dismiss="modal" aria-hidden="true">×</button>#}
+{#                                                    <h3 data-lineheight="30" data-fontsize="18" class="modal-title" id="modal-heading-1"#}
+{#                                                        data-dismiss="modal" aria-hidden="true">Confirmation</h3>#}
+{#                                                </div>#}
+{#                                                <div class="modal-body">#}
+{#                                                    <div class="fusion-three-fifth fusion-layout-column fusion-column-last fusion-spacing-yes"#}
+{#                                                         style="margin-top:0px;margin-bottom:20px;">#}
+{#                                                        <div class="fusion-column-wrapper">#}
+{#                                                            <p>#}
+{#                                                                Vous recevrez un code de confirmation par mail#}
+{#                                                                <strong> ({{ reservation.email }})</strong> pour la validation de renouvèlement de votre nom commercial#}
+{#                                                            </p>#}
+{#                                                        </div>#}
+
+{#                                                    </div>#}
+{#                                                    <div class="fusion-clearfix"></div>#}
+{#                                                </div>#}
+{#                                                <div class="modal-footer">#}
+
+{#                                                    <a>#}
+{#                                                        <button class=" btn-success button-default button-medium button default medium">#}
+{#                                                            {{'Valider'}}#}
+{#                                                        </button>#}
+{#                                                    </a>#}
+
+{#                                                    <a >#}
+{#                                                        <button class=" button-darkgreen button-medium button medium"#}
+{#                                                                data-dismiss="modal">#}
+{#                                                            {{ 'aide.fermer'|trans }}#}
+{#                                                        </button>#}
+{#                                                    </a>#}
+
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                    <input name="nomCommercial" value="{{ nomCommercial }}" type="hidden">#}
+{#                                    <button type="button"  class="btn btn-success btn-xs btn-block" data-toggle="modal" data-target="#exampleModalCenter">Rénouveler</button>#}
+{#                                </form>#}
+{#                            </td>#}
+                        {% else %}
+                            <td style="color: #00af5d;font-weight: bold">
+                                {{ message|raw }}
+{#                                Ce nom commercial est libre vous pouvez le r&eacute;server#}
+                            </td>
+                            <td>
+                                <form method="post" action="{{ path('reservation_new') }}">
+                                    <input name="nomCommercial" value="{{ nomCommercial }}" type="hidden">
+                                    <button type="submit"  class="btn btn-success btn-xs btn-block">R&eacute;server</button>
+                                </form>
+                            </td>
+                        {% endif %}
+
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-3 col-md-3 col-xs-3"></div>
+        </div>
+        <br><br>
+    {% endif %}
+    {% block javascripts %}
+
+        {{ parent() }}
+    {% endblock %}
 {% endblock %}

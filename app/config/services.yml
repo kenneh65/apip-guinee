@@ -38,3 +38,13 @@ services:
      calls:
        - [setContainer, ["@service_container"]]
      public: true
+   suiviStatutDossierService:
+     class: DefaultBundle\services\suiviStatutDossierService
+     calls:
+       - [setContainer, ["@service_container"]]
+     public: true
+   payCardService:
+     class: DefaultBundle\services\payCardService
+     calls:
+       - [setContainer, ["@service_container"]]
+     public: true

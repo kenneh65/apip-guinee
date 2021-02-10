@@ -110,10 +110,10 @@
                     {% if profilName==" dépot" %}
                         <li>
                             <a href="{{path('depot_new')}}"><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp; {%trans%}depot{%endtrans%}</a>
-                        </li>                                    
+                        </li>
                         <li>
                             <a href="{{path('lister_depot')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_depot{%endtrans%}</a>
-                        </li>                                    
+                        </li>
                         <li>
                             <a href="{{path('lister_depot_Modification')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_depot_Modification{%endtrans%}</a>
                         </li>
@@ -126,14 +126,14 @@
                             <a href="{{path('suivreDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
                         </li>
                         <li>
-                            <a href="{{path('DossiersDiaspora')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}dossier_diaspora{%endtrans%}</a>
+                            <a href="{{path('statistique-dossier-saisie-journaliere')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}Dossiers saisis{%endtrans%}</a>
                         </li>
                     {% elseif app.user.profile.description=="Service retrait" %}
 
                         <li>
                             <a href="{{path('lister_retrait')}}"><i class="fa fa-fw fa-trash-o"></i> &nbsp;&nbsp;{%trans%}lister_retrait{%endtrans%}</a>
                         </li>
-						<li>
+                        <li>
                             <a href="{{path('lister_retrait_partiel')}}"><i class="fa fa-fw fa-trash-o"></i> &nbsp;&nbsp;{%trans%}lister_retrait_partiel{%endtrans%}</a>
                         </li>
                         <li>
@@ -142,14 +142,13 @@
                     {% elseif profilName=="help" %}
                         <li>
                             <a href="{{path('suiviDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
-
                         </li>
                     {% endif %}
                 {%else%}
 
                     <li>
                         {{profilName}}<a href="{{path('creerDossier')}}"><i class="fa fa-folder-open-o"></i>&nbsp;&nbsp; {%trans%}ajouter_dossier{%endtrans%}</a>
-                    </li>                                    
+                    </li>
                     <li>
                         <a href="{{path('suivreDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
 
@@ -159,7 +158,7 @@
 
                     </li>
                 {%endif%}
-            </ul>    
+            </ul>
         </li>
     {%endif%}
     {#{%if is_granted('ROLE_POLE') %}

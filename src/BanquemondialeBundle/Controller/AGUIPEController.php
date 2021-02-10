@@ -223,6 +223,9 @@ class AGUIPEController extends Controller {
                     $em->persist($dossierDemande);
                     $em->flush();
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
+                    $quittance=$em->getRepository('BanquemondialeBundle\Entity\Quittance')->findOneBy(['dossierDemande'=>$idd]);
+// die(dump($quittance));
+                    $this->get('monservices')->updatePaiementOrangeWhenUpdateDossier($quittance->getId());
 
                     $notif = $this->container->get('utilisateurs.notification');
                     $message = $this->get('translator')->trans('message_demande_modification_envoye');
