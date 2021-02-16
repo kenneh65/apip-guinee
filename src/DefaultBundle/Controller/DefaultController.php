@@ -615,7 +615,16 @@ class DefaultController extends Controller
         // $pole = $user->getPole();
         $idPole = 1;
         $pole = $em->getRepository('ParametrageBundle:Pole')->findOneById($idPole);
-        $data = $this->getRequest()->request->get('data');
+        $data = [
+            'numeroDossier'=>0,
+            'denominationSociale'=>0,
+            'dateCreationDebut'=>0,
+            'dateCreationFin'=>0,
+            'formeJuridique'=>0,
+            'typeDossier'=>0,
+            'entreprise'=>0,
+            'gerant'=>0
+        ];
         $request = $this->get('request');
         //$request->setLocale("en");
         $codLang = $request->getLocale();
@@ -624,7 +633,6 @@ class DefaultController extends Controller
         $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam(null, $idCodeLangue, $idPole, 25, $idS);
         if ($request->getMethod() == 'POST') {
             $data = $request->request->all()['dossiersPole'];
-            // die(dump($data));
             $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGAWithParam($data, $idCodeLangue, $idPole, null, $idS);
         }
 
@@ -632,7 +640,7 @@ class DefaultController extends Controller
 
         $form->bind($request);
 
-        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array('form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
+        return $this->render('DefaultBundle:Default:dgaInterfaceEnAttente-immatriculation-saisie.html.twig', array('data'=>$data,'form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idCodeLangue, 'idp' => $idPole, 'idS' => $idS, 'pole' => $pole));
     }
 
     /**

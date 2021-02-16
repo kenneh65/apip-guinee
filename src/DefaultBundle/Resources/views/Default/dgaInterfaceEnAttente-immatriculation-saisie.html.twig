@@ -127,7 +127,16 @@
             </div>
 
             <div class="table-responsive" style="width:100%">
-                <a target="_blank" href="{{ path('dossierEnmodification-excel',{'numeroDossier':data['numeroDossier'],'denominationSociale':data['denominationSociale'],'dateCreationDebut':(data['dateCreationDebut']==0)?0:data['dateCreationDebut']|date('d-m-Y'),'dateCreationFin':(data['dateCreationFin']==0)?0:data['dateCreationFin']|date('d-m-Y'),'formeJuridique':data['formeJuridique'],'typeDossier':data['typeDossier'],'gerant':data['gerant'],'entreprise':data['entreprise'],'idS':idS,'idLangue':langue}) }}">
+                <a target="_blank" href="{{ path('dossierEnmodification-excel',
+                    {'numeroDossier':data['numeroDossier'],
+                        'denominationSociale':data['denominationSociale'],
+                        'dateCreationDebut':(data['dateCreationDebut']==0)?0:data['dateCreationDebut']|date('d-m-Y'),
+                        'dateCreationFin':(data['dateCreationFin']==0)?0:data['dateCreationFin']|date('d-m-Y'),
+                        'formeJuridique':data['formeJuridique'],
+                        'typeDossier':data['typeDossier'],'gerant':data['gerant'],
+                        'entreprise':data['entreprise'],
+                        'idS':idS,
+                        'idLangue':langue}) }}">
                     <button type="button" class="pull-right btn btn-success btn-sm">
                         <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
                     </button>
