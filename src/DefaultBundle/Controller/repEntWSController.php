@@ -25,17 +25,15 @@ class repEntWSController extends Controller
      */
     public function getEntrpriseDataAction(Request $request)
     {
-//        $heder=$request->getMethod();
-//        die(dump($heder));
         $encoders = array(new JsonEncoder(new JsonEncode(JSON_UNESCAPED_UNICODE), new JsonDecode(false)));
         $normalizers = array(new ObjectNormalizer());
         $serializer = new Serializer($normalizers, $encoders);
         $em = $this->getDoctrine()->getManager();
         if ($this->isJSON($request->getContent()) == false) {
             $reponse = [
-				"message" => "Bad data, check the JSON data format",
-                "status" =>400
-				];
+                "message" => "Veillez fournir un format de donne JSON",
+                "status" => 0
+            ];
             $reponseJson = $serializer->serialize($reponse, 'json');
             return new Response($reponseJson);
         }
@@ -47,35 +45,35 @@ class repEntWSController extends Controller
         $dataRecu = json_decode($data);
         if (json_encode($dataRecu) == '{}') {
             $reponse = [
-			"message" => "Request body cannot be empty.",
-                "status" => -2000
-                
-				];
+                "message" => "Tout les champs sont aubligatoires",
+                "status" => 0
+
+            ];
             $reponseJson = $serializer->serialize($reponse, 'json');
             return new Response($reponseJson);
         }
         if (!isset($dataRecu->numRccm)) {
             $reponse = [
-			"message" => "The numRccm field is mandatory.",
+                "message" => "Le champs numRccm est  aubligatoire",
                 "status" => 0
-                
-				];
+
+            ];
             $reponseJson = $serializer->serialize($reponse, 'json');
             return new Response($reponseJson);
         } elseif (!isset($dataRecu->password)) {
             $reponse = [
-			 "message" => "Le champs password  est  aubligatoire",
+                "message" => "Le champs password  est  aubligatoire",
                 "status" => 0
-               
-				];
+
+            ];
             $reponseJson = $serializer->serialize($reponse, 'json');
             return new Response($reponseJson);
         } elseif (!isset($dataRecu->username)) {
             $reponse = [
-			 "message" => "Le champs username  est  aubligatoire",
+                "message" => "Le champs username  est  aubligatoire",
                 "status" => 0
-               
-				];
+
+            ];
             $reponseJson = $serializer->serialize($reponse, 'json');
             return new Response($reponseJson);
         }
@@ -89,9 +87,10 @@ class repEntWSController extends Controller
             $reponseJson = $serializer->serialize($reponse, 'json');
             return new Response($reponseJson);
         } else {
-            if (!(strcmp($username, "APIP-USER") === 0 && strcmp($password, "APIP-USER-2020@") === 0)) {
+          //  $user=$em->getRepository('UtilisateursBundle:Utilisateurs')->findOneBy()
+            if (!(strcmp($username, "APIP-USERV2") === 0 && strcmp($password, "APIP-USERV2-2021@") === 0)) {
                 $codeRetour = 0;
-				 $reponse->setMessages("Erreur d'authentification");
+                $reponse->setMessages("Erreur d'authentification");
                 $reponse->setNumeroDossier($dossierRecu->getNumeroDossier());
                 $reponse->setStatus($codeRetour);
                 $reponseJson = $serializer->serialize($reponse, 'json');
@@ -101,7 +100,7 @@ class repEntWSController extends Controller
         $histoDossier = $em->getRepository("BanquemondialeBundle:DossierDemande")->getRepEntre($rccm);
         if ($histoDossier) {
             $codeRetour = 1;
-			$reponse->setMessages("Cette entreprise existe dans la base de données . Voici les informations");
+            $reponse->setMessages("Cette entreprise existe dans la base de données . Voici les informations");
             $reponse->setNumeroDossier($histoDossier[0]['numeroDossier']);
             $reponse->setStatus($codeRetour);
             $reponse->setDenominationCommercial($histoDossier[0]['denominationSociale']);
@@ -114,7 +113,7 @@ class repEntWSController extends Controller
             $reponseJson = $serializer->serialize(
                 [
                     "message" => "Cette entreprise n'existe pas dans la base de données  Synergui",
-					  "status" => 0
+                    "status" => 0
                 ], 'json');
             return new Response($reponseJson);
         }

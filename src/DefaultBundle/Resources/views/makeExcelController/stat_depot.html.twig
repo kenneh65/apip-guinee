@@ -66,7 +66,7 @@
 
 
         {% xlsrow %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'AGENT DEPOT' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Agent dépôt' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %} {{ user['username'] }} ( {{ user['nom']~' '~user['prenom']}} ){% endxlscell %}
         {% endxlsrow %}
 
@@ -81,7 +81,6 @@
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Numéro Dossier' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Dénomination' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Forme juridique' }}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Affectation' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Date de création' }}{% endxlscell %}
         {% endxlsrow %}
         {% for ls in liste %}
@@ -89,8 +88,7 @@
                 {% xlscell %}{{loop.index}}{% endxlscell %}
                 {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
                 {% xlscell %}{{ ls.denominationSociale}}{% endxlscell %}
-                {% xlscell %}{{ ls.libelleFormeJ}}{% endxlscell %}
-                {% xlscell %}{{ ls.affectation}}{% endxlscell %}
+                {% xlscell %}{{ ls.libelle}}{% endxlscell %}
                 {% xlscell %}{{ ls.dateCreation|date('d-m-Y')}}{% endxlscell %}
 
             {% endxlsrow %}

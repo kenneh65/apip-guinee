@@ -6,8 +6,6 @@ use BanquemondialeBundle\Entity\Administration;
 use BanquemondialeBundle\Entity\Documentation;
 use BanquemondialeBundle\Entity\DocumentCollected;
 use BanquemondialeBundle\Entity\DossierDemande;
-use BanquemondialeBundle\Entity\Nif;
-use BanquemondialeBundle\Entity\Quittance;
 use BanquemondialeBundle\Entity\Representant;
 use BanquemondialeBundle\Form\AnnoncePortailSearchType;
 use BanquemondialeBundle\Form\AnnonceurSearchType;
@@ -15,30 +13,21 @@ use BanquemondialeBundle\Form\DossierDemandeDepotType;
 use BanquemondialeBundle\Form\DossierDemandeSearchType;
 use BanquemondialeBundle\Form\DossierDemandeType;
 use BanquemondialeBundle\Form\DossierPoleSearchType;
-use BanquemondialeBundle\Form\RepartitionQuittanceSearchType;
 use BanquemondialeBundle\Form\StatistiqueGrapheType;
 use BanquemondialeBundle\Form\StatistiqueType;
 use BanquemondialeBundle\Repository\FormeJuridiqueRepository;
-use BanquemondialeBundle\Repository\FormeJuridiqueTraductionRepository;
-use DefaultBundle\Entity\CaisseOrange;
 use DefaultBundle\Entity\PaiementOrange;
 use DefaultBundle\Entity\ReglageActivation;
 use DefaultBundle\Entity\Statistique;
 use DefaultBundle\Form\SimulateurSearchType;
-use DefaultBundle\services\suiviStatutDossierService;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Query\ResultSetMapping;
 use Endroid\QrCode\QrCode;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Bundle\FrameworkBundle\Client;
 use ParametrageBundle\Entity\News;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -47,7 +36,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 // Include the requires classes of Phpword
 //include qrcode
@@ -5642,7 +5630,7 @@ class DefaultController extends Controller
                 ), $sessionData);
 
             $pourcentage = 0.02;
-            $amount = 500;// $sessionData['montantTotalFacture'] * $pourcentage + $sessionData['montantTotalFacture'];
+            $amount = $sessionData['montantTotalFacture'] * $pourcentage + $sessionData['montantTotalFacture'];
             //  die(dump($amount));
             $initietedDate = date_format(new \DateTime(), 'Y-m-d H:i:s');
             $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -6696,7 +6684,8 @@ class DefaultController extends Controller
         return $this->render('DefaultBundle:Default:statistique-dossier-saisie.html.twig', array(
                 'listDossier' => $listDossier,
                 'form' => $form->createView(),
-                'data' => $data
+                'data' => $data,
+                'user'=>$user
             )
         );
     }
@@ -6720,7 +6709,7 @@ class DefaultController extends Controller
         }
             elseif ($choix == 4) {
                 $stat = $this->get('suivistatutdossierservice')->getAndsetStatRccm('get', null, $dateDebut, $dateFin);
-               /// die(dump($stat));
+               // die(dump($stat['rapportTraitement']));
             }
             elseif ($choix == 5) {
                 $stat = $this->get('suivistatutdossierservice')->getAndsetStatRetrait('get', null, $dateDebut, $dateFin);
@@ -6759,6 +6748,190 @@ class DefaultController extends Controller
         );
     }
 
+    /**
+     *
+     * @Route("/{_locale}/statistique-liste-des-dossier-quittancer-par-agent", name="statistique-liste-des-dossier-quittancer-par-agent")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getListeDossiersQuittancerAction(Request $request)
+
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        // $data = $this->getRequest()->request->get('data');
+        $dateJour = date_format(new \DateTime(), 'Y-m-d');
+        $data = [
+            'numeroDossier' => 0,
+            'denominationSociale' => 0,
+            'dateCreationDebut' => $dateJour,
+            'dateCreationFin' => $dateJour,
+            'formeJuridique' => 0,
+        ];
+        $listDossier = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceTraiterByAgentByPeriod($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+        $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
+        $form->bind($request);
+        if ($request->getMethod() == 'POST') {
+            $dataTemp = $request->request->all()['dossierEncours'];
+            $data = [
+                'numeroDossier' => empty($dataTemp['numeroDossier']) ? 0 : $dataTemp['numeroDossier'],
+                'denominationSociale' => empty($dataTemp['denominationSociale']) ? 0 : $dataTemp['denominationSociale'],
+                'dateCreationDebut' => empty($dataTemp['dateCreationDebut']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationDebut']),'Y-m-d'),
+                'dateCreationFin' => empty($dataTemp['dateCreationFin']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationFin']),'Y-m-d'),
+                'formeJuridique' => empty($dataTemp['formeJuridique']) ? 0 : $dataTemp['formeJuridique'],
+            ];
+          //  die(dump($data));
+            $listDossier = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceTraiterByAgentByPeriod($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+        }
+        return $this->render('BanquemondialeBundle:Default:Quittance/layout/reporting-by-user.html.twig', array(
+                'listDossier' => $listDossier,
+                'form' => $form->createView(),
+                'data' => $data,
+                'user'=>$user
+            )
+        );
+    }
 
 
+    /**
+     *
+     * @Route("/{_locale}/statistique-liste-des-dossier-deposer-par-agent", name="statistique-liste-des-dossier-deposer-par-agent")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getListeDossiersDoposerByAgentAction(Request $request)
+
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+       // die(dump($user));
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        // $data = $this->getRequest()->request->get('data');
+        $dateJour = date_format(new \DateTime(), 'Y-m-d');
+        $data = [
+            'numeroDossier' => 0,
+            'denominationSociale' => 0,
+            'dateCreationDebut' => $dateJour,
+            'dateCreationFin' => $dateJour,
+            'formeJuridique' => 0,
+        ];
+        $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierDeposerByAgentByPeriod($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+        $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
+        $form->bind($request);
+        if ($request->getMethod() == 'POST') {
+            $dataTemp = $request->request->all()['dossierEncours'];
+            $data = [
+                'numeroDossier' => empty($dataTemp['numeroDossier']) ? 0 : $dataTemp['numeroDossier'],
+                'denominationSociale' => empty($dataTemp['denominationSociale']) ? 0 : $dataTemp['denominationSociale'],
+                'dateCreationDebut' => empty($dataTemp['dateCreationDebut']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationDebut']),'Y-m-d'),
+                'dateCreationFin' => empty($dataTemp['dateCreationFin']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationFin']),'Y-m-d'),
+                'formeJuridique' => empty($dataTemp['formeJuridique']) ? 0 : $dataTemp['formeJuridique'],
+            ];
+            $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierDeposerByAgentByPeriod($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+
+        }
+
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/reporting-de-depot-by-user.html.twig', array(
+                'listDossier' => $listDossier,
+                'form' => $form->createView(),
+                'data' => $data,
+                'user'=>$user
+            )
+        );
+    }
+
+
+
+    /**
+     *
+     * @Route("/{_locale}/statistique-liste-des-dossier-immatrucler-par-agent", name="statistique-liste-des-dossier-immatrucler-par-agent")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getListeDossiersDoposerImmatriculerAction(Request $request)
+
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        // $data = $this->getRequest()->request->get('data');
+        $dateJour = date_format(new \DateTime(), 'Y-m-d');
+        $data = [
+            'numeroDossier' => 0,
+            'denominationSociale' => 0,
+            'dateCreationDebut' => $dateJour,
+            'dateCreationFin' => $dateJour,
+            'formeJuridique' => 0,
+        ];
+        $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->getRapportRccmTraiterByPeriode($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+        $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
+        $form->bind($request);
+        if ($request->getMethod() == 'POST') {
+            $dataTemp = $request->request->all()['dossierEncours'];
+            $data = [
+                'numeroDossier' => empty($dataTemp['numeroDossier']) ? 0 : $dataTemp['numeroDossier'],
+                'denominationSociale' => empty($dataTemp['denominationSociale']) ? 0 : $dataTemp['denominationSociale'],
+                'dateCreationDebut' => empty($dataTemp['dateCreationDebut']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationDebut']),'Y-m-d'),
+                'dateCreationFin' => empty($dataTemp['dateCreationFin']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationFin']),'Y-m-d'),
+                'formeJuridique' => empty($dataTemp['formeJuridique']) ? 0 : $dataTemp['formeJuridique'],
+            ];
+
+            $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->getRapportRccmTraiterByPeriode($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+
+        }
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/reporting-de-greffe-by-user.html.twig', array(
+                'listDossier' => $listDossier,
+                'form' => $form->createView(),
+                'data' => $data,
+                'user'=>$user
+            )
+        );
+    }
+
+
+
+    /**
+     *
+     * @Route("/{_locale}/statistique-liste-des-dossier-retirer-par-agent", name="statistique-liste-des-dossier-retirer-par-agent")
+     * @Security("has_role('ROLE_USER')")
+     */
+    public function getListeDossiersDoposerRetirerAction(Request $request)
+
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $codLang = $request->getLocale();
+        $langue = $em->getRepository('BanquemondialeBundle:Langue')->findOneByCode($codLang);
+        // $data = $this->getRequest()->request->get('data');
+        $dateJour = date_format(new \DateTime(), 'Y-m-d');
+        $data = [
+            'numeroDossier' => 0,
+            'denominationSociale' => 0,
+            'dateCreationDebut' => $dateJour,
+            'dateCreationFin' => $dateJour,
+            'formeJuridique' => 0,
+        ];
+        $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->getStatistiqueDossierRetirerByAgentPeriode($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+        $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
+        $form->bind($request);
+        if ($request->getMethod() == 'POST') {
+            $dataTemp = $request->request->all()['dossierEncours'];
+            $data = [
+                'numeroDossier' => empty($dataTemp['numeroDossier']) ? 0 : $dataTemp['numeroDossier'],
+                'denominationSociale' => empty($dataTemp['denominationSociale']) ? 0 : $dataTemp['denominationSociale'],
+                'dateCreationDebut' => empty($dataTemp['dateCreationDebut']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationDebut']),'Y-m-d'),
+                'dateCreationFin' => empty($dataTemp['dateCreationFin']) ? $dateJour : date_format(new \DateTime($dataTemp['dateCreationFin']),'Y-m-d'),
+                'formeJuridique' => empty($dataTemp['formeJuridique']) ? 0 : $dataTemp['formeJuridique'],
+            ];
+            $listDossier = $em->getRepository('BanquemondialeBundle:DossierDemande')->getStatistiqueDossierRetirerByAgentPeriode($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
+        }
+       // die(dump($listDossier));
+        return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/reporting-de-dossier-retire-by-user.html.twig', array(
+                'listDossier' => $listDossier,
+                'form' => $form->createView(),
+                'data' => $data
+            )
+        );
+    }
 }

@@ -193,5 +193,19 @@ class QuittanceRepository extends EntityRepository {
         return $tabResult;
 
     }
+    public function findQuittanceTraiterByAgentByPeriod($dateDebut,$dateFin,$idUser){
+        $slqRequete = "SELECT d.*, q.*,ft.libelle FROM quittance q 
+                    INNER JOIN fos_user u ON u.id=q.idUtilisateur
+                    INNER JOIN dossierdemande d ON d.id=q.idDossierDemande
+                     INNER JOIN formejuridique f ON f.id=d.idFormeJuridique
+                     INNER JOIN formejuridiquetraduction ft ON ft.idformeJuridique=f.id 
+                    AND ft.idLangue=1 
+                    AND CAST(q.datePaiement AS DATE) BETWEEN CAST('$dateDebut' AS DATE ) AND  CAST('$dateFin' AS DATE )
+                    AND q.idUtilisateur='$idUser'";
+        $stmt = $this->getEntityManager()->getConnection()->prepare($slqRequete);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        return $results;
+    }
 
 }

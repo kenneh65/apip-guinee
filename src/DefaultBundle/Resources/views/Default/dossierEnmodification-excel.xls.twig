@@ -77,12 +77,12 @@
                 {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Agent de dépôt' }}{% endxlscell %}
                 {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Agent de saisi' }}{% endxlscell %}
                 {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Date réception' }}{% endxlscell %}
-                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Motif' }}{% endxlscell %}
+                {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Motif'|raw }}{% endxlscell %}
             {% endxlsrow %}
             {% for ls in liste %}
                 {% xlsrow %}
                     {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
-                    {% xlscell %}{{ ls.denominationSociale}}{% endxlscell %}
+                    {% xlscell %}{{ ls.denominationSociale|raw}}{% endxlscell %}
                     {% xlscell %}{{ ls.libelleFormeJ}}{% endxlscell %}
                     {% xlscell %}{{ ls.typDossier}}{% endxlscell %}
                     {% xlscell %}{{ ls.structure}}{% endxlscell %}
@@ -90,7 +90,7 @@
                     {% xlscell %}{{ ls.agentDepot}}{% endxlscell %}
                     {% xlscell %}{{ ls.agentSaisi}}{% endxlscell %}
                     {% xlscell %}{{ ls.dateSoumission|date('d-m-Y')}}{% endxlscell %}
-                    {% xlscell %}{{ ls.motif}}{% endxlscell %}
+                    {% xlscell %}{{ ls.motif|raw}}{% endxlscell %}
 
                 {% endxlsrow %}
             {% endfor %}

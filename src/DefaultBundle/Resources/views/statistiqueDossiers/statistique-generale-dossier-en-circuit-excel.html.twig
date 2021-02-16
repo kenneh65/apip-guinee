@@ -1,0 +1,110 @@
+{% xlsdocument
+    {
+    'category': category,
+    'company': 'APIP-GUINEE',
+    'creator': 'APIP-GUINEE',
+    'defaultStyle': {
+    'font': {
+        'size': 14.0
+    }
+},
+    'description':description,
+    'keywords': 'APIP-GUINEE',
+    'lastModifiedBy': 'APIP-GUINEE',
+    'manager': 'APIP-GUINEE',
+    'security': {
+    'lockRevision': true,
+    'lockStructure': true,
+    'lockWindows': true,
+    'revisionsPassword': 'test',
+    'workbookPassword': 'test'
+},
+    'subject': description,
+    'title': description
+    } %}
+    {% xlssheet description
+        {
+        pageMargins: {
+        top: 1,
+        bottom: 1,
+        left: 0.75,
+        right: 0.75,
+        header: 0.5,
+        footer: 0.5
+    },
+        pageSetup: {
+        fitToHeight: 1,
+        fitToPage: false,
+        fitToWidth: 1,
+        horizontalCentered: false,
+        orientation: 'landscape',
+        paperSize: 9,
+        printArea: 'A1:B1',
+        scale: 100,
+        verticalCentered: false
+    },
+
+        printGridlines: true,
+        rightToLeft: false,
+        rowDimension: {
+        'default': {
+            collapsed: false,
+            outlineLevel: 0,
+            rowHeight: -1,
+            rowIndex: '1',
+            visible: true,
+            xfIndex: 0,
+            zeroHeight:false
+        },
+    },
+        sheetState: 'visible',
+        showGridlines: true,
+        tabColor: 'a1a1e0',
+        zoomScale: 75
+        } %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ '' }}{% endxlscell %}
+        {% endxlsrow %}
+
+        {% xlsrow %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'N°' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Dénomination' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Forme juridique' }}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Dépôt'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Quittance'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Saisie'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Greffe'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'DNI'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'NIF Logique'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'NIF Pysique'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'RCCM Logique'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'RCCM Pysique'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Retrait'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Durée en Jours'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Durée en ms'}}{% endxlscell %}
+
+        {% endxlsrow %}
+        {% for stat in statGenerale %}
+            {% xlsrow %}
+                {% xlscell %}{{loop.index}}{% endxlscell %}
+                {% xlscell %}{{ stat.denominationSociale}}{% endxlscell %}
+                {% xlscell %}{{ stat.sigle|raw}}{% endxlscell %}
+                {% xlscell %}{{ stat.dateCreation|date('d/m/Y H:i:s')}}{% endxlscell %}
+                {% xlscell %}{{stat.datePaiement?stat.datePaiement|date('d/m/Y H:i:s'):'' }}{% endxlscell %}
+                {% xlscell %}{{stat.dateSaisie?stat.dateSaisie|date('d/m/Y H:i:s'):''}}{% endxlscell %}
+                {% xlscell %}{{stat.dateGreffe?stat.dateGreffe|date('d/m/Y H:i:s'):'' }}{% endxlscell %}
+                {% xlscell %}{{stat.dateEnvoidni?stat.dateEnvoidni|date('d/m/Y H:i:s'):''}}{% endxlscell %}
+                {% xlscell %}{{stat.dateTraitNifLogique?stat.dateTraitNifLogique|date('d/m/Y H:i:s'):''}}{% endxlscell %}
+                {% xlscell %}{{stat.dateTraitementNifPhysique?stat.dateTraitementNifPhysique|date('d/m/Y H:i:s'):''}}{% endxlscell %}
+                {% xlscell %}{{stat.datetratementRccmLogique?stat.datetratementRccmLogique|date('d/m/Y H:i:s'):'' }}{% endxlscell %}
+                {% xlscell %}{{stat.dateTraitementRccmPhysique?stat.dateTraitementRccmPhysique|date('d/m/Y H:i:s'):''}}{% endxlscell %}
+                {% xlscell %}{{stat.dateRetrait ?stat.dateRetrait|date('d/m/Y H:i:s'):''}}{% endxlscell %}
+                {% xlscell %}{{ stat.nb_second?monServices.secondsToTimebis(stat.nb_second):'En cours'}}{% endxlscell %}
+                {% xlscell %}{{ stat.nb_second?stat.nb_second:'En cours'}}{% endxlscell %}
+
+            {% endxlsrow %}
+        {% endfor %}
+    {% endxlssheet %}
+{% endxlsdocument %}

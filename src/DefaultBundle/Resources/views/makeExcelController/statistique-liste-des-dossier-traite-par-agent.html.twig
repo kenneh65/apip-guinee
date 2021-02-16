@@ -80,7 +80,8 @@
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Numéro Dossier' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Dénomination' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Forme juridique' }}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{{'Date'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Date création'}}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Date rétrait'}}{% endxlscell %}
 
         {% endxlsrow %}
         {% for ls in liste %}
@@ -90,6 +91,7 @@
                 {% xlscell %}{{ ls.denominationSociale|raw}}{% endxlscell %}
                 {% xlscell %}{{ ls.libelle|raw}}{% endxlscell %}
                 {% xlscell %}{{ ls.dateCreation|date('d/m/Y H:s:i' )}}{% endxlscell %}
+                {% xlscell %}{{ ls.dateRetrait|date('d/m/Y H:s:i' )}}{% endxlscell %}
             {% endxlsrow %}
         {% endfor %}
     {% endxlssheet %}

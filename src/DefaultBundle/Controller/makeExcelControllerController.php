@@ -12,23 +12,20 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 class makeExcelControllerController extends Controller
 {
     /**
-     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{formeJuridique}/statistique-depot-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-depot-excel", methods={"GET","POST"})
+     * @Route("/{dateCreationDebut}/{dateCreationFin}/{userid}/statistique-depot-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-depot-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:makeExcelController:stat_depot.html.twig")
      */
-    public function statDepotAction($numeroDossier,$denominationSociale,$dateCreationDebut,$dateCreationFin,$formeJuridique)
+    public function statDepotAction($dateCreationDebut,$dateCreationFin,$userid)
     {
         $em=$this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('monservices')->getUserById($userid);
         $limit=null;
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         $data=[
-            'numeroDossier'=>$numeroDossier,
-            'denominationSociale'=>$denominationSociale,
-            'dateCreationDebut'=>$dateCreationDebut,
-            'dateCreationFin'=>$dateCreationFin,
-            'formeJuridique'=>$formeJuridique,
+            'dateCreationDebut'=>date_format(new \DateTime($dateCreationDebut),'Y-m-d'),
+            'dateCreationFin'=>date_format(new \DateTime($dateCreationFin),'Y-m-d')
         ];
-        $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDemandeDossierDeposesByParametres($data, 1, $user->getId(), $limit, -1);
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierDeposerByAgentByPeriod($data['dateCreationDebut'],$data['dateCreationFin'], $user->getId());
         return [
             'liste'=>$listerdemande,
             'category'=>'Dossiers déposés',
@@ -41,28 +38,21 @@ class makeExcelControllerController extends Controller
     }
 
     /**
-     * @Route("/{numeroDossier}/{denominationSociale}/{datePaiementDebut}/{datePaiementFin}/{formeJuridique}/{typeDossier}/{entreprise}/{numeroQuittance}/statistique-caisse-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-caisse-excel", methods={"GET","POST"})
+     * @Route("/{datePaiementDebut}/{datePaiementFin}/{userid}/statistique-caisse-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-caisse-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:makeExcelController:stat_caisse.html.twig")
      */
-    public function statCaisseAction($numeroDossier,$denominationSociale,$datePaiementDebut,
-                                     $datePaiementFin,$formeJuridique,$typeDossier,$entreprise,$numeroQuittance)
+    public function statCaisseAction($datePaiementDebut,$datePaiementFin,$userid)
     {
 
         $em=$this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('monservices')->getUserById($userid);
         $limit=null;
         $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
         $data=[
-            'numeroDossier'=>$numeroDossier,
-            'denominationSociale'=>$denominationSociale,
-            'datePaiementDebut'=>$datePaiementDebut,
-            'datePaiementFin'=>$datePaiementFin,
-            'formeJuridique'=>$formeJuridique,
-            'typeDossier'=>$typeDossier,
-            'entreprise'=>$entreprise,
-            'numeroQuittance'=>$numeroQuittance,
+            'datePaiementDebut'=>date_format(new \DateTime($datePaiementDebut),'Y-m-d'),
+            'datePaiementFin'=>date_format(new \DateTime($datePaiementFin),'Y-m-d')
         ];
-        $listQuittance = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceValideByParametres($data,1, $user->getId());
+        $listQuittance = $em->getRepository('BanquemondialeBundle:Quittance')->findQuittanceTraiterByAgentByPeriod($data['datePaiementDebut'],$data['datePaiementFin'],$user->getId());
         return [
             'listQuittance'=>$listQuittance,
             'category'=>'Liste des quittances',
@@ -74,17 +64,14 @@ class makeExcelControllerController extends Controller
         ];
     }
 
-
-
-
     /**
-     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{formeJuridique}/statistique-saisie-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-saisie-excel", methods={"GET","POST"})
+     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{formeJuridique}/{userid}/statistique-saisie-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-saisie-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:makeExcelController:stat_saisi.html.twig")
      */
-    public function statSaisiAction($numeroDossier,$denominationSociale,$dateCreationDebut,$dateCreationFin,$formeJuridique)
+    public function statSaisiAction($numeroDossier,$denominationSociale,$dateCreationDebut,$dateCreationFin,$formeJuridique,$userid)
     {
         $em=$this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->get('monservices')->getUserById($userid);
         $limit=null;
         $data=[
             'numeroDossier'=>$numeroDossier,
@@ -106,38 +93,28 @@ class makeExcelControllerController extends Controller
     }
 
     /**
-     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{dateDelivranceDebut}/{dateDelivranceFin}/{formeJuridique}/{typeDossier}/{entreprise}/{gerant}/statistique-greffe-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-greffe-excel", methods={"GET","POST"})
+     * @Route("/{dateCreationDebut}/{dateCreationFin}/{userid}/statistique-greffe-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-greffe-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:makeExcelController:stat_greffe.html.twig")
      */
-    public function statGreffeAction($numeroDossier,$denominationSociale,$dateCreationDebut,$dateCreationFin,$dateDelivranceDebut,$dateDelivranceFin,$formeJuridique,$typeDossier,$entreprise,$gerant)
+    public function statGreffeAction($dateCreationDebut,$dateCreationFin,$userid)
     {
 
         $em=$this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $pole = $user->getPole();
-        $idPole = 1; //cette valeur est a prendre dans la variable de session à la connection
+        $user = $this->get('monservices')->getUserById($userid);
         $limit=null;
         $data=[
-            'numeroDossier'=>$numeroDossier,
-            'denominationSociale'=>$denominationSociale,
-            'dateCreationDebut'=>$dateCreationDebut,
-            'dateCreationFin'=>$dateCreationFin,
-            'dateDelivranceDebut'=>$dateDelivranceDebut,
-            'dateDelivranceFin'=>$dateDelivranceFin,
-            'formeJuridique'=>$formeJuridique,
-            'typeDossier'=>$typeDossier,
-            'entreprise'=>$entreprise,
-            'gerant'=>$gerant,
+            'dateCreationDebut'=>date_format(new \DateTime($dateCreationDebut),'Y-m-d'),
+            'dateCreationFin'=>date_format(new \DateTime($dateCreationFin),'Y-m-d')
         ];
-        $listerdemande = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierPole($user, $data, 1, $idPole, $limit, 2);
+        $listerdemande = $em->getRepository('BanquemondialeBundle:DossierDemande')->getRapportRccmTraiterByPeriode($data['dateCreationDebut'],$data['dateCreationFin']);
         return [
             'liste'=>$listerdemande,
             'category'=>'Dossiers Délivrés',
             'description'=>'Stat Dossiers Délivrés',
             'user'=>[
-                'nom'=>$user->getNom(),
-                'prenom'=>$user->getPrenom(),
-                'username'=>$user->getUsername()]
+                'nom'=>!empty($user)?$user->getNom():"",
+                'prenom'=>!empty($user)?$user->getPrenom():"",
+                'username'=>!empty($user)?$user->getUsername():""]
         ];
     }
 
@@ -175,43 +152,64 @@ class makeExcelControllerController extends Controller
         ];
     }
 
-
-
-
-
-
     /**
-     * @Route("/{userId}/{service}/{dateDebut}/{dateFin}/statistique-liste-des-dossier-traite-par-agent-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-liste-des-dossier-traite-par-agent-excel", methods={"GET","POST"})
+     * @Route("/{dateCreationDebut}/{dateCreationFin}/statistique-dossier-retirer-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-dossier-retirer-excel", methods={"GET","POST"})
      * @Template("DefaultBundle:makeExcelController:statistique-liste-des-dossier-traite-par-agent.html.twig")
      */
-    public function statDossiersTraiterByUserInExcelAction(Request $request,$userId,$service,$dateDebut,$dateFin)
+    public function statDossiersTraiterByUserInExcelAction(Request $request ,$dateCreationDebut,$dateCreationFin)
     {
         $em=$this->getDoctrine()->getManager();
-        $stat = $em->getRepository('BanquemondialeBundle:DossierDemande')->getDossiersTraiteByAgentByServiceBydate($userId,$service,$dateDebut,$dateFin);
-       $user=$user=$this->get('monservices')->getUserById($userId);
+        $user = $this->get('monservices')->getUserById(326);
+        $data=[
+            'dateCreationDebut'=>date_format(new \DateTime($dateCreationDebut),'Y-m-d'),
+            'dateCreationFin'=>date_format(new \DateTime($dateCreationFin),'Y-m-d')
+        ];
+        $stat = $em->getRepository('BanquemondialeBundle:DossierDemande')->getStatistiqueDossierRetirerByAgentPeriode($data['dateCreationDebut'],$data['dateCreationFin']);
+      // die(dump($stat));
         return [
             'liste'=>$stat,
-            'choix'=>$service,
             'user'=>[
                 'nom'=>$user->getNom(),
                 'prenom'=>$user->getPrenom(),
                 'username'=>$user->getUsername()],
             'category'=>'Dossiers retirés',
-            'description'=>'Stat Dossiers',
+            'description'=>'Stat des Dossiers retirés',
         ];
     }
+//    /**
+//     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{formeJuridique}/{typeDossier}/{gerant}/{entreprise}/{idS}/{idLangue}/dossierEnmodification-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="dossierEnmodification-excel", methods={"GET","POST"})
+//     * @Template("DefaultBundle:Default:dossierEnmodification-excel.xls.twig")
+//     */
+//    public function StatGlobaleCircuitAction()
+//    {
+//        return $this->render('DefaultBundle:makeExcelController:stat_globale_circuit.html.twig', array(
+//            // ...
+//        ));
+//    }
 
-
-
-    /**
-     * @Route("/{numeroDossier}/{denominationSociale}/{dateCreationDebut}/{dateCreationFin}/{formeJuridique}/{typeDossier}/{gerant}/{entreprise}/{idS}/{idLangue}/dossierEnmodification-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="dossierEnmodification-excel", methods={"GET","POST"})
-     * @Template("DefaultBundle:Default:dossierEnmodification-excel.xls.twig")
+        /**
+     * @Route("/{dateDebut}/{dateFin}/statistique-generale-dossier-en-circuit-excel-excel.xls", defaults={"_format"="xls"}, requirements={"_format"="csv|xls|xlsx"},name="statistique-generale-dossier-en-circuit-excel-excel", methods={"GET","POST"})
+     * @Template("DefaultBundle:statistiqueDossiers:statistique-generale-dossier-en-circuit-excel.html.twig")
      */
-    public function StatGlobaleCircuitAction()
+    public function StatistiqueGeneraleCircuitDossierByPeriodeExcelAction(Request $request,$dateDebut,$dateFin)
     {
-        return $this->render('DefaultBundle:makeExcelController:stat_globale_circuit.html.twig', array(
-            // ...
-        ));
+        $em=$this->getDoctrine()->getManager();
+        $user = $this->get('monservices')->getUserById(326);
+        $dDebut = date_format(new \DateTime($dateDebut), 'Y-m-d');
+        $dFin = date_format(new \DateTime($dateFin), 'Y-m-d');
+        $statGenerale = $this->get('suivistatutdossierservice')->getStatistiqueGeneralCircuitDossier($dDebut, $dFin);
+        return
+            [
+                'statGenerale' => $statGenerale,
+                'dateDebut' => $dateDebut,
+                'dateFin' => $dateFin,
+                'user'=>[
+                    'nom'=>$user->getNom(),
+                    'prenom'=>$user->getPrenom(),
+                    'username'=>$user->getUsername()],
+                'category'=>'Dossiers retirés',
+                'description'=>'Stat des Dossiers retirés',
+            ];
     }
 
 }

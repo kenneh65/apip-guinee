@@ -21,16 +21,66 @@
             </div>
         {% endfor %}
         <div class="">
-            <a target="_blank"
-               href="{{ path('statistique-liste-des-dossier-traite-par-agent-excel',{
-                   'userId':user.id,
-                   'service':choix,
-                   'dateDebut':dateDebut,
-                   'dateFin':dateFin}) }}">
-                <button type="button" class="pull-right btn btn-success btn-sm">
-                    <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
-                </button>
-            </a>
+            {% if choix==1 %}
+                            <a target="_blank"
+                               href="{{ path('statistique-depot-excel',{
+                                   'userid':user.id,
+                                   'dateCreationDebut':dateDebut,
+                                   'dateCreationFin':dateFin}) }}">
+                                <button type="button" class="pull-right btn btn-success btn-sm">
+                                    <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                                </button>
+                            </a>
+            {% elseif choix==2 %}
+
+                            <a target="_blank"
+                               href="{{ path('statistique-caisse-excel',{
+                                   'userid':user.id,
+                                   'datePaiementDebut':dateDebut,
+                                   'datePaiementFin':dateFin}) }}">
+                                <button type="button" class="pull-right btn btn-success btn-sm">
+                                    <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                                </button>
+                            </a>
+            {% elseif choix==3 %}
+
+                <a target="_blank"
+                   href="{{ path('statistique-saisie-excel',{
+                       'userid':user.id,
+                       'formeJuridique':0,
+                       'denominationSociale':0,
+                       'numeroDossier':0,
+                       'dateCreationDebut':dateDebut,
+                       'dateCreationFin':dateFin}) }}">
+                    <button type="button" class="pull-right btn btn-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                    </button>
+                </a>
+            {% elseif choix==4 %}
+                <a target="_blank"
+                   href="{{ path('statistique-greffe-excel',{
+                       'userid':0,
+                       'dateCreationDebut':dateDebut,
+                       'dateCreationFin':dateFin}) }}">
+                    <button type="button" class="pull-right btn btn-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                    </button>
+                </a>
+            {% elseif choix==5 %}
+                <h1>Liste des dossiers retires</h1><br>
+            {% else %}
+                <h1>Statistique de suivi de dossiers</h1><br>
+            {% endif %}
+
+{#            <a target="_blank"#}
+{#               href="{{ path('statistique-depot-excel',{#}
+{#                   'userid':user.id,#}
+{#                   'dateCreationDebut':dateDebut,#}
+{#                   'dateCreationFin':dateFin}) }}">#}
+{#                <button type="button" class="pull-right btn btn-success btn-sm">#}
+{#                    <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}#}
+{#                </button>#}
+{#            </a>#}
                 <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
                     <tr>

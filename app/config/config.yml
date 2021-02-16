@@ -54,7 +54,7 @@ twig:
     globals:
         monServices: "@monServices"
         suiviStatutDossierService: "@suiviStatutDossierService"
-    exception_controller: DefaultBundle:Exception:showException
+    #exception_controller: DefaultBundle:Exception:showException
 
 # Doctrine Configuration
 doctrine:

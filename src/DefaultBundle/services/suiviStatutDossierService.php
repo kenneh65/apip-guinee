@@ -68,10 +68,13 @@ class suiviStatutDossierService extends Controller
         if($action=='get'){
             $rccmTraiter=$em->getRepository('BanquemondialeBundle:DossierDemande')->getRccmTraiterByPeriode($dateDebut,$dateFin);
             $rccmNonTraiter=$em->getRepository('BanquemondialeBundle:DossierDemande')->getRccmNonEncoreTraiterByPeriode($dateDebut,$dateFin);
+            $rapportRccmTraiter=$em->getRepository('BanquemondialeBundle:DossierDemande')->getRapportRccmTraiterByPeriode($dateDebut,$dateFin);
             $statGreff=[
                 'rccmTraiter'=>$rccmTraiter,
-                'rccmNonTraiter'=>$rccmNonTraiter
+                'rccmNonTraiter'=>$rccmNonTraiter,
+                'rapportTraitement'=>$rapportRccmTraiter
             ];
+           // die(dump('ooo'));
             return $statGreff;
         }
         elseif ($action=='set'){
@@ -98,11 +101,15 @@ class suiviStatutDossierService extends Controller
         $em = $this->getDoctrine()->getManager();
         if($action=='get'){
             $dossierRetirer=$em->getRepository('BanquemondialeBundle:DossierDemande')->getDossierRetirerPeriode($dateDebut,$dateFin);
+            $statDossierRetirer=$em->getRepository('BanquemondialeBundle:DossierDemande')->getStatistiqueDossierRetirerByAgentPeriode($dateDebut,$dateFin);
             $dossierNonRetirer=$em->getRepository('BanquemondialeBundle:DossierDemande')->getDossierNonEncoreRetirerByPeriode($dateDebut,$dateFin);
             $statRetrait=[
                 'dossierRetirer'=>$dossierRetirer,
-                'dossierNonRetirer'=>$dossierNonRetirer
+                'dossierNonRetirer'=>$dossierNonRetirer,
+                'statDossierRetirer'=>$statDossierRetirer,
+
             ];
+           // die(dump($statRetrait));
             return $statRetrait;
         }
         elseif ($action=='set'){

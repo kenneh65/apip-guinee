@@ -2743,6 +2743,22 @@ WHERE a.denominationSociale =:denominationSociale ORDER BY denominationSociale";
         $results = $stmt->fetchAll();
         return $results;
     }
+
+    public function getRapportRccmTraiterByPeriode($dateDebut, $dateFin)
+    {
+        $slqRequete = "SELECT d.*,ft.libelle,r.numRccmEntreprise,r.date dateImatriculation FROM rccm r
+	INNER JOIN dossierdemande d ON d.id=r.idDossierDemande
+	INNER JOIN formejuridique f ON f.id=d.idFormeJuridique
+	INNER JOIN formejuridiquetraduction ft ON ft.idformeJuridique=f.id 
+	AND ft.idLangue=1
+            AND CAST(r.date AS DATE) BETWEEN CAST('$dateDebut' AS DATE ) AND  CAST('$dateFin' AS DATE )
+            ORDER BY r.date DESC ";
+        $stmt = $this->getEntityManager()->getConnection()->prepare($slqRequete);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        return $results;
+    }
+
 ////  Dossier en souffrance===============
     public function getDossierEnsouffranceDNIByPeriode($dateDebut, $dateFin)
     {
@@ -2843,6 +2859,28 @@ AND CAST(d.dateCreation AS DATE) BETWEEN CAST('$dateDebut' AS DATE ) AND  CAST('
             AND d.statusRetrait  IS NULL
             AND n.statut=1
             AND CAST(d.dateCreation AS DATE) BETWEEN CAST('$dateDebut' AS DATE ) AND  CAST('$dateFin' AS DATE )
+            ORDER BY e.denomination ASC , d.dateCreation DESC ";
+        $stmt = $this->getEntityManager()->getConnection()->prepare($slqRequete);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        return $results;
+    }
+    public function getStatistiqueDossierRetirerByAgentPeriode($dateDebut, $dateFin)
+    {
+        $slqRequete = "SELECT e.denomination, d.* ,ft.libelle,f.sigle FROM dossierdemande d 
+            INNER JOIN formejuridique f ON f.id=d.idFormeJuridique
+            INNER JOIN formejuridiquetraduction ft ON ft.idformeJuridique=f.id 
+            INNER JOIN fos_user u ON u.id=d.idUserDepot 
+            INNER JOIN entreprise e ON e.id=u.entreprise_id
+            INNER JOIN nif n ON n.idDossierDemande=d.id
+            WHERE ft.idLangue=1
+            AND d.statSuivieDepot=1
+            AND d.statSuivieQuittance=1
+            AND d.statSuivieSaisie=1 
+            AND d.statSuivieRccm=1
+            AND d.statusRetrait is not null
+            AND d.estRetire=1
+            AND CAST(d.dateRetrait AS DATE) BETWEEN CAST('$dateDebut' AS DATE ) AND  CAST('$dateFin' AS DATE )
             ORDER BY e.denomination ASC , d.dateCreation DESC ";
         $stmt = $this->getEntityManager()->getConnection()->prepare($slqRequete);
         $stmt->execute();
@@ -2953,7 +2991,6 @@ LEFT JOIN quittance q ON q.idDossierDemande=d.id
         $results = $stmt->fetchAll();
         return $results;
     }
-
     public function getStatistiqueSuiviDossierParAgentBydate($dateDebut, $dateFin,$choix)
     {
         $slqRequete="SELECT * FROM (SELECT 0 AS num) virtualTable where num=333";
@@ -2993,8 +3030,6 @@ LEFT JOIN quittance q ON q.idDossierDemande=d.id
         $results = $stmt->fetchAll();
         return $results;
     }
-
-
     public function getDossiersTraiteByAgentByServiceBydate($userId,$service,$dateDebut, $dateFin)
     {
         $slqRequete="SELECT * FROM (SELECT 0 AS num) virtualTable where num=333";
@@ -3034,8 +3069,20 @@ LEFT JOIN quittance q ON q.idDossierDemande=d.id
         $results = $stmt->fetchAll();
         return $results;
     }
+    public function findDossierDeposerByAgentByPeriod($dateDebut,$dateFin,$idUser){
 
-
+        $slqRequete = "SELECT d.*,ft.libelle FROM dossierdemande d 
+                        INNER JOIN fos_user u ON u.id=d.idUserDepot
+                        INNER JOIN formejuridique f ON f.id=d.idFormeJuridique
+                     INNER JOIN formejuridiquetraduction ft ON ft.idformeJuridique=f.id 
+                    AND ft.idLangue=1 
+                    AND d.idUserDepot=$idUser
+                    AND CAST(d.dateCreation AS DATE) BETWEEN CAST('$dateDebut' AS DATE ) AND  CAST('$dateFin' AS DATE )";
+        $stmt = $this->getEntityManager()->getConnection()->prepare($slqRequete);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        return $results;
+    }
     /**
      * @param $array
      * @param $column

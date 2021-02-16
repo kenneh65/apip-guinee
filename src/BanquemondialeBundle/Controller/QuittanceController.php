@@ -210,10 +210,10 @@ class QuittanceController extends Controller
                         // Recuperation du  Mode de payement Choisi par l'utilisateur
                         $payMode = $quittance->getModePaiement()->getId();
                         ///  Recuperation Mode de paiement 3 = Orange-Money dans la BAse de Donee
-                        $isOrangewebPay = $this->get('monservices')->getModePayement(3);
-                        $isPayCardwebPay = $this->get('monservices')->getModePayement(5);
+                        $isOrangewebPay = !empty($this->get('monservices')->getModePayement(3))?$this->get('monservices')->getModePayement(3)->getId():00;
+                        $isPayCardwebPay = !empty($this->get('monservices')->getModePayement(6))?$this->get('monservices')->getModePayement(6)->getId():00;
                         ///> On test si le Mode de paiement Choisi est bien egale 3 (Orange-Money) dans la DB /////
-                        if ($payMode == $isOrangewebPay->getId()) {
+                        if ($payMode == $isOrangewebPay) {
                             $session = $request->getSession();
                             /// Supression  variables de session
                             $session->remove('sessionData');
@@ -231,7 +231,7 @@ class QuittanceController extends Controller
                             // ========= On redirige user sur la confirmation=======////////
                             return $this->redirectToRoute('confirmation-payement-orange-money');
                         }
-                        elseif  ($payMode == $isPayCardwebPay->getId()){
+                        elseif  ($payMode == $isPayCardwebPay){
                             $session = $request->getSession();
                             /// Supression  variables de session
                             $session->remove('sessionData');

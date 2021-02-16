@@ -28,7 +28,7 @@
                             Service
                             <select class="form-control" name="service" id="service">
                                 <option value="">===Selectionner un service ===</option>
-                                <option {% if choix==1 %} selected="{{ choix }}" {% endif %} value="1">Dépôt </option>
+                                <option {% if choix==1 %} selected="{{ choix }}" {% endif %} value="1">Dépôt</option>
                                 <option {% if choix==2 %} selected="{{ choix }}" {% endif %} value="2">Caisse</option>
                                 <option {% if choix==3 %} selected="{{ choix }}" {% endif %} value="3">Saisie</option>
                                 <option {% if choix==4 %} selected="{{ choix }}" {% endif %} value="4">Greffe</option>
@@ -80,15 +80,46 @@
                                         Detail <span class="fa fa-eye"></span>
                                     </button>
                                 </a>
-                                <a target="_blank" href="{{ path('statistique-liste-des-dossier-traite-par-agent-excel',{
-                                    'userId':user.userId,
-                                    'service':choix,
-                                    'dateDebut':dateDebut,
-                                    'dateFin':dateFin}) }}">
-                                    <button style="color: white;background: green" class="btn btn-xs pull-right">
-                                        Excel <span class="fa fa-file-excel-o "></span>
-                                    </button>
-                                </a>
+                                {% if choix==1 %}
+                                    <a target="_blank" href="{{ path('statistique-depot-excel',{
+                                        'userid':user.userId,
+                                        'dateCreationDebut':dateDebut,
+                                        'dateCreationFin':dateFin}) }}">
+                                        <button style="color: white;background: green" class="btn btn-xs pull-right">
+                                            Excel <span class="fa fa-file-excel-o "></span>
+                                        </button>
+                                    </a>
+                                    {% elseif choix==2  %}
+                                        <a target="_blank" href="{{ path('statistique-caisse-excel',{
+                                            'userid':user.userId,
+                                            'datePaiementDebut':dateDebut,
+                                            'datePaiementFin':dateFin}) }}">
+                                            <button style="color: white;background: green" class="btn btn-xs pull-right">
+                                                Excel <span class="fa fa-file-excel-o "></span>
+                                            </button>
+                                        </a>
+                                    {% elseif choix==3 %}
+                                        <a target="_blank" href="{{ path('statistique-saisie-excel',{
+                                            'userid':user.userId,
+                                            'formeJuridique':0,
+                                            'dateCreationDebut':dateDebut,
+                                            'dateCreationFin':dateFin,
+                                            'numeroDossier':0,
+                                            'denominationSociale':0}) }}">
+                                            <button style="color: white;background: green" class="btn btn-xs pull-right">
+                                                Excel <span class="fa fa-file-excel-o "></span>
+                                            </button>
+                                        </a>
+                                {% endif %}
+                                {#                                <a target="_blank" href="{{ path('statistique-liste-des-dossier-traite-par-agent-excel',{#}
+                                {#                                    'userId':user.userId,#}
+                                {#                                    'service':choix,#}
+                                {#                                    'dateDebut':dateDebut,#}
+                                {#                                    'dateFin':dateFin}) }}">#}
+                                {#                                    <button style="color: white;background: green" class="btn btn-xs pull-right">#}
+                                {#                                        Excel <span class="fa fa-file-excel-o "></span>#}
+                                {#                                    </button>#}
+                                {#                                </a>#}
 
                             </td>
                         </tr>
@@ -102,29 +133,38 @@
                     </tfoot>
                 </table>
             {% elseif choix==4 %}
+                <a target="_blank"
+                   href="{{ path('statistique-greffe-excel',
+                       {    'userid':0,
+                           'dateCreationDebut':dateDebut|date('d-m-Y'),
+                           'dateCreationFin':dateDebut|date('d-m-Y')}) }}">
+                    <button type="button" class="pull-right btn btn-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i> {{ "generer_excel"|trans }}
+                    </button>
+                </a>
                 <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
                     <tr>
                         <th>N&deg;</th>
-                        <th>Num.dossier</th>
+                        <th>Numéro Dossier</th>
                         <th>Dénomination</th>
                         <th>Forme juridique</th>
-                        <th>Date cr&eacute;ation dossier</th>
-                        <th>Agent de Saisie</th>
+                        <th>Date cr&eacute;ation</th>
+                        <th>Date réception</th>
+                        <th>Date de délivrance</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for d in userListe['rccmTraiter'] %}
+                    {% for d in userListe['rapportTraitement'] %}
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td>{{ d.numeroDossier }}</td>
                             <td>{{ d.denominationSociale }}</td>
                             <td>{{ d.libelle }}</td>
                             <td>{{ d.dateCreation|date('d/m/Y') }}</td>
-                            <td>
-                                {{ monServices.getUserById(d.idUserSaisi)==null?'':monServices.getUserById(d.idUserSaisi).nom~' '~monServices.getUserById(d.idUserSaisi).prenom }}
-                               ( {{ monServices.getUserById(d.idUserSaisi)==null?'':monServices.getUserById(d.idUserSaisi).username }})
-                            </td>
+                            <td>{{ d.dateSaisie|date('d/m/Y') }}</td>
+                            <td>{{ d.dateImatriculation|date('d/m/Y') }}</td>
+
                         </tr>
                     {% else %}
                         <tr>
@@ -135,6 +175,15 @@
                     </tbody>
                 </table>
             {% elseif choix==5 %}
+                <a target="_blank"
+                   href="{{ path('statistique-dossier-retirer-excel',
+                       {
+                           'dateCreationDebut':dateDebut|date('d-m-Y'),
+                           'dateCreationFin':dateFin|date('d-m-Y')}) }}">
+                    <button type="button" class="pull-right btn btn-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i> {{ "generer_excel"|trans }}
+                    </button>
+                </a>
                 <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
                     <thead>
                     <tr>
@@ -147,7 +196,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for d in userListe['dossierRetirer'] %}
+                    {% for d in userListe['statDossierRetirer'] %}
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td>{{ d.numeroDossier }}</td>

@@ -37,9 +37,20 @@
 
         </div>
     </div>
+
    <div class="row">
+
        <div class="table-responsive">
+
            <table  border="3" id="datatable" class="table vtable table-hover table-overview table-striped table-condensed table-bordered">
+               <a class="pull-left" target="_blank" href="{{ path('statistique-generale-dossier-en-circuit-excel-excel',
+                   {
+                       'dateDebut':dateDebut|date('d-m-Y'),
+                       'dateFin':dateFin|date('d-m-Y')}) }}">
+                   <button type="button" class="pull-right btn btn-success btn-sm">
+                       <i class="fa fa-file-excel-o"></i> {{"generer_excel"|trans}}
+                   </button>
+               </a>
                <thead class="mystyle">
                <tr class="border-l">
                    <th class="mystyle td1"  rowspan="2">Dénomination</th>
@@ -52,7 +63,7 @@
                    <th class="mystyle td1" class="text-center" colspan="2">NIF</th>
                    <th class="mystyle td1" class="text-center" colspan="2">RCCM</th>
                    <th class="mystyle td1" style="border-left: 1px solid whitesmoke"  rowspan="2">Retrait</th>
-                   <th class="mystyle td1" rowspan="2">Drée en Jours</th>
+                   <th class="mystyle td1" rowspan="2">Durée en Jours</th>
                </tr>
                <tr>
                    <th class="mystyle td1" >Logique</th>

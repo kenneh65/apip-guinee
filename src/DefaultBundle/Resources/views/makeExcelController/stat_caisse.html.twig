@@ -81,9 +81,8 @@
             {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}numero_quittance{%endtrans%}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}message_montant{%endtrans%}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}denomination{%endtrans%}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}type_dossier{%endtrans%}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}forme_juridique{%endtrans%}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}structure_appartenance{%endtrans%}{% endxlscell %}
+            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}Date de création{%endtrans%}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}date_paiement{%endtrans%}{% endxlscell %}
         {% endxlsrow %}
         {% for ls in listQuittance %}
@@ -92,10 +91,9 @@
                 {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
                 {% xlscell %}{{ ls.numeroQuittance}}{% endxlscell %}
                 {% xlscell %}{{ ls.montantVerse|number_format(0, '.', '  ')}}{% endxlscell %}
-                {% xlscell %}{{ ls.denominationSociale}}{% endxlscell %}
-                {% xlscell %}{{ ls.typeDossier}}{% endxlscell %}
-                {% xlscell %}{{ ls.libelleFormeJ}}{% endxlscell %}
-                {% xlscell %}{{ ls.entreprise|raw}}{% endxlscell %}
+                {% xlscell %}{{ ls.libelle|raw}}{% endxlscell %}
+                {% xlscell %}{{ ls.denominationSociale|raw}}{% endxlscell %}
+                {% xlscell %}{% if ls.dateCreation %}{{ ls.dateCreation|date('d-m-Y') }}{% endif %}{% endxlscell %}
                 {% xlscell %}{% if ls.datePaiement %}{{ ls.datePaiement|date('d-m-Y') }}{% endif %}{% endxlscell %}
 
             {% endxlsrow %}

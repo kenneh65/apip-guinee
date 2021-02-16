@@ -117,6 +117,9 @@
                         <li>
                             <a href="{{path('lister_depot_Modification')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_depot_Modification{%endtrans%}</a>
                         </li>
+                        <li>
+                            <a href="{{path('statistique-liste-des-dossier-deposer-par-agent')}}"><i class="fa fa-fw fa-line-chart"></i> &nbsp;&nbsp;{%trans%}Rapport des dépôts{%endtrans%}</a>
+                        </li>
                     {% elseif profilName=="saisi" %}
 
                         <li>
@@ -126,7 +129,7 @@
                             <a href="{{path('suivreDossier')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}suivre_dossier{%endtrans%}</a>
                         </li>
                         <li>
-                            <a href="{{path('statistique-dossier-saisie-journaliere')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}Dossiers saisis{%endtrans%}</a>
+                            <a href="{{path('statistique-dossier-saisie-journaliere')}}"><i class="fa fa-fw fa-line-chart"></i> &nbsp;&nbsp;{%trans%}Rapport de saisis{%endtrans%}</a>
                         </li>
                     {% elseif app.user.profile.description=="Service retrait" %}
 
@@ -138,6 +141,9 @@
                         </li>
                         <li>
                             <a href="{{path('lister_retirer')}}"><i class="fa fa-fw fa-folder-open"></i> &nbsp;&nbsp;{%trans%}lister_retirer{%endtrans%}</a>
+                        </li>
+                        <li>
+                            <a href="{{path('statistique-liste-des-dossier-retirer-par-agent')}}"><i class="fa fa-fw fa-line-chart"></i> &nbsp;&nbsp;{%trans%}Rapport de dossiers retire&eacute;s{%endtrans%}</a>
                         </li>
                     {% elseif profilName=="help" %}
                         <li>
@@ -198,6 +204,9 @@
                 <li>
                     <a href="{{path('repartition_encaissement')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}repartition_des_encaissement{%endtrans%}</a>
                 </li>
+                <li>
+                    <a href="{{path('statistique-liste-des-dossier-quittancer-par-agent')}}"><i class="fa fa-line-chart"></i>&nbsp;&nbsp; {%trans%}Rapport de quittances{%endtrans%}</a>
+                </li>
             </ul>
         </li>
     {%endif%}
@@ -221,7 +230,10 @@
 					<li>
 						<a href="{{path('gestion_caisse_pole')}}"><i class="fa fa-money"></i>&nbsp;&nbsp; {%trans%}recapitulatif_paiement{%endtrans%}</a>
 					</li>
-					{%endif%}				 
+                         <li>
+                             <a href="{{path('statistique-liste-des-dossier-immatrucler-par-agent')}}"><i class="fa fa-line-chart"></i>&nbsp;&nbsp; {%trans%}Rapport de dossiers immatriculés{%endtrans%}</a>
+                         </li>
+                     {%endif%}
 				</ul>
 			</li>		
 		{% else %}		
@@ -231,9 +243,7 @@
 					<li>
 						<a href="{{path('dossierAValiderChefGreffe')}}"><i class="fa fa-folder-open"></i>&nbsp;&nbsp; {%trans%}dossiers_a_valider{%endtrans%}</a>
 					</li> 
-					<li>
-						<a href="{{path('dossierValideChefGreffe',{'idS':2})}}"><i class="fa fa-folder"></i>&nbsp;&nbsp; {%trans%}dossiers_valides{%endtrans%}</a>
-					</li>									
+
 				</ul>
 			</li>
 		{% endif %}

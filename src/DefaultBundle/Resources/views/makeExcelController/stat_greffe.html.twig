@@ -80,13 +80,11 @@
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Numéro Dossier' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Dénomination' }}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{ 'Forme juridique' }}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}type_dossier{%endtrans %}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{{'structure_appartenance'|trans}}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}premier_gerant{%endtrans %}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}agent_saisi{%endtrans %}{% endxlscell %}
+{#            {% xlscell  { style: { font: { size: '18' } } } %}{%trans%}type_dossier{%endtrans %}{% endxlscell %}#}
+{#            {% xlscell  { style: { font: { size: '18' } } } %}{{'structure_appartenance'|trans}}{% endxlscell %}#}
+            {% xlscell  { style: { font: { size: '18' } } } %}{{'Date création'|trans}}{% endxlscell %}\
             {% xlscell  { style: { font: { size: '18' } } } %}{{'date_reception'|trans}}{% endxlscell %}
             {% xlscell  { style: { font: { size: '18' } } } %}{{'date_delivrance'|trans}}{% endxlscell %}
-            {% xlscell  { style: { font: { size: '18' } } } %}{{'duree_traitement'|trans}}{% endxlscell %}
 
         {% endxlsrow %}
         {% for ls in liste %}
@@ -94,14 +92,10 @@
                 {% xlscell %}{{loop.index}}{% endxlscell %}
                 {% xlscell %}{{ ls.numeroDossier}}{% endxlscell %}
                 {% xlscell %}{{ ls.denominationSociale}}{% endxlscell %}
-                {% xlscell %}{{ ls.libelleFormeJ}}{% endxlscell %}
-                {% xlscell %}{{ ls.typDossier}}{% endxlscell %}
-                {% xlscell %}{{ ls.structure}}{% endxlscell %}
-                {% xlscell %}{{ ls.gerant}}{% endxlscell %}
-                {% xlscell %}{{ ls.agentSaisi}}{% endxlscell %}
-                {% xlscell %}{{ ls.dateSoumission|date('d-m-Y H:i:s')}}{% endxlscell %}
-                {% xlscell %}{{ ls.dateDelivrance|date('d-m-Y H:i:s')}}{% endxlscell %}
-                {% xlscell %}{{ ls.duree}}{% endxlscell %}
+                {% xlscell %}{{ ls.libelle}}{% endxlscell %}
+                {% xlscell %}{{ ls.dateCreation|date('d-m-Y H:i:s')}}{% endxlscell %}
+                {% xlscell %}{{ ls.dateSaisie|date('d-m-Y H:i:s')}}{% endxlscell %}
+                {% xlscell %}{{ ls.dateImatriculation|date('d-m-Y H:i:s')}}{% endxlscell %}
             {% endxlsrow %}
         {% endfor %}
     {% endxlssheet %}
