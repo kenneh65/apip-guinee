@@ -15,6 +15,30 @@ use DefaultBundle\Entity\ServiceJurique;
  */
 class ServiceJuriqueController extends Controller
 {
+        /**
+     * Creates a new servicejurique entity.
+     *
+     * @Route("/verification-conformite-des-statuts-sarl-sarlu", name="verification-conformite-des-statuts-sarl-sarlu")
+     * @Method({"GET", "POST"})
+     */
+    public function newAction(Request $request)
+    {
+        $serviceJurique = new Detailreservation();
+        $form = $this->createForm('DefaultBundle\Form\ServiceJuriqueType', $serviceJurique);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($serviceJurique);
+            $em->flush();
+            return $this->redirectToRoute('servicejurique_index', []);
+        }
+
+        return $this->render('detailreservation/new.html.twig', array(
+            'detailreservation' => $detailreservation,
+            'form' => $form->createView(),
+        ));
+    }
     /**
      * Lists all ServiceJurique entities.
      *

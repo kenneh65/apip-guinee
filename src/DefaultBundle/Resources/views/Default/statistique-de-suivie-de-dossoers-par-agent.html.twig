@@ -8,9 +8,9 @@
         {% elseif choix==3 %}
             <h1>Statistique de dossiers saisis par agent</h1><br>
         {% elseif choix==4 %}
-            <h1>Liste des dossiers immatricul&eacute;s</h1><br>
+            <h1>Liste des dossiers immatricul&eacute;s totale ({{userListe['rccmTraiter']|length}})</h1><br>
         {% elseif choix==5 %}
-            <h1>Liste des dossiers retires</h1><br>
+            <h1>Liste des dossiers retires totale ({{userListe['dossierRetirer']|length}})</h1><br>
         {% else %}
             <h1>Statistique de suivi de dossiers</h1><br>
         {% endif %}
