@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>ServiceJurique list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Denominationcommercial</th>
+                <th>Ispiecesidentite</th>
+                <th>Isdenomination</th>
+                <th>Isconformitejuridique</th>
+                <th>Iscapital</th>
+                <th>Isduree</th>
+                <th>Isactivites</th>
+                <th>Remarqueverificateur</th>
+                <th>Dateverification</th>
+                <th>Iscreated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for serviceJurique in serviceJuriques %}
+            <tr>
+                <td><a href="{{ path('servicejurique_show', { 'id': serviceJurique.id }) }}">{{ serviceJurique.id }}</a></td>
+                <td>{{ serviceJurique.denominationCommercial }}</td>
+                <td>{% if serviceJurique.isPiecesIdentite %}Yes{% else %}No{% endif %}</td>
+                <td>{% if serviceJurique.isDenomination %}Yes{% else %}No{% endif %}</td>
+                <td>{% if serviceJurique.isConformiteJuridique %}Yes{% else %}No{% endif %}</td>
+                <td>{% if serviceJurique.isCapital %}Yes{% else %}No{% endif %}</td>
+                <td>{% if serviceJurique.isDuree %}Yes{% else %}No{% endif %}</td>
+                <td>{% if serviceJurique.isActivites %}Yes{% else %}No{% endif %}</td>
+                <td>{{ serviceJurique.remarqueVerificateur }}</td>
+                <td>{{ serviceJurique.dateVerification }}</td>
+                <td>{% if serviceJurique.isCreated %}Yes{% else %}No{% endif %}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('servicejurique_show', { 'id': serviceJurique.id }) }}">show</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    
+{% endblock %}

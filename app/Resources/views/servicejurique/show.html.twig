@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>ServiceJurique</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ serviceJurique.id }}</td>
+            </tr>
+            <tr>
+                <th>Denominationcommercial</th>
+                <td>{{ serviceJurique.denominationCommercial }}</td>
+            </tr>
+            <tr>
+                <th>Ispiecesidentite</th>
+                <td>{% if serviceJurique.isPiecesIdentite %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Isdenomination</th>
+                <td>{% if serviceJurique.isDenomination %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Isconformitejuridique</th>
+                <td>{% if serviceJurique.isConformiteJuridique %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Iscapital</th>
+                <td>{% if serviceJurique.isCapital %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Isduree</th>
+                <td>{% if serviceJurique.isDuree %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Isactivites</th>
+                <td>{% if serviceJurique.isActivites %}Yes{% else %}No{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Remarqueverificateur</th>
+                <td>{{ serviceJurique.remarqueVerificateur }}</td>
+            </tr>
+            <tr>
+                <th>Dateverification</th>
+                <td>{{ serviceJurique.dateVerification }}</td>
+            </tr>
+            <tr>
+                <th>Iscreated</th>
+                <td>{% if serviceJurique.isCreated %}Yes{% else %}No{% endif %}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('servicejurique_index') }}">Back to the list</a>
+        </li>
+    </ul>
+{% endblock %}
