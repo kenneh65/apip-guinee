@@ -1,3 +1,7 @@
+default_service_jurique:
+    resource: "@DefaultBundle/Controller/ServiceJuriqueController.php"
+    type:     annotation
+
 default_detailreservation:
     resource: "@DefaultBundle/Controller/DetailreservationController.php"
     type:     annotation

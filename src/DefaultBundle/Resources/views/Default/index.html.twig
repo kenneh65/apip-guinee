@@ -308,9 +308,6 @@
                     </a>
                 </div>
             </div>
-
-
-
             <div class="col-lg-4 col-md-6">
                 <div class="panel panel-info">
                     <div class="panel-heading">
@@ -335,7 +332,6 @@
                     </a>
                 </div>
             </div>
-
 
         {% endif %}
         {% if is_granted('ROLE_CREATEUR') and not is_granted('ROLE_ADMIN') %}
@@ -591,7 +587,139 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <i class="fa fa-pie-chart"></i> Statistique Journali&egrave;re
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{path('statistique-journaliere-des-dossiers')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Statistique circuit dossier
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                            <a target="_blank" href="{{path('statistique-generale-dossier-en-circuit')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Statistique generale sur le délais de traitement
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-user"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"></div>
+                                        <div>Gestion des utilisateurs</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{path('utilisateurs_index')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Liste des utilisateurs
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-users fa-2x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{ path('statistique_de_suivie_de_dossoers_par_agent') }}">
+                                <div class="panel-footer">
+                                    <span class="pull-left">
+                                     Statistiques de traitement de dossiers par agent
+                                    </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="panel panel-warning">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    {#                                    <div class="col-xs-3">#}
+                                    {#                                        <i class="fa fa-edit fa-5x"></i>#}
+                                    {#                                    </div>#}
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"></div>
+                                        <div>Circuit de dossier</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a target="_blank" href="{{path('searche-folder-to-move')}}">
+                                <div class="panel-footer">
+                        <span class="pull-left">
+                            Envoyer un dossier pour la  modification
+                        </span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="panel panel-danger">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-recycle"></i>
+                                    </div>
+                                    <div style="color:black;" class="col-xs-3 text-center">
+                                        {% trans %}Relance {% endtrans %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <div class="row">
+                                    <a target="_blank" href="{{ path('historique-envoi-rccm-dni') }}"
+                                       style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
+
+                                        <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
+                                        <font class="pull-right"
+                                              style="color: red;font-weight: bold;margin-right: 15px">
+                                            <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
+                                        </font>
+                                        <div class="clearfix"></div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-12 col-md-6">
                         <div class="panel panel-primary">
                             <div class="panel-heading">
                                 <div class="row">
@@ -643,113 +771,10 @@
                             </a>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-9">
-                                        <i class="fa fa-pie-chart"></i> Statistique Journali&egrave;re
-                                    </div>
-                                </div>
-                            </div>
-                            <a target="_blank" href="{{path('statistique-journaliere-des-dossiers')}}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Statistique circuit dossier
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                            <a target="_blank" href="{{path('statistique-generale-dossier-en-circuit')}}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Statistique generale sur le délais de traitement
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
 
-                    </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="panel panel-warning">
-                            <div class="panel-heading">
-                                <div class="row">
-{#                                    <div class="col-xs-3">#}
-{#                                        <i class="fa fa-edit fa-5x"></i>#}
-{#                                    </div>#}
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div>Circuit de dossier</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a target="_blank" href="{{path('searche-folder-to-move')}}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Envoyer un dossier pour la  modification
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="panel panel-danger">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <i class="fa fa-recycle"></i>
-                                    </div>
-                                    <div style="color:black;" class="col-xs-3 text-center">
-                                        {% trans %}Relance {% endtrans %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-                                <div class="row">
-                                    <a target="_blank" href="{{ path('historique-envoi-rccm-dni') }}"
-                                       style="font-size: 10pt;font-weight: bold ;margin-left: 5px">
 
-                                        <button class="btn-link" type="submit">  {{ 'RCCM non envoyer' }}</button>
-                                        <font class="pull-right"
-                                              style="color: red;font-weight: bold;margin-right: 15px">
-                                            <button class="btn-link" type="submit">{{ historiqueRccms }}</button>
-                                        </font>
-                                        <div class="clearfix"></div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
 
-                    </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <div class="row">
-                                                                        <div class="col-xs-3">
-                                                                            <i class="fa fa-user"></i>
-                                                                        </div>
-                                    <div class="col-xs-9 text-right">
-                                        <div class="huge"></div>
-                                        <div>Gestion des utilisateurs</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a target="_blank" href="{{path('utilisateurs_index')}}">
-                                <div class="panel-footer">
-                        <span class="pull-left">
-                            Liste des utilisateurs
-                        </span>
-                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+
                 {% else %}
                     {% if app.user.profile and "saisi"|lower not in app.user.profile.description|lower %}
                         <div class="col-lg-4 col-md-6">
