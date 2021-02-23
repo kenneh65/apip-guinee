@@ -1,0 +1,75 @@
+{%extends '::base.html.twig'%}
+{% block title %}{%trans%}Liste des dossiers validés{%endtrans%}{% endblock %}
+{%block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
+{%endblock %}
+{%block body %}
+    <div class="row">
+        {% for message in app.session.flashbag.get('error') %}
+            <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                {{ 'SERVICE JURIDIQUE' }}
+            </h1>
+            <div class="row well">
+                <form action="{{ path('liste-des-dossiers-valider') }}" method="post">
+                    <div class="col-lg-3">
+                        Dénomination <input value="{{ nomCommercial }}" placeholder="Dénomination / Nom commercial" name="nomCommercial"
+                                  class="form-control input-sm" type="text">
+                    </div>
+                    <div class="col-lg-3">
+                        Du <input value="{{ dateDebut }}" placeholder="Date debut" name="dateDebut"
+                                  class="form-control input-sm" type="date">
+                    </div>
+                    <div class="col-lg-3">
+                        au <input value="{{ dateFin }}" placeholder="Date fin" name="dateFin"
+                                  class="form-control input-sm" type="date">
+                    </div>
+                    <div class="col-lg-3"><br>
+                        <button type="submit" class="btn  col-lg-3 btn-block btn-info">Rechercher</button>
+                    </div>
+                </form>
+            </div>
+            <ol class="breadcrumb">
+                <li class="active">
+                    <i class="fa fa-dashboard"></i> {%trans%}Liste des dossiers valid&eacute;s{%endtrans%}
+                </li>
+            </ol>
+        </div>
+    </div>
+        <div class="">
+        <div class="table-responsive">
+            <table id="dossiers" class="table table-responsive table-hover table-condensed table-bordered">
+                <thead>
+                <tr>
+                    <th>N&deg;</th>
+                    <th>Dénomination sociale</th>
+                    <th>Date v&eacute;rification</th>
+                    <th>Statut</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for serviceJurique in serviceJuriques %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ serviceJurique.denominationCommercial }}</td>
+                        <td>{{ serviceJurique.dateVerification|date('d-m-Y H:i:s') }}</td>
+                        <td>{% if serviceJurique.isCreated %}Oui{% else %}En cours{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {# Display navigation #}
+            <div class="navigation">
+                {{ knp_pagination_render(serviceJuriques) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{%block javascripts %}
+    {{parent()}}
+{% endblock %}

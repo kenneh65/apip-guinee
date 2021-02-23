@@ -1,0 +1,158 @@
+{% extends '::base.html.twig' %}
+{% block title %}{% trans %}Vérification et validation d'un statut{% endtrans %}{% endblock %}
+{% block active %}
+    {{ render(controller("DefaultBundle:Default:menuAdmin",{'active':1})) }}
+{% endblock %}
+{% block body %}
+    <div class="row">
+        {% for message in app.session.flashbag.get('error') %}
+            <div class="col-lg-12 text-center m-t-md alert alert-danger fade in">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ message }}</strong>
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-12">
+                {% for flashMessage in app.session.flashbag.get('successSMS') %}
+                    <div style="color: white;background:green"
+                         class="alert alert-message-warning text-center " role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <strong>{{flashMessage|raw }} </strong>
+                    </div>
+                {% endfor %}
+                {% for flashMessage in app.session.flashbag.get('echecSMS') %}
+                    <div style="color: white;background:#ff5a2f"
+                         class="alert alert-message-warning text-center " role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <strong>{{flashMessage|raw }} </strong>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                {{ 'SERVICE JURIDIQUE' }}
+            </h1>
+            <ol class="breadcrumb">
+                <li class="active">
+                    <i class="fa fa-check"></i> {% trans %}V&eacute;rification et
+                        validation d'un statut
+                    {% endtrans %}
+                </li>
+            </ol>
+        </div>
+    </div>
+    <div class="row">
+        {{ form_start(form) }}
+        <div class="col-lg-6">
+            <div class="col-lg-12 col-md-12">
+                {{ form_label(form.denominationCommercial,'Dénomination de la société *') }}
+                {{ form_widget(form.denominationCommercial,{'attr':{'class':'form-control input-sm','placeholder':'Dénomination sociale de la société'}}) }}
+                {{ form_errors(form.denominationCommercial) }}
+                <!-- success --><br><br>
+                <label style="margin-right: " for="">Conformit&eacute; des statuts SARL/SARLU * :</label><br>
+
+                <div class="pretty p-default">
+                    <input id="checkall" class="ischeckAll" name="ischeckAll[]" type="checkbox" />
+                    <div class="state p-info">
+                        <label>Tout (cocher/décocher)</label>
+                    </div>
+                </div>
+                <br><br>
+                <div class="pretty p-default">
+                    <input required class="isPiecesIdentite checkbox" name="isPiecesIdentite[]" type="checkbox" />
+                    <div class="state p-success">
+                        <label>Pi&egrave;ces d'identit&eacute;s:</label>
+                    </div>
+                </div>
+                <br><br>
+                <!-- success -->
+                <div class="pretty p-default mb-12">
+                    <input required class="isDenomination checkbox" name="isDenomination[]" type="checkbox" />
+                    <div class="state p-success">
+                        <label>Vérification de la dénomination de la société</label>
+                    </div>
+                </div>
+                <br><br>
+                <!-- success -->
+                <div class="pretty p-default">
+                    <input id="isConformiteJuridique" required class="isConformiteJuridique checkbox" name="isConformiteJuridique[]" type="checkbox"
+                           />
+                    <div class="state p-success">
+                        <label>Conformit&eacute; de la forme juridique</label>
+                    </div>
+                </div>
+                <br><br>
+
+                <!-- success -->
+                <div class="pretty p-default">
+                    <input required class="isCapital checkbox" name="isCapital[]" type="checkbox" />
+                    <div class="state p-success">
+                        <label>Le capital de la soci&eacute;t&eacute; et la r&eacute;partition des parts
+                            sociales</label>
+                    </div>
+                </div>
+                <br><br>
+
+                <!-- success -->
+                <div class="pretty p-default">
+                    <input required class="isDuree checkbox" name="isDuree[]" type="checkbox" />
+                    <div class="state p-success">
+                        <label>La dur&eacute;e de la soci&eacute;t&eacute;</label>
+                    </div>
+                </div>
+                <br><br>
+
+                <!-- success -->
+                <div class="pretty p-default">
+                    <input required class="isActivites checkbox" name="isActivites[]" type="checkbox" />
+                    <div class="state p-success">
+                        <label>Objets/activit&eacute;s</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            {{ form_label(form.remarqueVerificateur,'Rémarque') }}
+            {{ form_widget(form.remarqueVerificateur,{'attr':{'class':'form-control remarqueVerificateur input-sm','placeholder':'Rémarque du vérificateur service juridique'}}) }}
+            {{ form_errors(form.remarqueVerificateur) }}
+            <br>
+            <input class="btn btn-success btn-block pull-right" type="submit" value="Valider"/>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+    <script type="text/javascript" src="{{ asset('js/jquery-3.2.1.js') }}"></script>
+    <script type='text/javascript'>
+        $(document).ready(function(){
+            // Check or Uncheck All checkboxes
+            $("#checkall").change(function(){
+                var checked = $(this).is(':checked');
+                if(checked){
+                    $(".checkbox").each(function(){
+                        $(this).prop("checked",true);
+                    });
+                }else{
+                    $(".checkbox").each(function(){
+                        $(this).prop("checked",false);
+                    });
+                }
+            });
+
+            // Changing state of CheckAll checkbox
+            $(".checkbox").click(function(){
+
+                if($(".checkbox").length == $(".checkbox:checked").length) {
+                    $("#checkall").prop("checked", true);
+                } else {
+                    $("#checkall").removeAttr("checked");
+                }
+
+            });
+        });
+    </script>
+{% endblock %}

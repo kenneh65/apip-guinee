@@ -394,7 +394,6 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        // die(dump('ok'));
         $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         if (is_object($user) && $user->getFirstLog()) {
@@ -409,7 +408,6 @@ class DefaultController extends Controller
         $historiqueRccms = $em->getRepository('DefaultBundle:HistoriqueEchangeDNI')->historiqueRccm(null, null, null, null);
         $nifTraite = $em->getRepository('BanquemondialeBundle:Nif')->findAll();
         $rccmTraite = $em->getRepository('BanquemondialeBundle:Rccm')->findAll();
-
         $depot = false;
         $retrait = false;
         $nbreDocRetrait = 0;
@@ -417,7 +415,6 @@ class DefaultController extends Controller
         $nbreDocRetirer = 0;
         $nbreDocDepot = 0;
         $nbreDocDepotModification = 0;
-
         $poleAPIP = $em->getRepository('ParametrageBundle:Pole')->getPoleBySige("APIP");
         if ($user->getProfile()) {
             $profil = $user->getProfile()->getDescription();
@@ -464,11 +461,13 @@ class DefaultController extends Controller
         $NombreTotalEnattenteSaisiiInterfaceDGA = 0;
         $NombreTotalEnattenteImmatriculationInterfaceDGA = 0;
         $NombreTotalEnattenteModificationInterfaceDGA = 0;
-
         $totalNomcommercialReserver = 0;
         $totalNomcommercialReserverEncourExpiration = 0;
         $totalNomcommercialReserverEncourExpirer = 0;
         $getJour = 5;
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SERVICE_JURIDIQUE')){
+            return $this->redirectToRoute('servicejurique_index');
+        }
         if ($pole && $pole->getSigle() == "AL") {
             $dossierEnCours = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierAnnonceurEncours($user);
             $dossiersDelivre = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierAnnonceurDelivre($user);
@@ -488,7 +487,8 @@ class DefaultController extends Controller
             }
             $nbreDocEnCours = count($dossierEnCours);
             $nbreDocDelivre = count($dossiersDelivre);
-        } else if ($pole && strtolower($user->getProfile()->getDescription()) != "gec") {
+        }
+        else if ($pole && strtolower($user->getProfile()->getDescription()) != "gec") {
             $dossierEnCours = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEncours($user);
             $dossiersDelivre = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierDelivre($user);
             $dossiersModifie = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierModifie($user);
@@ -507,7 +507,8 @@ class DefaultController extends Controller
                 $dossiershelp = $em->getRepository('BanquemondialeBundle:DossierDemande')->getNbreDossierHelpDesk($user->getEntreprise()->getId(), $isSiege);
                 $nbreDocSuivi = count($dossiershelp);
             }
-        } else if ($pole && strtolower($user->getProfile()->getDescription()) == "gec") {
+        }
+        else if ($pole && strtolower($user->getProfile()->getDescription()) == "gec") {
             $dossierAValiderGreffe = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierGreffeAValider($user);
             $dossierValideGreffe = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierGreffeValide($user);
 
@@ -515,14 +516,14 @@ class DefaultController extends Controller
             $nbrDocValide = count($dossierValideGreffe);
 
 
-        } else {
+        }
+        else {
             $dossiersBrouillon = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierBrouillon($user);
             $dossiersSuivi = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierSuivi($user);
 
             $nbreDocBrouillon = count($dossiersBrouillon);
             $nbreDocSuivi = count($dossiersSuivi);
         }
-
         $statistique = 0;
         $listeNbreDossierEncoursByPole = null;
         $listeNbreDossierDelivreByPole = null;
@@ -561,14 +562,11 @@ class DefaultController extends Controller
             $NombreTotalEnattenteImmatriculationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGA();
             $NombreTotalEnattenteModificationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteModificationDGA();
         }
-
-//       die(dump($this->getUser()->getUsername()));
         if ($this->getUser()->getUsername() == 'sidibesuperviseur') {
             $NombreTotalEnattenteSaisiiInterfaceDGA = $em->getRepository('BanquemondialeBundle:DossierDemande')->findDossierEnAttenteSaisiInterfaceDGA([], null, null)['ResultqueryattSaisie'];
             $NombreTotalEnattenteImmatriculationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteImmatriculationDGA();
             $NombreTotalEnattenteModificationInterfaceDGA = $em->getRepository('BanquemondialeBundle:DocumentCollected')->findDossierEnAttenteModificationDGA();
         }
-
         return $this->render($view, array(
             'nbreDocEnCours' => $nbreDocEnCours,
             'StatNbreDossierBYPole' => $listeNbreDossierEncoursByPole,

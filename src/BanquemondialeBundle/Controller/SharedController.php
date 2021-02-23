@@ -412,7 +412,8 @@ class SharedController extends Controller {
         $form = $this->createForm(new DossierDemandeSearchType(array('langue' => $langue)));
         $form->bind($request);
         return $this->render('BanquemondialeBundle:Default:DemandeCreation/layout/dossierDepot.html.twig', array(
-            'form' => $form->createView(), 'listerdemande' => $listerdemande, 'langue' => $idLangue,
+            'form' => $form->createView(),
+            'listerdemande' => $listerdemande, 'langue' => $idLangue,
             'data'=>$data
         ));
     }

@@ -24,6 +24,11 @@ class DossierDemande
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+    /**
+     * @ORM\OneToOne(targetEntity="DefaultBundle\Entity\ServiceJurique")
+     * @ORM\JoinColumn(name="idServiceJurique", referencedColumnName="id",nullable=true)
+     */
+    private $serviceJurique;
 
     /**
      * @var bool
@@ -2004,5 +2009,28 @@ class DossierDemande
     public function getEstRetire()
     {
         return $this->estRetire;
+    }
+
+    /**
+     * Set dateSaisie
+     *
+     * @param \DateTime $dateSaisie
+     * @return DossierDemande
+     */
+    public function setDateSaisie($dateSaisie)
+    {
+        $this->dateSaisie = $dateSaisie;
+
+        return $this;
+    }
+
+    /**
+     * Get dateSaisie
+     *
+     * @return \DateTime 
+     */
+    public function getDateSaisie()
+    {
+        return $this->dateSaisie;
     }
 }

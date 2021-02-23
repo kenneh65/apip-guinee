@@ -51,7 +51,7 @@ class Rccm
 
     /**
      * @var \DateTime
-     * @ORM\Column(name="dateObtentionNif", type="date", nullable=true)
+     * @ORM\Column(name="dateObtentionNif", type="datetime", nullable=true)
      */
     private $dateObtentionRccm;
     /**

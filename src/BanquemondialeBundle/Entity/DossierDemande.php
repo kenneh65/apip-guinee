@@ -24,6 +24,11 @@ class DossierDemande
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+    /**
+     * @ORM\OneToOne(targetEntity="DefaultBundle\Entity\ServiceJurique")
+     * @ORM\JoinColumn(name="idServiceJurique", referencedColumnName="id",nullable=true)
+     */
+    private $serviceJurique;
 
     /**
      * @var bool
@@ -2027,5 +2032,28 @@ class DossierDemande
     public function getDateSaisie()
     {
         return $this->dateSaisie;
+    }
+
+    /**
+     * Set serviceJurique
+     *
+     * @param \DefaultBundle\Entity\ServiceJurique $serviceJurique
+     * @return DossierDemande
+     */
+    public function setServiceJurique(\DefaultBundle\Entity\ServiceJurique $serviceJurique = null)
+    {
+        $this->serviceJurique = $serviceJurique;
+
+        return $this;
+    }
+
+    /**
+     * Get serviceJurique
+     *
+     * @return \DefaultBundle\Entity\ServiceJurique 
+     */
+    public function getServiceJurique()
+    {
+        return $this->serviceJurique;
     }
 }

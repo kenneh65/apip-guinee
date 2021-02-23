@@ -33,7 +33,7 @@ class reservation
     /**
      * @var string
      *
-     * @ORM\Column(name="nomCommercial", type="string", length=255, unique=true)
+     * @ORM\Column(name="nomCommercial", type="string", length=255, unique=false)
      */
     private $nomCommercial;
 
@@ -127,6 +127,7 @@ class reservation
     {
         $this->detailReservation = new ArrayCollection();
         $this->dateCreation=new \DateTime();
+        $this->setStatut(true);
         $code=new monServices();
         $this->setValidationCode($code->generateCustomToken(11111111,99999999));
     }
@@ -449,5 +450,28 @@ class reservation
     public function getValidationCode()
     {
         return $this->validationCode;
+    }
+
+    /**
+     * Set statut
+     *
+     * @param boolean $statut
+     * @return reservation
+     */
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    /**
+     * Get statut
+     *
+     * @return boolean 
+     */
+    public function getStatut()
+    {
+        return $this->statut;
     }
 }

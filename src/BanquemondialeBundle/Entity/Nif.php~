@@ -83,12 +83,12 @@ class Nif
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="date", type="date", nullable=true)
+     * @ORM\Column(name="date", type="datetime", nullable=true)
      */
     private $date;
     /**
      * @var \DateTime
-     * @ORM\Column(name="dateObtentionNif", type="date", nullable=true)
+     * @ORM\Column(name="dateObtentionNif", type="datetime", nullable=true)
      */
     private $dateObtentionNif;
     /**

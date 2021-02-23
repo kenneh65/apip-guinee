@@ -12,4 +12,22 @@ use Doctrine\ORM\EntityRepository;
  */
 class ServiceJuriqueRepository extends EntityRepository
 {
+    public function getDossiersValider($motcle = null, $dateDebut = null, $dateFin = null)
+    {
+        $query = $this->createQueryBuilder('d');
+        if (!empty($motcle)) {
+            $query->where('d.denominationCommercial like :denominationSociale')
+                ->setParameter('denominationSociale', '%' . $motcle . '%');
+        }
+        if (!empty($dateDebut)) {
+            $query->andWhere('DATE_DIFF(d.dateVerification,:dateDebut)>=0')
+                ->setParameter('dateDebut', new \DateTime($dateDebut));
+        }
+        if (!empty($dateFin)) {
+            $query
+                ->andWhere('DATE_DIFF(d.dateVerification,:dateFin)<=0')
+                ->setParameter('dateFin', new \DateTime($dateFin));
+        }
+        return $query->getQuery();
+    }
 }

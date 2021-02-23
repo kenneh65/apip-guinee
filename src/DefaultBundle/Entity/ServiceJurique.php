@@ -3,11 +3,13 @@
 namespace DefaultBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 /**
  * ServiceJurique
  *
  * @ORM\Table(name="service_jurique")
+ * @UniqueEntity("denominationCommercial",message="denomination_exist")
  * @ORM\Entity(repositoryClass="DefaultBundle\Repository\ServiceJuriqueRepository")
  */
 class ServiceJurique
